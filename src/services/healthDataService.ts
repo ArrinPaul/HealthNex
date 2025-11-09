@@ -1,11 +1,13 @@
-// Real-time health data service using Convex
+// Real-time health data service using Supabase
 // This replaces the mock data with actual database queries
 
-// Uncomment after running: npx convex dev
-// import { useQuery, useMutation } from "convex/react";
-// import { api } from "../../convex/_generated/api";
+import { createClient } from "@supabase/supabase-js";
 
-// Mock data for development (remove after Convex setup)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Mock data for development (remove after Supabase setup)
 export const mockHealthData = {
   heartRate: 72,
   bloodPressure: { systolic: 120, diastolic: 80 },
@@ -41,33 +43,76 @@ export const mockAlerts = [
   },
 ];
 
-// Real-time data hooks (enable after Convex setup)
-/*
-export function useHealthData(userId: string) {
-  const data = useQuery(api.healthData.getUserHealthData, { userId });
-  return data || mockHealthData;
+// Real-time data functions
+export async function fetchHealthData(userId: string) {
+  const { data, error } = await supabase
+    .from("health_data")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching health data:", error);
+    return null;
+  }
+
+  return data;
 }
 
-export function useDiseaseData(region?: string) {
-  const data = useQuery(api.healthData.getDiseaseOutbreaks, { region });
-  return data || mockDiseaseData;
+export async function fetchDiseaseData(region?: string) {
+  const query = supabase.from("disease_outbreaks").select("*");
+
+  if (region) {
+    query.eq("region", region);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching disease data:", error);
+    return [];
+  }
+
+  return data;
 }
 
-export function useAlerts(userId: string) {
-  const data = useQuery(api.healthData.getUserAlerts, { userId });
-  return data || mockAlerts;
+export async function fetchAlerts(userId: string) {
+  const { data, error } = await supabase
+    .from("alerts")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error("Error fetching alerts:", error);
+    return [];
+  }
+
+  return data;
 }
 
-export function useAddHealthData() {
-  return useMutation(api.healthData.addHealthData);
+export async function addHealthData(data: any) {
+  const { error } = await supabase.from("health_data").insert([data]);
+
+  if (error) {
+    console.error("Error adding health data:", error);
+    return { success: false };
+  }
+
+  return { success: true };
 }
 
-export function useReportDisease() {
-  return useMutation(api.healthData.reportDisease);
-}
-*/
+export async function reportDisease(data: any) {
+  const { error } = await supabase.from("disease_outbreaks").insert([data]);
 
-// Development exports (remove after Convex setup)
+  if (error) {
+    console.error("Error reporting disease:", error);
+    return { success: false };
+  }
+
+  return { success: true };
+}
+
+// Development exports (remove after Supabase setup)
 export const useHealthData = (userId: string) => mockHealthData;
 export const useDiseaseData = (region?: string) => mockDiseaseData;
 export const useAlerts = (userId: string) => mockAlerts;

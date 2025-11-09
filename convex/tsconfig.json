@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
@@ -9,6 +8,6 @@
     "allowJs": false,
     "strict": false
   },
-  "include": ["convex/**/*"],
-  "exclude": ["convex/_generated"]
+  "include": ["*.ts"],
+  "exclude": ["_generated"]
 }

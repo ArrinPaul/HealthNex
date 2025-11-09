@@ -45,8 +45,8 @@ if (fs.existsSync(envPath)) {
   
   const requiredVars = [
     'JWT_SECRET',
-    'NEXT_PUBLIC_CONVEX_URL',
-    'GEMINI_API_KEY'
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY'
   ];
   
   const optionalVars = [
@@ -61,13 +61,13 @@ if (fs.existsSync(envPath)) {
       log('red', `❌ ${varName}: Missing`);
     }
   });
-  
+
   console.log('\n📋 Optional Environment Variables:');
   optionalVars.forEach(varName => {
     if (process.env[varName]) {
-      log('green', `✅ ${varName}: Configured`);
+      log('yellow', `⚠️ ${varName}: Configured`);
     } else {
-      log('yellow', `⚠️  ${varName}: Not set (optional)`);
+      log('gray', `ℹ️ ${varName}: Not Configured`);
     }
   });
   
