@@ -31,8 +31,17 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      data: waterQualityData,
-      riskLevel,
+      waterQuality: {
+        pH: waterQualityData.ph,
+        turbidity: waterQualityData.turbidity,
+        chlorine: waterQualityData.chlorine,
+        riskLevel
+      },
+      weather: {
+        temperature: 300,
+        humidity: 65,
+        condition: 'Clear'
+      },
       alerts,
       recommendations: [
         'Regular water quality monitoring recommended',
@@ -67,7 +76,10 @@ export async function POST(request: NextRequest) {
       status: 'analyzed'
     };
 
-    return NextResponse.json({ analysis });
+    return NextResponse.json({ 
+      analysis,
+      recommendations: analysis.aiRecommendations 
+    });
   } catch (error) {
     return NextResponse.json(
       { error: 'Analysis failed' },

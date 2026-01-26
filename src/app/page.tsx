@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Activity, Droplet, Bell, Shield, BarChart, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
-// import AIChatbot from '@/components/AIChatbot';
-// import AISuggestions from '@/components/AISuggestions';
+import AIChatbot from '@/components/AIChatbot';
+import AISuggestions from '@/components/AISuggestions';
 
 export default function Home() {
   const router = useRouter();
@@ -188,8 +188,7 @@ export default function Home() {
               <p className="text-muted-foreground mb-6">
                 Personalized health recommendations and preventive care suggestions based on AI analysis.
               </p>
-              {/* <AISuggestions /> */}
-              <p className="text-sm text-muted-foreground">AI Suggestions temporarily disabled</p>
+              <AISuggestions />
             </div>
           </div>
         </div>
@@ -212,7 +211,7 @@ export default function Home() {
       </footer>
 
       {/* Floating Action Button for Chatbot */}
-      {/* <AIChatbot /> */}
+      <AIChatbot />
     </div>
   );
 }

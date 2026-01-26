@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-// import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,11 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Upload, MessageSquare, Droplet, AlertCircle } from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 export default function CommunityReportsPage() {
-  // const { t } = useTranslation(); // Removed for SSR compatibility
-  const t = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const reports = useQuery(api.communityReports.getReports);
+  const createReport = useMutation(api.communityReports.createReport);
+
   const [formData, setFormData] = useState({
     name: '',
     location: '',
@@ -27,16 +31,31 @@ export default function CommunityReportsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert('Report submitted successfully! Health officials will review it shortly.');
+    try {
+      await createReport({
+        title: formData.issueType === 'water' ? 'Unsafe Water Source' : 'Health Issue',
+        description: formData.description,
+        category: formData.issueType,
+        location: {
+          latitude: 0, // In a real app, use geolocation
+          longitude: 0,
+          address: formData.location
+        },
+        severity: 3
+      });
+      alert(t('reportSuccess', 'Report submitted successfully!'));
       setFormData({
         name: '',
         location: '',
         issueType: 'water',
         description: ''
       });
-    }, 1000);
+    } catch (error) {
+      console.error(error);
+      alert(t('reportError', 'Failed to submit report.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const communityReports = [
@@ -201,14 +220,14 @@ export default function CommunityReportsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {communityReports.map((report) => (
-                    <Card key={report.id} className="backdrop-blur-xl bg-background/50">
+                  {reports?.map((report: any) => (
+                    <Card key={report._id} className="backdrop-blur-xl bg-background/50">
                       <CardContent className="pt-6">
                         <div className="flex items-start gap-4">
                           <div className={`p-3 rounded-lg ${
-                            report.type === 'water' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-orange-100 dark:bg-orange-900/30'
+                            report.category === 'water' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-orange-100 dark:bg-orange-900/30'
                           }`}>
-                            {report.type === 'water' ? (
+                            {report.category === 'water' ? (
                               <Droplet className="w-6 h-6 text-blue-600" />
                             ) : (
                               <AlertCircle className="w-6 h-6 text-orange-600" />
@@ -219,16 +238,16 @@ export default function CommunityReportsPage() {
                             <div className="flex items-start justify-between gap-4 mb-2">
                               <div>
                                 <h3 className="font-semibold">
-                                  {report.type === 'water' ? 'Unsafe Water Source' : 'Health Issue'}
+                                  {report.category === 'water' ? t('unsafeWaterSource') : t('healthIssue')}
                                 </h3>
                                 <p className="text-sm text-muted-foreground mt-1">
-                                  Reported by <strong>{report.reporter}</strong> • {report.location}
+                                  Reported • {report.location?.address}
                                 </p>
                               </div>
                               <Badge
                                 variant={
                                   report.status === 'Confirmed' ? 'destructive' :
-                                  report.status === 'Resolved' ? 'default' :
+                                  report.status === 'resolved' ? 'default' :
                                   'secondary'
                                 }
                               >
@@ -239,13 +258,18 @@ export default function CommunityReportsPage() {
                             <p className="text-muted-foreground mb-3">{report.description}</p>
 
                             <div className="text-sm text-muted-foreground">
-                              {new Date(report.date).toLocaleDateString()}
+                              {new Date(report.createdAt).toLocaleDateString()}
                             </div>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   ))}
+                  {reports?.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      No reports found in your community.
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

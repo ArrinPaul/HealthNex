@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ChatbotMessageSchema } from '@/lib/validations';
 
 // Process health messages using AI or predefined responses
 async function processHealthMessage(message: string, language: string): Promise<string> {
@@ -21,20 +23,19 @@ async function processHealthMessage(message: string, language: string): Promise<
     return multiLanguageResponses[language as keyof typeof multiLanguageResponses]?.emergency || multiLanguageResponses.en.emergency;
   }
   
-  // Temporarily disable Gemini API to resolve SSL issues in serverless environment
-  // Will re-enable once SSL certificates are properly configured
-  // const geminiApiKey = process.env.GEMINI_API_KEY;
-  // if (geminiApiKey && geminiApiKey !== 'your_gemini_api_key') {
-  //   try {
-  //     const aiResponse = await generateAIHealthResponse(message, language, geminiApiKey);
-  //     if (aiResponse && !aiResponse.includes('I apologize, but I cannot process')) {
-  //       return aiResponse;
-  //     }
-  //   } catch (error) {
-  //     console.error('Gemini AI error:', error);
-  //     // Continue to fallback response
-  //   }
-  // }
+  // Use Gemini API if configured
+  const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
+  if (geminiApiKey && geminiApiKey !== 'your_gemini_api_key_here') {
+    try {
+      const aiResponse = await generateAIHealthResponse(message, language, geminiApiKey);
+      if (aiResponse && !aiResponse.includes('I apologize, but I cannot process')) {
+        return aiResponse;
+      }
+    } catch (error) {
+      console.error('Gemini AI error:', error);
+      // Continue to fallback response
+    }
+  }
   
   // Default welcome message
   return multiLanguageResponses[language as keyof typeof multiLanguageResponses]?.welcome || multiLanguageResponses.en.welcome;
@@ -42,44 +43,22 @@ async function processHealthMessage(message: string, language: string): Promise<
 
 async function generateAIHealthResponse(message: string, language: string, apiKey: string): Promise<string> {
   try {
-    // Add timeout and better error handling for serverless environment
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'HealthSurveillance/1.0'
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `You are a healthcare assistant. Respond in ${language} language. User asks: "${message}". Provide helpful, accurate health information focusing on water safety, hygiene, disease prevention, and general health guidance. Keep responses concise and actionable.`
-          }]
-        }],
-        generationConfig: {
-          maxOutputTokens: 200,
-          temperature: 0.7
-        }
-      }),
-      signal: controller.signal
-    });
+    const prompt = `You are a healthcare assistant. Respond in ${language} language. User asks: "${message}". Provide helpful, accurate health information focusing on water safety, hygiene, disease prevention, and general health guidance. Keep responses concise and actionable.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
     
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I cannot process your request at the moment. Please try asking about water safety, hygiene, or general health topics.';
+    return text || 'I apologize, but I cannot process your request at the moment. Please try asking about water safety, hygiene, or general health topics.';
   } catch (error) {
     console.error('Gemini API Error:', error);
-    // Don't rethrow, return fallback instead
     return 'I apologize, but I cannot process your request at the moment. Please try asking about water safety, hygiene, or general health topics.';
   }
 }
+
 
 // Multi-language responses
 const multiLanguageResponses = {
@@ -121,49 +100,56 @@ const multiLanguageResponses = {
 };
 
 export async function POST(request: NextRequest) {
-  let body: any = {};
-  let message = '';
-  let language = 'en';
-  
   try {
-    body = await request.json();
-    message = body.message || '';
-    language = body.language || 'en';
-  } catch (parseError) {
-    console.error('JSON parse error:', parseError);
-    return NextResponse.json({
-      response: generateFallbackResponse('', 'en'),
-      category: 'error',
-      confidence: 0.1,
-      language: 'en',
-      suggestions: generateSuggestions('en'),
-      timestamp: new Date().toISOString()
-    });
-  }
-  
-  try {
-    // Process message directly using AI (Google Gemini)
-    const response = await processHealthMessage(message, language);
+    const json = await request.json();
+    const result = ChatbotMessageSchema.safeParse(json);
     
-    return NextResponse.json({
-      response: response,
-      category: 'health',
-      confidence: 0.9,
-      language,
-      suggestions: generateSuggestions(language),
-      timestamp: new Date().toISOString()
+    if (!result.success) {
+      return NextResponse.json({ 
+        error: 'Invalid request data', 
+        details: result.error.format() 
+      }, { status: 400 });
+    }
+
+    const { message, language } = result.data;
+    const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
+
+    if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
+      const fallback = await processHealthMessage(message, language);
+      return NextResponse.json({ response: fallback });
+    }
+
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `You are a healthcare assistant. Respond in ${language} language. User asks: "${message}". Provide helpful, accurate health information focusing on water safety, hygiene, disease prevention, and general health guidance. Keep responses concise and actionable.`;
+
+    const resultStream = await model.generateContentStream(prompt);
+    
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          for await (const chunk of resultStream.stream) {
+            const chunkText = chunk.text();
+            controller.enqueue(encoder.encode(chunkText));
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
     });
     
   } catch (error) {
     console.error('Chatbot API error:', error);
-    
-    return NextResponse.json({
-      response: generateFallbackResponse(message, language),
-      category: 'fallback',
-      confidence: 0.6,
-      language,
-      suggestions: generateSuggestions(language)
-    });
+    return NextResponse.json({ error: 'Failed to process message' }, { status: 500 });
   }
 }
 

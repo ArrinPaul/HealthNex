@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-// import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,13 +10,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Upload, Search, Filter } from 'lucide-react';
+import { Upload, Search, Filter, Loader2 } from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 export default function HealthDataPage() {
-  // const { t } = useTranslation(); // Removed for SSR compatibility
-  const t = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const reports = useQuery(api.healthData.getUserHealthData, { userId: "demo-user" as any });
+  const addReport = useMutation(api.healthData.addHealthData);
 
   const [formData, setFormData] = useState({
     patientName: '',
@@ -27,13 +31,57 @@ export default function HealthDataPage() {
     gender: ''
   });
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setProcessing(true);
+    const body = new FormData();
+    body.append('image', file);
+
+    try {
+      const res = await fetch('/api/ai/process-report', {
+        method: 'POST',
+        body
+      });
+      const result = await res.json();
+      if (result.data) {
+        setFormData(prev => ({
+          ...prev,
+          patientName: result.data.patientName || prev.patientName,
+          age: result.data.age || prev.age,
+          gender: result.data.gender || prev.gender,
+          symptoms: result.data.symptoms || prev.symptoms,
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Mock submission
-    setTimeout(() => {
-      setLoading(false);
-      alert('Health report submitted successfully!');
+    try {
+      await addReport({
+        userId: "demo-user" as any,
+        type: "symptom",
+        data: {
+          patientName: formData.patientName,
+          age: formData.age,
+          gender: formData.gender
+        },
+        location: {
+          latitude: 0,
+          longitude: 0,
+          address: formData.location
+        },
+        severity: 5,
+        notes: formData.symptoms
+      });
+      alert(t('reportSuccess', 'Health report submitted successfully!'));
       setFormData({
         patientName: '',
         symptoms: '',
@@ -42,7 +90,11 @@ export default function HealthDataPage() {
         age: '',
         gender: ''
       });
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const mockReports = [
@@ -150,18 +202,33 @@ export default function HealthDataPage() {
 
                   <div>
                     <Label htmlFor="upload">{t('uploadImage')} (Optional)</Label>
-                    <div className="mt-2 border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
-                      <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground">
-                        Click to upload or drag and drop
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        PNG, JPG up to 10MB
-                      </p>
+                    <div className="mt-2 relative border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer group">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileUpload}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                      />
+                      {processing ? (
+                        <div className="flex flex-col items-center">
+                          <Loader2 className="w-10 h-10 animate-spin text-primary mb-2" />
+                          <p className="text-sm font-medium">AI is analyzing report...</p>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-2 group-hover:text-primary transition-colors" />
+                          <p className="text-sm text-muted-foreground">
+                            Click to upload or drag and drop medical report
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            AI will automatically extract data from your image
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  <Button type="submit" disabled={loading} className="w-full md:w-auto">
+                  <Button type="submit" disabled={loading || processing} className="w-full md:w-auto">
                     {loading ? t('loading') : t('submit')}
                   </Button>
                 </form>
@@ -191,35 +258,40 @@ export default function HealthDataPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>ID</TableHead>
                         <TableHead>Patient</TableHead>
                         <TableHead>Symptoms</TableHead>
                         <TableHead>Location</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>Severity</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {mockReports.map((report) => (
-                        <TableRow key={report.id}>
-                          <TableCell>#{report.id}</TableCell>
-                          <TableCell>{report.patient}</TableCell>
-                          <TableCell>{report.symptoms}</TableCell>
-                          <TableCell>{report.location}</TableCell>
-                          <TableCell>{report.date}</TableCell>
+                      {reports?.map((report: any) => (
+                        <TableRow key={report._id}>
+                          <TableCell className="font-medium">{report.data?.patientName || 'Anonymous'}</TableCell>
+                          <TableCell className="max-w-xs truncate">{report.notes}</TableCell>
+                          <TableCell>{report.location?.address}</TableCell>
+                          <TableCell>{new Date(report.timestamp).toLocaleDateString()}</TableCell>
                           <TableCell>
                             <Badge
                               variant={
-                                report.status === 'Confirmed' ? 'destructive' :
-                                report.status === 'Resolved' ? 'default' :
+                                report.severity > 7 ? 'destructive' :
+                                report.severity > 4 ? 'default' :
                                 'secondary'
                               }
                             >
-                              {report.status}
+                              {report.severity}/10
                             </Badge>
                           </TableCell>
                         </TableRow>
                       ))}
+                      {reports?.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-10 text-muted-foreground">
+                            No health reports found.
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
                 </div>

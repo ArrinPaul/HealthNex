@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-// import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,23 +11,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function WaterQualityPage() {
-  // const { t } = useTranslation(); // Removed for SSR compatibility
+  const { t } = useTranslation();
   
-  // Static translations for better SSR compatibility
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'waterQuality': 'Water Quality Analysis',
-      'enterLocation': 'Enter Location or Coordinates',
-      'analyzingWater': 'Analyzing Water Quality...',
-      'analyzeWaterQuality': 'Analyze Water Quality',
-      'waterQualityResults': 'Water Quality Results',
-      'overallRating': 'Overall Rating',
-      'safeToConsume': 'Safe to Consume',
-      'needsTreatment': 'Needs Treatment',
-      'contaminated': 'Contaminated'
-    };
-    return translations[key] || key;
-  };
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);

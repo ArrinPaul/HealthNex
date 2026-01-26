@@ -1,7 +1,7 @@
 "use client";
 
 import { useSettings } from '@/contexts/SettingsContext';
-// import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,9 +22,7 @@ export default function SettingsPage() {
     setTheme
   } = useSettings();
   
-  // const { t, i18n } = useTranslation(); // Removed for SSR compatibility
-  const t = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-  const i18n = { changeLanguage: (lang: string) => setLanguage(lang) }; // Mock i18n
+  const { t, i18n } = useTranslation();
 
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
@@ -152,7 +150,8 @@ export default function SettingsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="hi">हिंदी (Hindi)</SelectItem>
+                  <SelectItem value="hi">हिन्दी (Hindi)</SelectItem>
+                  <SelectItem value="bn">বাংলা (Bengali)</SelectItem>
                   <SelectItem value="as">অসমীয়া (Assamese)</SelectItem>
                 </SelectContent>
               </Select>

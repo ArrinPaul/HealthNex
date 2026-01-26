@@ -1,13 +1,10 @@
-"use client";
-
-// import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplet, Sparkles, Bug, Heart, BookOpen, Video } from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function EducationPage() {
-  // const { t } = useTranslation(); // Removed for SSR compatibility
-  const t = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  const { t } = useTranslation();
 
   const educationTopics = [
     {
