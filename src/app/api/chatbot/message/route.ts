@@ -99,6 +99,14 @@ const multiLanguageResponses = {
   }
 };
 
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ChatbotMessageSchema } from '@/lib/validations';
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../../../../convex/_generated/api";
+
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 export async function POST(request: NextRequest) {
   try {
     const json = await request.json();
@@ -115,7 +123,7 @@ export async function POST(request: NextRequest) {
     const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
 
     if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
-      const fallback = await processHealthMessage(message, language);
+      const fallback = await generateFallbackResponse(message, language);
       return NextResponse.json({ response: fallback });
     }
 
@@ -126,6 +134,12 @@ export async function POST(request: NextRequest) {
 
     const resultStream = await model.generateContentStream(prompt);
     
+    // Track usage
+    await convex.mutation(api.usage.trackUsage, {
+      feature: "chatbot",
+      status: "success"
+    });
+
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();

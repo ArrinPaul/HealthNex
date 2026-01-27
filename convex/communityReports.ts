@@ -10,13 +10,13 @@ export const createReport = mutation({
     userId: v.optional(v.id("users")),
     title: v.string(),
     description: v.string(),
-    category: v.string(), // "water", "health", "outbreak", etc.
+    category: v.union(v.literal("water"), v.literal("health"), v.literal("outbreak"), v.literal("environmental"), v.literal("safety")),
     location: v.object({
       latitude: v.number(),
       longitude: v.number(),
       address: v.string()
     }),
-    severity: v.number(),
+    severity: v.union(v.literal(1), v.literal(2), v.literal(3), v.literal(4), v.literal(5)),
   },
   handler: async (ctx, args) => {
     const reportId = await ctx.db.insert("communityReports", {
@@ -57,7 +57,7 @@ export const getReports = query({
 export const updateReportStatus = mutation({
   args: {
     reportId: v.id("communityReports"),
-    status: v.string(),
+    status: v.union(v.literal("open"), v.literal("investigating"), v.literal("resolved")),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.reportId, {

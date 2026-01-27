@@ -17,7 +17,7 @@ export default defineSchema({
 
   healthData: defineTable({
     userId: v.id("users"),
-    type: v.string(), // "symptom", "medication", "vitals", etc.
+    type: v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test")),
     data: v.any(),
     timestamp: v.number(),
     location: v.optional(v.object({
@@ -35,14 +35,14 @@ export default defineSchema({
     userId: v.id("users"),
     title: v.string(),
     description: v.string(),
-    category: v.string(), // "outbreak", "environmental", "safety", etc.
+    category: v.union(v.literal("water"), v.literal("health"), v.literal("outbreak"), v.literal("environmental"), v.literal("safety")),
     location: v.object({
       latitude: v.number(),
       longitude: v.number(),
       address: v.optional(v.string())
     }),
-    severity: v.number(), // 1-5 scale
-    status: v.string(), // "open", "investigating", "resolved"
+    severity: v.union(v.literal(1), v.literal(2), v.literal(3), v.literal(4), v.literal(5)),
+    status: v.union(v.literal("open"), v.literal("investigating"), v.literal("resolved")),
     upvotes: v.number(),
     downvotes: v.number(),
     createdAt: v.number(),
@@ -63,7 +63,7 @@ export default defineSchema({
     reportedBy: v.string(), // userId
     notes: v.optional(v.string()),
     timestamp: v.number(),
-    status: v.string(), // "active", "contained", "resolved"
+    status: v.union(v.literal("active"), v.literal("contained"), v.literal("resolved")),
     confirmedCases: v.number(),
     suspectedCases: v.number(),
     deaths: v.number(),
@@ -86,17 +86,17 @@ export default defineSchema({
     temperature: v.optional(v.number()),
     testDate: v.number(),
     testedBy: v.optional(v.id("users")),
-    source: v.string(), // "user_report", "official_test", "sensor"
-    quality: v.string(), // "excellent", "good", "fair", "poor"
+    source: v.union(v.literal("user_report"), v.literal("official_test"), v.literal("sensor")),
+    quality: v.union(v.literal("excellent"), v.literal("good"), v.literal("fair"), v.literal("poor")),
   }).index("by_location", ["location.latitude", "location.longitude"])
     .index("by_test_date", ["testDate"])
     .index("by_quality", ["quality"]),
 
   alerts: defineTable({
-    type: v.string(), // "health_alert", "weather_warning", "water_quality", etc.
+    type: v.union(v.literal("health_alert"), v.literal("weather_warning"), v.literal("water_quality"), v.literal("outbreak")),
     title: v.string(),
     message: v.string(),
-    severity: v.string(), // "low", "medium", "high", "critical"
+    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
     location: v.optional(v.object({
       latitude: v.number(),
       longitude: v.number(),
@@ -105,7 +105,7 @@ export default defineSchema({
     createdAt: v.number(),
     expiresAt: v.optional(v.number()),
     isActive: v.boolean(),
-    source: v.string(), // "system", "admin", "ai_prediction"
+    source: v.union(v.literal("system"), v.literal("admin"), v.literal("ai_prediction")),
   }).index("by_type", ["type"])
     .index("by_severity", ["severity"])
     .index("by_active", ["isActive"])
@@ -117,8 +117,18 @@ export default defineSchema({
     message: v.string(),
     response: v.optional(v.string()),
     timestamp: v.number(),
-    context: v.optional(v.any()),
-  }).index("by_session", ["sessionId"])
-    .index("by_user", ["userId"])
-    .index("by_timestamp", ["timestamp"]),
-});
+        context: v.optional(v.any()),
+      }).index("by_session", ["sessionId"])
+        .index("by_user", ["userId"])
+        .index("by_timestamp", ["timestamp"]),
+    
+      usageTracking: defineTable({
+        userId: v.optional(v.id("users")),
+        feature: v.string(), // "chatbot", "ocr", "prediction", "symptom_analysis"
+        timestamp: v.number(),
+        status: v.string(), // "success", "error"
+        tokens: v.optional(v.number()),
+      }).index("by_feature", ["feature"])
+        .index("by_timestamp", ["timestamp"]),
+    });
+    

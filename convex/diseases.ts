@@ -35,7 +35,7 @@ export const reportDisease = mutation({
 export const getDiseaseOutbreaks = query({
   args: {
     region: v.optional(v.string()),
-    status: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("active"), v.literal("contained"), v.literal("resolved"))),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {

@@ -10,7 +10,7 @@ export const ChatbotMessageSchema = z.object({
 // Prediction API Validation
 export const PredictionRequestSchema = z.object({
   type: z.enum(["outbreak", "trend", "epidemic", "maintenance", "sentiment"]),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
 });
 
 // Health Data Validation

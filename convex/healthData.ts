@@ -8,7 +8,7 @@ import { v } from "convex/values";
 export const addHealthData = mutation({
   args: {
     userId: v.id("users"),
-    type: v.string(),
+    type: v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test")),
     data: v.any(),
     location: v.optional(v.object({
       latitude: v.number(),
@@ -30,7 +30,7 @@ export const addHealthData = mutation({
 export const getUserHealthData = query({
   args: {
     userId: v.id("users"),
-    type: v.optional(v.string()),
+    type: v.optional(v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test"))),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {

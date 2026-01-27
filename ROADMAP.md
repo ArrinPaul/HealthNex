@@ -32,15 +32,37 @@ This roadmap outlines the planned improvements for the HealthNex Public Health S
   - [x] Set up Vitest for unit testing.
   - [x] Implemented initial test suite for utilities.
 
-## Phase 4: Performance & UI/UX (In Progress)
+## Phase 4: Performance & UI/UX (Complete ✅)
 - [x] **Real-time Subscriptions**
   - [x] Standardized on Convex `useQuery` for real-time updates.
   - [x] Connected Disease Map, Stats, and Community Reports.
 - [x] **Component Refactoring**
-  - [x] Refactored Dashboard into atomic sub-components (`StatsGrid`, `ChartsSection`, `DistributionSection`).
-  - [ ] Refactor Community Reports and Health Data pages.
+  - [x] Refactored Dashboard into atomic sub-components.
+  - [x] Refactored Community Reports, Health Data, and Water Quality pages.
 - [x] **Cleanup**
-  - [x] Removed redundant legacy scripts (`setup-realtime.ps1`, etc.).
+  - [x] Removed redundant legacy scripts.
+
+## Phase 5: Security & Production Readiness (In Progress)
+- [x] **Secret Integrity Check**
+  - [x] Implement environment variable validator.
+  - [x] Create secure .env template.
+- [x] **Auth Hardening**
+  - [x] Move to secure HTTP-only cookies for sessions.
+  - [x] Implemented Edge Middleware for global route protection.
+  - [ ] Implement CSRF protection for API routes.
+- [ ] **Database Hardening**
+  - [x] Strict schema validation with literal unions.
+  - [ ] Implement Row-Level Security (RLS) via Convex query filtering.
+
+## Phase 6: API Verification & Scalability
+- [ ] **AI Key Validation**
+  - [ ] Automatic health-check for Gemini API key status.
+- [ ] **Usage Monitoring**
+  - [x] Usage tracking table in Convex.
+  - [ ] Admin dashboard for API cost/token monitoring.
+- [ ] **Deployment Readiness**
+  - [ ] Optimize Edge Runtime for AI routes.
+  - [ ] Finalize Vercel deployment configuration.
 
 
 ---

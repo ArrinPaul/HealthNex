@@ -2,6 +2,10 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Script from "next/script";
 import ClientProviders from "@/components/ClientProviders";
+import { validateEnv } from "@/lib/env-config";
+
+// Validate environment variables on server startup
+validateEnv();
 
 export const metadata: Metadata = {
   title: "Smart Health Surveillance System",

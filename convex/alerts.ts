@@ -7,17 +7,17 @@ import { v } from "convex/values";
 // Create a new alert
 export const createAlert = mutation({
   args: {
-    type: v.string(),
+    type: v.union(v.literal("health_alert"), v.literal("weather_warning"), v.literal("water_quality"), v.literal("outbreak")),
     title: v.string(),
     message: v.string(),
-    severity: v.string(),
+    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
     location: v.optional(v.object({
       latitude: v.number(),
       longitude: v.number(),
       radius: v.number(),
     })),
     expiresAt: v.optional(v.number()),
-    source: v.string(),
+    source: v.union(v.literal("system"), v.literal("admin"), v.literal("ai_prediction")),
   },
   handler: async (ctx, args) => {
     const alertId = await ctx.db.insert("alerts", {
