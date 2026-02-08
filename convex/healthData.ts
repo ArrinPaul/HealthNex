@@ -4,10 +4,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
+
 // Add health data
-export const addHealthData = mutation({
+export const addHealthData = mutationWithAuth({
   args: {
-    userId: v.id("users"),
+    // userId is extracted from token
     type: v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test")),
     data: v.any(),
     location: v.optional(v.object({

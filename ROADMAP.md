@@ -52,18 +52,24 @@ This roadmap outlines the planned improvements for the HealthNex Public Health S
   - [ ] Implement CSRF protection for API routes.
 - [ ] **Database Hardening**
   - [x] Strict schema validation with literal unions.
-  - [ ] Implement Row-Level Security (RLS) via Convex query filtering.
+  - [ ] **Critical:** Implement Row-Level Security (RLS) for `getUserHealthData` and other queries (currently allow arbitrary `userId` access).
 
-## Phase 6: API Verification & Scalability
+## Phase 6: API Verification & Scalability (In Progress)
 - [ ] **AI Key Validation**
-  - [ ] Automatic health-check for Gemini API key status.
+  - [ ] Automatic health-check for Gemini API key status at startup.
 - [ ] **Usage Monitoring**
   - [x] Usage tracking table in Convex.
   - [ ] Admin dashboard for API cost/token monitoring.
 - [ ] **Deployment Readiness**
-  - [ ] Optimize Edge Runtime for AI routes.
+  - [ ] Optimize Edge Runtime for AI routes (Add `export const runtime = 'edge'`).
   - [ ] Finalize Vercel deployment configuration.
 
+## Phase 7: New Features (Experimental)
+- [ ] **Visual Editing**
+  - [x] `visual-edits` folder structure established.
+  - [ ] Integrate visual component editing fully.
+- [ ] **Simple Test Mode**
+  - [x] `simple-test` route established.
 
 ---
-*Last Updated: January 26, 2026*
+*Last Updated: January 30, 2026*
