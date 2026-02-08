@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PredictionRequestSchema } from '@/lib/validations';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest) {
   try {
     const json = await request.json();

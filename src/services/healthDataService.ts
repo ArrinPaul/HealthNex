@@ -43,9 +43,9 @@ export const mockAlerts = [
 ];
 
 // Convex-based hooks
-export const useHealthData = (userId: any) => {
-  const data = useQuery(api.healthData.getUserHealthData, { userId });
-  return data || mockHealthData;
+export const useHealthData = (token: string | null) => {
+  const data = useQuery(api.healthData.getUserHealthData, token ? { token } : "skip");
+  return data || [];
 };
 
 export const useDiseaseData = (region?: string) => {

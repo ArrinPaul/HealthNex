@@ -13,6 +13,27 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('auth-token')?.value;
 
+  // CSRF Protection: Verify Origin/Referer for state-changing API requests
+  if (pathname.startsWith('/api/') && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
+    const origin = request.headers.get('origin');
+    const referer = request.headers.get('referer');
+    const host = request.headers.get('host');
+    
+    // Allow if origin matches host (same-origin)
+    // In production, you might need to check against a whitelist of allowed domains
+    if (origin) {
+      const originHost = new URL(origin).host;
+      if (originHost !== host) {
+        return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 });
+      }
+    } else if (referer) {
+      const refererHost = new URL(referer).host;
+      if (refererHost !== host) {
+        return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 });
+      }
+    }
+  }
+
   // 1. Handle Protected Frontend Routes
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
     if (!token || !JWTService.verifyToken(token)) {

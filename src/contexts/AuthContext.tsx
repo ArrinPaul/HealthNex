@@ -14,6 +14,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   login: (email: string, password: string) => Promise<User>;
   register: (name: string, email: string, password: string, role: UserRole, location: string) => Promise<void>;
   logout: () => void;
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,10 +36,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
+          // In a real app, you might want to fetch the token from a secure cookie 
+          // but since we need it for Convex calls (client-side), we'll expect it from the API
+          // for this demonstration or store it in localStorage if acceptable.
+          // For now, let's assume /api/auth/me can return the token too or we use the cookie.
+          if (data.token) setToken(data.token);
           setIsAuthenticated(true);
         } else {
-          // If session check fails, clear any partial state
           setUser(null);
+          setToken(null);
           setIsAuthenticated(false);
         }
       } catch (error) {
@@ -66,8 +73,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const userData = await response.json();
       const loggedInUser: User = userData.user;
+      const authToken = userData.token;
       
       setUser(loggedInUser);
+      setToken(authToken);
       setIsAuthenticated(true);
       
       return loggedInUser;
@@ -95,8 +104,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const userData = await response.json();
       const newUser = userData.user;
+      const authToken = userData.token;
       
       setUser(newUser);
+      setToken(authToken);
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Registration error:', error);
@@ -113,12 +124,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
+      setToken(null);
       setIsAuthenticated(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, isAuthenticated }}>
       {!isLoading && children}
     </AuthContext.Provider>
   );

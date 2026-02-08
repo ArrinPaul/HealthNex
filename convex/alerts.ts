@@ -3,9 +3,10 @@
 
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutationWithAuth } from "./lib/withAuth";
 
 // Create a new alert
-export const createAlert = mutation({
+export const createAlert = mutationWithAuth({
   args: {
     type: v.union(v.literal("health_alert"), v.literal("weather_warning"), v.literal("water_quality"), v.literal("outbreak")),
     title: v.string(),
@@ -58,7 +59,7 @@ export const getActiveAlerts = query({
 });
 
 // Deactivate an alert
-export const deactivateAlert = mutation({
+export const deactivateAlert = mutationWithAuth({
   args: { alertId: v.id("alerts") },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.alertId, { isActive: false });

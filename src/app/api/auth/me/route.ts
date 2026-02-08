@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
         name: user.name,
         role: user.role,
         location: 'Guwahati, Assam' // Placeholder or fetch from profile if stored
-      }
+      },
+      token: token
     });
 
   } catch (error) {

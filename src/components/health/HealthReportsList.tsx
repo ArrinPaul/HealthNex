@@ -7,13 +7,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { useHealthData } from '@/services/healthDataService';
 
 export default function HealthReportsList() {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const reports = useQuery(api.healthData.getUserHealthData, { userId: user?.id as any });
+  const { token } = useAuth();
+  const reports = useHealthData(token);
 
   return (
     <Card className="backdrop-blur-xl bg-card/50">

@@ -3,11 +3,11 @@
 
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutationWithAuth } from "./lib/withAuth";
 
 // Create a new community report
-export const createReport = mutation({
+export const createReport = mutationWithAuth({
   args: {
-    userId: v.optional(v.id("users")),
     title: v.string(),
     description: v.string(),
     category: v.union(v.literal("water"), v.literal("health"), v.literal("outbreak"), v.literal("environmental"), v.literal("safety")),
@@ -19,9 +19,12 @@ export const createReport = mutation({
     severity: v.union(v.literal(1), v.literal(2), v.literal(3), v.literal(4), v.literal(5)),
   },
   handler: async (ctx, args) => {
+    // userId is injected by mutationWithAuth
+    const { userId } = args as any;
+    
     const reportId = await ctx.db.insert("communityReports", {
       ...args,
-      userId: args.userId || (await ctx.db.query("users").first())?._id as any, // Fallback for demo
+      userId: userId,
       status: "open",
       upvotes: 0,
       downvotes: 0,
@@ -54,12 +57,14 @@ export const getReports = query({
 });
 
 // Update report status
-export const updateReportStatus = mutation({
+export const updateReportStatus = mutationWithAuth({
   args: {
     reportId: v.id("communityReports"),
     status: v.union(v.literal("open"), v.literal("investigating"), v.literal("resolved")),
   },
   handler: async (ctx, args) => {
+    // Ideally we should check if the user is an admin or the owner
+    // For now we just require auth
     await ctx.db.patch(args.reportId, {
       status: args.status,
       updatedAt: Date.now(),

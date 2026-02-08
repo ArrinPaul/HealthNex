@@ -29,22 +29,24 @@ export const addHealthData = mutationWithAuth({
 });
 
 // Get health data for user
-export const getUserHealthData = query({
+export const getUserHealthData = queryWithAuth({
   args: {
-    userId: v.id("users"),
     type: v.optional(v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test"))),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // userId is injected by queryWithAuth
+    const { userId } = args as any;
+    
     let query = ctx.db
       .query("healthData")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId));
+      .withIndex("by_user", (q) => q.eq("userId", userId));
     
     if (args.type) {
       query = ctx.db
         .query("healthData")
         .withIndex("by_user_and_type", (q) => 
-          q.eq("userId", args.userId).eq("type", args.type)
+          q.eq("userId", userId).eq("type", args.type as any)
         );
     }
 
@@ -57,17 +59,18 @@ export const getUserHealthData = query({
 });
 
 // Get recent health data (for dashboard)
-export const getRecentHealthData = query({
+export const getRecentHealthData = queryWithAuth({
   args: {
-    userId: v.id("users"),
     hours: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // userId is injected by queryWithAuth
+    const { userId } = args as any;
     const hoursAgo = Date.now() - (args.hours || 24) * 60 * 60 * 1000;
     
     return await ctx.db
       .query("healthData")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .filter((q) => q.gte(q.field("timestamp"), hoursAgo))
       .order("desc")
       .take(100);
