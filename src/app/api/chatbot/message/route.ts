@@ -107,7 +107,9 @@ import { api } from "../../../../../convex/_generated/api";
 
 export const runtime = 'edge';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+const isValidUrl = convexUrl && (convexUrl.startsWith('http://') || convexUrl.startsWith('https://'));
+const convex = new ConvexHttpClient(isValidUrl ? convexUrl : 'https://placeholder.convex.cloud');
 
 export async function POST(request: NextRequest) {
   try {

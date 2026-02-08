@@ -25,6 +25,12 @@ const nextConfig: NextConfig = {
     } : false,
   },
   
+  // Development SSL fix
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
+  
   // API routes optimization
   serverExternalPackages: ['@google/generative-ai'],
   
