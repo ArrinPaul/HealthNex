@@ -2,9 +2,6 @@
 
 import Navigation from './Navigation';
 import { usePathname } from 'next/navigation';
-import dynamic from 'next/dynamic';
-
-const VisualEditsMessenger = dynamic(() => import('@/visual-edits/VisualEditsMessenger'), { ssr: false });
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -22,8 +19,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-500/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      <VisualEditsMessenger />
-      
       <div className="relative z-10 flex min-h-screen">
         <Navigation />
         <main className="flex-1 lg:ml-80 transition-all duration-300">
