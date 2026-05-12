@@ -20,25 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch user from Convex
-    let user;
-    try {
-      user = await convex.query(api.users.getUserByEmail, { email });
-    } catch (convexError) {
-      console.error('Convex query failed, checking for demo mode...');
-      // Fallback for demo mode if Convex is not configured
-      if (email === 'admin@healthnex.com' && password === 'admin123') {
-        user = {
-          _id: 'demo-user-id',
-          email: 'admin@healthnex.com',
-          name: 'Demo Admin',
-          passwordHash: await bcrypt.hash('admin123', 10),
-          role: 'admin',
-          isActive: true
-        };
-      } else {
-        throw convexError;
-      }
-    }
+    const user = await convex.query(api.users.getUserByEmail, { email });
     
     if (!user) {
       return NextResponse.json(

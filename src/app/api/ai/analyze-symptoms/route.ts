@@ -13,11 +13,9 @@ export async function POST(request: NextRequest) {
     const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
     if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
       return NextResponse.json({
-        analysis: "AI Symptom Analysis is currently in demo mode. Please configure your API key for real-time analysis.",
-        diagnosis: "Demographic/General Assessment",
-        confidence: 0.5,
-        recommendations: ["Consult a doctor for accurate diagnosis", "Stay hydrated", "Monitor symptoms"]
-      });
+        error: "AI Service Not Configured",
+        message: "Please configure GOOGLE_AI_API_KEY for symptom analysis."
+      }, { status: 503 });
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);

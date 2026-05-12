@@ -13,10 +13,9 @@ export async function POST(request: NextRequest) {
     const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
     if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
       return NextResponse.json({
-        answer: "Health Query service is in demo mode. Please configure your API key for personalized answers.",
-        sources: ["General Knowledge"],
-        disclaimer: "Consult a healthcare professional for medical advice."
-      });
+        error: "AI Service Not Configured",
+        message: "Please configure GOOGLE_AI_API_KEY for health query services."
+      }, { status: 503 });
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);

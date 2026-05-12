@@ -30,8 +30,8 @@ export default function StatsGrid() {
     },
     {
       title: t('aiPredictions', 'AI Predictions'),
-      value: '94.7%',
-      change: 'Accurate',
+      value: 'N/A',
+      change: 'Pending',
       icon: AlertTriangle,
       color: 'text-violet-500',
       bg: 'bg-violet-500/10 border-violet-500/20'
@@ -39,15 +39,15 @@ export default function StatsGrid() {
     {
       title: t('waterQualityAlerts', 'Water Quality Alerts'),
       value: waterAlerts.toString(),
-      change: '-2',
+      change: 'Live',
       icon: Droplet,
       color: 'text-cyan-500',
       bg: 'bg-cyan-500/10 border-cyan-500/20'
     },
     {
       title: t('aiInsights', 'AI Insights Today'),
-      value: '247',
-      change: '+28%',
+      value: 'N/A',
+      change: 'Live',
       icon: TrendingUp,
       color: 'text-emerald-500',
       bg: 'bg-emerald-500/10 border-emerald-500/20'

@@ -75,17 +75,9 @@ export default function AIFeaturesPage() {
       setResults({ type: 'query', data });
     } catch (error) {
       console.error('Error processing health query:', error);
-      // Mock result for demo
       setResults({
-        type: 'query',
-        data: {
-          answer: `🤖 AI Health Assistant: Regarding "${healthQuery}" - For rural communities, focus on clean water access, proper sanitation, and timely medical consultation. Here are specific recommendations for your area.`,
-          recommendations: [
-            'Boil water for at least 3 minutes',
-            'Maintain proper hygiene',
-            'Monitor community health patterns'
-          ]
-        }
+        type: 'error',
+        message: 'Failed to process health query. Please try again.'
       });
     } finally {
       setLoading(false);
@@ -111,23 +103,9 @@ export default function AIFeaturesPage() {
       setResults({ type: 'outbreak', data });
     } catch (error) {
       console.error('Error predicting outbreak:', error);
-      // Mock result for demo
       setResults({
-        type: 'outbreak',
-        data: {
-          outbreakRisk: 'Low',
-          confidence: 0.85,
-          factors: [
-            'Population density: Normal',
-            'Sanitation: Good',
-            'Historical patterns: Stable'
-          ],
-          recommendations: [
-            'Continue regular monitoring',
-            'Maintain water quality standards',
-            'Keep vaccination records updated'
-          ]
-        }
+        type: 'error',
+        message: 'Outbreak prediction service is currently unavailable.'
       });
     } finally {
       setLoading(false);
@@ -155,16 +133,9 @@ export default function AIFeaturesPage() {
       setResults({ type: 'forecast', data });
     } catch (error) {
       console.error('Error generating forecast:', error);
-      // Mock result for demo
       setResults({
-        type: 'forecast',
-        data: {
-          forecast: [
-            { community: 'District A', trend: 'Stable', risk: 'Low' },
-            { community: 'District B', trend: 'Increasing', risk: 'High' },
-            { community: 'District C', trend: 'Stable', risk: 'Low' }
-          ]
-        }
+        type: 'error',
+        message: 'Health forecasting is currently unavailable.'
       });
     } finally {
       setLoading(false);
@@ -445,15 +416,15 @@ export default function AIFeaturesPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Prediction Accuracy</span>
-                      <span className="font-bold">94.7%</span>
+                      <span className="font-bold text-muted-foreground italic">Pending Data</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Response Time</span>
-                      <span className="font-bold">0.8s</span>
+                      <span className="font-bold text-muted-foreground italic">--</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">API Calls Today</span>
-                      <span className="font-bold">247</span>
+                      <span className="font-bold text-muted-foreground italic">--</span>
                     </div>
                   </div>
                 </CardContent>

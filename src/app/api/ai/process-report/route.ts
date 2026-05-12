@@ -13,15 +13,9 @@ export async function POST(request: NextRequest) {
     const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
     if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
       return NextResponse.json({
-        mock: true,
-        data: {
-          patientName: "John Doe (Demo)",
-          age: "35",
-          gender: "Male",
-          symptoms: "Fever, cough, body ache",
-          diagnosis: "Suspected Viral Fever"
-        }
-      });
+        error: "AI Service Not Configured",
+        message: "Please configure GOOGLE_AI_API_KEY for document processing."
+      }, { status: 503 });
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);

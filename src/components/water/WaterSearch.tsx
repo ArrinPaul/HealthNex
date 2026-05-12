@@ -87,14 +87,8 @@ export default function WaterSearch({ onResults, loading, setLoading }: WaterSea
       
     } catch (error) {
       console.error(error);
-      // Mock Fallback
-      onResults({
-        location: location || 'Kadapa',
-        coordinates: { lat: 14.4673, lng: 78.8242 },
-        parameters: { ph: 6.8, turbidity: 5.2, temperature: 28.5, rainfall: 245, humidity: 78 },
-        status: 'Warning',
-        recommendations: ['⚠️ API connection issue - showing cached data']
-      });
+      // No longer using mock fallback.
+      alert('Failed to fetch water quality data. Please ensure the location is valid and try again.');
     } finally {
       setLoading(false);
     }
