@@ -50,18 +50,9 @@ export default function AIFeaturesPage() {
       setResults({ type: 'symptoms', data });
     } catch (error) {
       console.error('Error analyzing symptoms:', error);
-      // Mock result for demo
       setResults({
-        type: 'symptoms',
-        data: {
-          analysis: `🤖 AI Analysis: Based on symptoms "${symptoms}", this could indicate waterborne illness. Consider dehydration management and seek medical attention if symptoms persist.`,
-          urgency: 'Medium',
-          recommendations: [
-            'Monitor hydration levels',
-            'Avoid contaminated water sources',
-            'Seek medical attention within 24 hours'
-          ]
-        }
+        type: 'error',
+        message: 'Failed to analyze symptoms. Please check your connection and try again.'
       });
     } finally {
       setLoading(false);
