@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { JWTService } from '@/lib/jwt';
 
 // Routes that require authentication
 const PROTECTED_ROUTES = ['/dashboard', '/health-data', '/community-reports', '/water-quality', '/settings', '/profile', '/alerts'];
@@ -9,7 +8,70 @@ const PROTECTED_ROUTES = ['/dashboard', '/health-data', '/community-reports', '/
 const PROTECTED_API_PREFIX = '/api/';
 const PUBLIC_API_ROUTES = ['/api/auth/login', '/api/auth/register', '/api/health'];
 
-export function middleware(request: NextRequest) {
+const JWT_SECRET =
+  process.env.JWT_SECRET || 'fallback-dev-secret-key-change-in-production-minimum-32-chars';
+
+function base64UrlDecodeToString(value: string): string {
+  const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+  return atob(padded);
+}
+
+function base64UrlDecodeToBytes(value: string): Uint8Array {
+  const decoded = base64UrlDecodeToString(value);
+  const bytes = new Uint8Array(decoded.length);
+  for (let i = 0; i < decoded.length; i += 1) {
+    bytes[i] = decoded.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function verifyToken(token: string): Promise<boolean> {
+  try {
+    const [headerPart, payloadPart, signaturePart] = token.split('.');
+    if (!headerPart || !payloadPart || !signaturePart) return false;
+
+    const header = JSON.parse(base64UrlDecodeToString(headerPart)) as {
+      alg?: string;
+      typ?: string;
+    };
+
+    if (header.alg !== 'HS256') return false;
+
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(JWT_SECRET),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+
+    const data = encoder.encode(`${headerPart}.${payloadPart}`);
+    const signature = base64UrlDecodeToBytes(signaturePart);
+    const dataBuffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    const signatureBuffer = signature.buffer.slice(
+      signature.byteOffset,
+      signature.byteOffset + signature.byteLength
+    );
+    const isValidSignature = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      signatureBuffer as BufferSource,
+      dataBuffer as BufferSource
+    );
+    if (!isValidSignature) return false;
+
+    const payload = JSON.parse(base64UrlDecodeToString(payloadPart)) as { exp?: number };
+    if (payload.exp && Date.now() >= payload.exp * 1000) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('auth-token')?.value;
 
@@ -36,7 +98,8 @@ export function middleware(request: NextRequest) {
 
   // 1. Handle Protected Frontend Routes
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-    if (!token || !JWTService.verifyToken(token)) {
+    const isValidToken = token ? await verifyToken(token) : false;
+    if (!isValidToken) {
       const url = new URL('/login', request.url);
       url.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(url);
@@ -46,7 +109,8 @@ export function middleware(request: NextRequest) {
   // 2. Handle Protected API Routes
   if (pathname.startsWith(PROTECTED_API_PREFIX)) {
     if (!PUBLIC_API_ROUTES.some(route => pathname === route)) {
-      if (!token || !JWTService.verifyToken(token)) {
+      const isValidToken = token ? await verifyToken(token) : false;
+      if (!isValidToken) {
         return NextResponse.json(
           { error: 'Authentication required' },
           { status: 401 }
