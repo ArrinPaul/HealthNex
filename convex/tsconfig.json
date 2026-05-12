@@ -8,6 +8,6 @@
     "allowJs": false,
     "strict": false
   },
-  "include": ["*.ts"],
-  "exclude": ["_generated"]
+  "include": ["**/*.ts"],
+  "exclude": ["_generated", "node_modules"]
 }
