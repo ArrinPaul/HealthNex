@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { User, Mail, MapPin, Shield, Save } from 'lucide-react';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
 import { validatePassword } from '@/lib/passwordValidation';
 

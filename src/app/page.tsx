@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Activity, Droplet, Bell, Shield, BarChart, Users, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import ThemeToggle from '@/components/ThemeToggle';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 import { motion } from 'framer-motion';
 
 export default function Home() {

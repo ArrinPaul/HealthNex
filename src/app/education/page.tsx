@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplet, Sparkles, Bug, Heart, BookOpen, Video } from 'lucide-react';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 
 export default function EducationPage() {
   const { t } = useTranslation();

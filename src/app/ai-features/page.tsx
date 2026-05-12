@@ -22,7 +22,7 @@ import {
   Heart,
   MapPin
 } from 'lucide-react';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 
 export default function AIFeaturesPage() {
   const [loading, setLoading] = useState(false);

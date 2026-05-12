@@ -6,7 +6,7 @@ import { SettingsProvider } from '@/contexts/SettingsContext';
 
 import { ConvexClientProvider } from './ConvexProvider';
 
-import AppLayout from './AppLayout';
+import AppLayout from '../layout/AppLayout';
 
 
 

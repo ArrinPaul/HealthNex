@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import ReportForm from '@/components/community/ReportForm';
 import ReportsList from '@/components/community/ReportsList';
 

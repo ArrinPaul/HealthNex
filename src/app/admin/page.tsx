@@ -1,6 +1,6 @@
 "use client";
 
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import UsageStats from '@/components/admin/UsageStats';
 import { useTranslation } from 'react-i18next';
 

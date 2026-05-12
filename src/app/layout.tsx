@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Outfit, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
-import ClientProviders from "@/components/ClientProviders";
+import ClientProviders from "@/components/providers/ClientProviders";
 import { validateEnv } from "@/lib/env-config";
 
 const outfit = Outfit({ 

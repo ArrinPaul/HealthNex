@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import WaterSearch from '@/components/water/WaterSearch';
 import WaterResults from '@/components/water/WaterResults';
 import HistoricalTrends from '@/components/water/HistoricalTrends';

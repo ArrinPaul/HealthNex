@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
 import { Shield, Stethoscope, Users, ArrowRight } from 'lucide-react';
-import ThemeToggle from '@/components/ThemeToggle';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { validatePassword } from '@/lib/passwordValidation';

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertTriangle, Droplet, Activity, Bell, X } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 
 interface AlertItem {
   id: number;

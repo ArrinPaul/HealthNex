@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import AISuggestions from '@/components/AISuggestions';
 import { useDiseaseData } from '@/services/healthDataService';
 import StatsGrid from '@/components/dashboard/StatsGrid';

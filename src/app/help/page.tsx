@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { HelpCircle, MessageCircle, Phone, Mail, Send } from 'lucide-react';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import ProtectedRoute from '@/components/layout/ProtectedRoute';
 
 export default function HelpPage() {
   // const { t } = useTranslation(); // Removed for SSR compatibility  
