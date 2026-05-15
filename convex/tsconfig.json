@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "lib": ["ES2021"],
-    "target": "ES2021",
+    "allowJs": true,
+    "strict": true,
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
     "skipLibCheck": true,
-    "allowJs": false,
-    "strict": false
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "lib": ["ES2021", "dom"],
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "isolatedModules": true,
+    "noEmit": true
   },
-  "include": ["**/*.ts"],
-  "exclude": ["_generated", "node_modules"]
+  "include": ["./**/*"],
+  "exclude": ["./_generated", "./node_modules"]
 }

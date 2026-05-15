@@ -18,7 +18,7 @@ export const createReport = mutationWithAuth({
     }),
     severity: v.union(v.literal(1), v.literal(2), v.literal(3), v.literal(4), v.literal(5)),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     // userId is injected by mutationWithAuth
     const { userId } = args as any;
     
@@ -41,11 +41,11 @@ export const getReports = query({
     category: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     let query = ctx.db.query("communityReports");
 
     if (args.category) {
-      query = query.filter((q) => q.eq(q.field("category"), args.category));
+      query = query.filter((q: any) => q.eq(q.field("category"), args.category));
     }
 
     const reports = await query
@@ -62,7 +62,7 @@ export const updateReportStatus = mutationWithAuth({
     reportId: v.id("communityReports"),
     status: v.union(v.literal("open"), v.literal("investigating"), v.literal("resolved")),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     // Ideally we should check if the user is an admin or the owner
     // For now we just require auth
     await ctx.db.patch(args.reportId, {

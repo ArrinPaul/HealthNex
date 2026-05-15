@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PredictionRequestSchema } from '@/lib/validations';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getGeminiModel, generateJSONResponse } from '@/lib/ai';
 
 export const runtime = 'edge';
 
@@ -18,18 +18,8 @@ export async function POST(request: NextRequest) {
 
     const { type, data } = result.data;
     
-    // Check if Gemini API key is configured
-    const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
-    if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
-      return NextResponse.json({ 
-        error: 'AI Service Not Configured', 
-        message: 'Please configure GOOGLE_AI_API_KEY to use prediction features.' 
-      }, { status: 503 });
-    }
-
     try {
-      const genAI = new GoogleGenerativeAI(geminiApiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = getGeminiModel();
       
       const prompt = `
         You are an expert Epidemiologist and Public Health Analyst.
@@ -42,21 +32,15 @@ export async function POST(request: NextRequest) {
         No extra text or markdown code blocks.
       `;
 
-      const aiResult = await model.generateContent(prompt);
-      const response = await aiResult.response;
-      let text = response.text().trim();
-      
-      // Basic JSON cleanup if AI includes markdown
-      if (text.startsWith('```json')) text = text.replace(/```json|```/g, '').trim();
-      if (text.startsWith('```')) text = text.replace(/```/g, '').trim();
-
-      return NextResponse.json(JSON.parse(text));
-    } catch (aiError) {
+      const aiData = await generateJSONResponse(model, prompt);
+      return NextResponse.json(aiData);
+    } catch (aiError: any) {
       console.error('Gemini Prediction Error:', aiError);
+      const status = aiError.message.includes('AI Service Not Configured') ? 503 : 500;
       return NextResponse.json({ 
-        error: 'AI Analysis Failed', 
+        error: aiError.message || 'AI Analysis Failed', 
         message: 'The AI service encountered an error while processing your request.' 
-      }, { status: 500 });
+      }, { status });
     }
   } catch (error) {
     return NextResponse.json(

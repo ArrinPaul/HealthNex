@@ -20,7 +20,7 @@ export const createAlert = mutationWithAuth({
     expiresAt: v.optional(v.number()),
     source: v.union(v.literal("system"), v.literal("admin"), v.literal("ai_prediction")),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const alertId = await ctx.db.insert("alerts", {
       ...args,
       createdAt: Date.now(),
@@ -37,17 +37,17 @@ export const getActiveAlerts = query({
     severity: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     let query = ctx.db
       .query("alerts")
-      .withIndex("by_active", (q) => q.eq("isActive", true));
+      .withIndex("by_active", (q: any) => q.eq("isActive", true));
 
     if (args.type) {
-      query = query.filter((q) => q.eq(q.field("type"), args.type));
+      query = query.filter((q: any) => q.eq(q.field("type"), args.type));
     }
 
     if (args.severity) {
-      query = query.filter((q) => q.eq(q.field("severity"), args.severity));
+      query = query.filter((q: any) => q.eq(q.field("severity"), args.severity));
     }
 
     const alerts = await query
@@ -61,7 +61,7 @@ export const getActiveAlerts = query({
 // Deactivate an alert
 export const deactivateAlert = mutationWithAuth({
   args: { alertId: v.id("alerts") },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     await ctx.db.patch(args.alertId, { isActive: false });
   },
 });

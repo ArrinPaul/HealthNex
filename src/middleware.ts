@@ -96,6 +96,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // 0. Development Bypass: Allow access in dev mode if database is not configured
+  const isDev = process.env.NODE_ENV === 'development';
+  const hasConvex = !!process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (isDev && !hasConvex) {
+    return NextResponse.next();
+  }
+
   // 1. Handle Protected Frontend Routes
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
     const isValidToken = token ? await verifyToken(token) : false;

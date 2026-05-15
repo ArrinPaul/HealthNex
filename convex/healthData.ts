@@ -20,7 +20,7 @@ export const addHealthData = mutationWithAuth({
     severity: v.optional(v.number()),
     notes: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     return await ctx.db.insert("healthData", {
       ...args,
       timestamp: Date.now(),
@@ -34,18 +34,18 @@ export const getUserHealthData = queryWithAuth({
     type: v.optional(v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test"))),
     limit: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     // userId is injected by queryWithAuth
     const { userId } = args as any;
     
     let query = ctx.db
       .query("healthData")
-      .withIndex("by_user", (q) => q.eq("userId", userId));
+      .withIndex("by_user", (q: any) => q.eq("userId", userId));
     
     if (args.type) {
       query = ctx.db
         .query("healthData")
-        .withIndex("by_user_and_type", (q) => 
+        .withIndex("by_user_and_type", (q: any) => 
           q.eq("userId", userId).eq("type", args.type as any)
         );
     }
@@ -63,15 +63,15 @@ export const getRecentHealthData = queryWithAuth({
   args: {
     hours: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     // userId is injected by queryWithAuth
     const { userId } = args as any;
     const hoursAgo = Date.now() - (args.hours || 24) * 60 * 60 * 1000;
     
     return await ctx.db
       .query("healthData")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.gte(q.field("timestamp"), hoursAgo))
+        .withIndex("by_user", (q: any) => q.eq("userId", userId))
+        .filter((q: any) => q.gte(q.field("timestamp"), hoursAgo))
       .order("desc")
       .take(100);
   },
