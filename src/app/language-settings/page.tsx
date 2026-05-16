@@ -61,11 +61,11 @@ const LanguageSettingsPage = () => {
   const getStatusBadge = (status: Language['status']) => {
     switch (status) {
       case 'supported':
-        return <Badge className="bg-green-100 text-green-800">Supported</Badge>;
+        return <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Supported</Badge>;
       case 'beta':
-        return <Badge className="bg-yellow-100 text-yellow-800">Beta</Badge>;
+        return <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30">Beta</Badge>;
       case 'coming-soon':
-        return <Badge className="bg-gray-100 text-gray-800">Coming Soon</Badge>;
+        return <Badge className="bg-[var(--surface-3)] text-muted-foreground border border-[var(--border-soft)]">Coming Soon</Badge>;
       default:
         return null;
     }
@@ -90,21 +90,21 @@ const LanguageSettingsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center space-x-2">
-            <Languages className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Language Settings</h1>
+            <Languages className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold text-foreground">Language Settings</h1>
           </div>
-          <p className="text-gray-600">Customize your language preferences and voice settings</p>
+          <p className="text-muted-foreground">Customize your language preferences and voice settings</p>
         </div>
 
         {/* Language Selection */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {supportedLanguages.map((language) => (
-            <Card key={language.code} className="border-0 shadow-lg">
+            <Card key={language.code} className="border border-[var(--border-soft)] bg-card/60 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Globe className="h-5 w-5" />
@@ -112,14 +112,14 @@ const LanguageSettingsPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center space-x-4 p-4 bg-blue-50 rounded-lg">
+                <div className="flex items-center space-x-4 p-4 bg-[var(--surface-2)] rounded-lg border border-[var(--border-soft)]">
                   <span className="text-2xl">{language.flag}</span>
                   <div className="ml-3">
                     <div className="font-medium">{language.name}</div>
                     <div className="text-sm text-muted-foreground">{language.nativeName}</div>
                   </div>
                 </div>
-                <p className="text-gray-600">Customize your language preferences</p>
+                <p className="text-muted-foreground">Customize your language preferences</p>
                 {getStatusBadge(language.status)}
               </CardContent>
             </Card>
@@ -127,7 +127,7 @@ const LanguageSettingsPage = () => {
         </div>
 
         {/* Voice Settings */}
-        <Card className="border-0 shadow-lg">
+        <Card className="border border-[var(--border-soft)] bg-card/60 shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Volume2 className="h-5 w-5" />

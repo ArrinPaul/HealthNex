@@ -149,7 +149,7 @@ export default function AIFeaturesPage() {
       title: 'AI Symptom Analysis',
       description: 'Analyze symptoms to identify potential waterborne diseases',
       icon: Activity,
-      color: 'from-blue-500 to-cyan-500',
+      color: 'from-cyan-400 to-sky-500',
       action: analyzeSymptoms
     },
     {
@@ -157,7 +157,7 @@ export default function AIFeaturesPage() {
       title: 'Health Assistant',
       description: 'Ask health-related questions and get AI-powered answers',
       icon: MessageSquare,
-      color: 'from-green-500 to-teal-500',
+      color: 'from-emerald-400 to-teal-500',
       action: askHealthQuestion
     },
     {
@@ -165,7 +165,7 @@ export default function AIFeaturesPage() {
       title: 'Outbreak Prediction',
       description: 'ML-powered disease outbreak prediction and early warning',
       icon: TrendingUp,
-      color: 'from-red-500 to-orange-500',
+      color: 'from-rose-500 to-amber-500',
       action: predictOutbreak
     },
     {
@@ -173,7 +173,7 @@ export default function AIFeaturesPage() {
       title: 'Health Forecasting',
       description: 'Predict community health trends using historical data',
       icon: BarChart3,
-      color: 'from-purple-500 to-pink-500',
+      color: 'from-violet-500 to-fuchsia-500',
       action: generateHealthForecast
     }
   ];
@@ -198,7 +198,7 @@ export default function AIFeaturesPage() {
             {/* AI Features Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {aiFeatures.map((feature) => (
-                <Card key={feature.id} className="backdrop-blur-xl bg-card/50 hover:bg-card/70 transition-all">
+                <Card key={feature.id} className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:bg-card/70 transition-all">
                   <CardHeader className="pb-4">
                     <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} p-2 mb-4`}>
                       <feature.icon className="w-full h-full text-white" />
@@ -224,7 +224,7 @@ export default function AIFeaturesPage() {
             {/* AI Input Forms */}
             <div className="grid md:grid-cols-2 gap-6">
               {/* Symptom Analysis Input */}
-              <Card className="backdrop-blur-xl bg-card/50">
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Activity className="w-5 h-5" />
@@ -250,7 +250,7 @@ export default function AIFeaturesPage() {
               </Card>
 
               {/* Health Query Input */}
-              <Card className="backdrop-blur-xl bg-card/50">
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="w-5 h-5" />
@@ -288,7 +288,7 @@ export default function AIFeaturesPage() {
 
             {/* Results Display */}
             {results && (
-              <Card className="backdrop-blur-xl bg-card/50">
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Eye className="w-5 h-5" />
@@ -298,7 +298,7 @@ export default function AIFeaturesPage() {
                 <CardContent>
                   {results.type === 'symptoms' && (
                     <div className="space-y-4">
-                      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                      <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
                         <h4 className="font-semibold mb-2">AI Analysis</h4>
                         <p className="text-sm">{results.data.analysis}</p>
                       </div>
@@ -313,7 +313,7 @@ export default function AIFeaturesPage() {
                           <ul className="space-y-1">
                             {results.data.recommendations.map((rec: string, idx: number) => (
                               <li key={idx} className="flex items-start gap-2 text-sm">
-                                <AlertTriangle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                                <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                                 {rec}
                               </li>
                             ))}
@@ -325,7 +325,7 @@ export default function AIFeaturesPage() {
 
                   {results.type === 'query' && (
                     <div className="space-y-4">
-                      <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                      <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
                         <h4 className="font-semibold mb-2">AI Health Assistant</h4>
                         <p className="text-sm">{results.data.answer}</p>
                       </div>
@@ -335,12 +335,12 @@ export default function AIFeaturesPage() {
                   {results.type === 'outbreak' && (
                     <div className="space-y-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex-1">
+                        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-lg flex-1">
                           <h4 className="font-semibold">Outbreak Risk</h4>
                           <p className="text-2xl font-bold">{results.data.outbreakRisk}</p>
                         </div>
                         {results.data.confidence && (
-                          <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                          <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
                             <h4 className="font-semibold">Confidence</h4>
                             <p className="text-xl font-bold">{(results.data.confidence * 100).toFixed(1)}%</p>
                           </div>
@@ -354,7 +354,7 @@ export default function AIFeaturesPage() {
                       <h4 className="font-semibold">Health Trend Forecast</h4>
                       <div className="grid gap-3">
                         {results.data.forecast?.map((item: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                          <div key={idx} className="flex items-center justify-between p-3 bg-violet-500/10 border border-violet-500/20 rounded-lg">
                             <div className="flex items-center gap-2">
                               <MapPin className="w-4 h-4" />
                               <span className="font-medium">{item.community}</span>
@@ -380,7 +380,7 @@ export default function AIFeaturesPage() {
           <TabsContent value="dashboard" className="space-y-6">
             {/* ML Dashboard */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="backdrop-blur-xl bg-card/50">
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Brain className="w-5 h-5" />
@@ -405,7 +405,7 @@ export default function AIFeaturesPage() {
                 </CardContent>
               </Card>
 
-              <Card className="backdrop-blur-xl bg-card/50">
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5" />
@@ -430,7 +430,7 @@ export default function AIFeaturesPage() {
                 </CardContent>
               </Card>
 
-              <Card className="backdrop-blur-xl bg-card/50">
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Heart className="w-5 h-5" />
@@ -441,15 +441,15 @@ export default function AIFeaturesPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Early Detections</span>
-                      <span className="font-bold text-green-600">12</span>
+                      <span className="font-bold text-emerald-400">12</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Prevented Outbreaks</span>
-                      <span className="font-bold text-blue-600">3</span>
+                      <span className="font-bold text-sky-400">3</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Lives Protected</span>
-                      <span className="font-bold text-purple-600">1,200+</span>
+                      <span className="font-bold text-violet-400">1,200+</span>
                     </div>
                   </div>
                 </CardContent>

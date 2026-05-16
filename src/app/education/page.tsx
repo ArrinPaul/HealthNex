@@ -61,20 +61,20 @@ export default function EducationPage() {
 
   const colorClasses = {
     blue: {
-      bg: 'bg-blue-100 dark:bg-blue-900/30',
-      text: 'text-blue-600'
+      bg: 'bg-sky-500/15',
+      text: 'text-sky-400'
     },
     green: {
-      bg: 'bg-green-100 dark:bg-green-900/30',
-      text: 'text-green-600'
+      bg: 'bg-emerald-500/15',
+      text: 'text-emerald-400'
     },
     purple: {
-      bg: 'bg-purple-100 dark:bg-purple-900/30',
-      text: 'text-purple-600'
+      bg: 'bg-violet-500/15',
+      text: 'text-violet-400'
     },
     red: {
-      bg: 'bg-red-100 dark:bg-red-900/30',
-      text: 'text-red-600'
+      bg: 'bg-rose-500/15',
+      text: 'text-rose-400'
     }
   };
 
@@ -146,7 +146,7 @@ export default function EducationPage() {
             const colors = colorClasses[topic.color as keyof typeof colorClasses];
             
             return (
-              <Card key={index} className="backdrop-blur-xl bg-card/50">
+              <Card key={index} className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className={`p-3 rounded-lg ${colors.bg}`}>
@@ -171,7 +171,7 @@ export default function EducationPage() {
         </div>
 
         {/* Video Resources */}
-        <Card className="backdrop-blur-xl bg-card/50">
+        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Video className="w-5 h-5" />
@@ -192,14 +192,14 @@ export default function EducationPage() {
                       className="w-full aspect-video object-cover group-hover:scale-105 transition-transform"
                     />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors">
-                      <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center group-hover:bg-red-700 transition-colors shadow-lg">
+                      <div className="w-16 h-16 bg-rose-500 rounded-full flex items-center justify-center group-hover:bg-rose-600 transition-colors shadow-lg">
                         <div className="w-0 h-0 border-t-6 border-t-transparent border-l-10 border-l-white border-b-6 border-b-transparent ml-1"></div>
                       </div>
                     </div>
                     <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-1 rounded text-xs text-white">
                       {resource.duration}
                     </div>
-                    <div className="absolute top-2 left-2 bg-red-600 px-2 py-1 rounded text-xs text-white font-medium">
+                    <div className="absolute top-2 left-2 bg-rose-500 px-2 py-1 rounded text-xs text-white font-medium">
                       YouTube
                     </div>
                   </div>
@@ -216,7 +216,7 @@ export default function EducationPage() {
         </Card>
 
         {/* Emergency Contacts */}
-        <Card className="backdrop-blur-xl bg-gradient-to-r from-blue-500/10 to-green-500/10 border-primary/20">
+        <Card className="backdrop-blur-xl bg-gradient-to-r from-primary/10 to-emerald-500/10 border border-[var(--border-soft)]">
           <CardHeader>
             <CardTitle>Emergency Contacts</CardTitle>
           </CardHeader>

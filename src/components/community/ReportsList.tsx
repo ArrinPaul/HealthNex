@@ -12,23 +12,23 @@ export default function ReportsList() {
   const reports = useQuery(api.communityReports.getReports, {});
 
   return (
-    <Card className="backdrop-blur-xl bg-card/50">
+    <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
       <CardHeader>
         <CardTitle>Community Reports</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {reports?.map((report: any) => (
-            <Card key={report._id} className="backdrop-blur-xl bg-background/50">
+            <Card key={report._id} className="backdrop-blur-xl bg-[var(--surface-1)]/70 border border-[var(--border-soft)]">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-lg ${
-                    report.category === 'water' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-orange-100 dark:bg-orange-900/30'
+                    report.category === 'water' ? 'bg-sky-500/15' : 'bg-amber-500/15'
                   }`}>
                     {report.category === 'water' ? (
-                      <Droplet className="w-6 h-6 text-blue-600" />
+                      <Droplet className="w-6 h-6 text-sky-400" />
                     ) : (
-                      <AlertCircle className="w-6 h-6 text-orange-600" />
+                      <AlertCircle className="w-6 h-6 text-amber-400" />
                     )}
                   </div>
 

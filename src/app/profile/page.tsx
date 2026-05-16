@@ -60,11 +60,11 @@ export default function ProfilePage() {
   const getRoleBadge = () => {
     switch (user?.role) {
       case 'admin':
-        return <Badge className="bg-purple-500">Admin</Badge>;
+        return <Badge className="bg-violet-500/20 text-violet-300 border border-violet-500/30">Admin</Badge>;
       case 'health-worker':
-        return <Badge className="bg-blue-500">Health Worker</Badge>;
+        return <Badge className="bg-sky-500/20 text-sky-300 border border-sky-500/30">Health Worker</Badge>;
       case 'community-user':
-        return <Badge className="bg-green-500">Community User</Badge>;
+        return <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Community User</Badge>;
       default:
         return null;
     }
@@ -80,7 +80,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        <Card className="backdrop-blur-xl bg-card/50">
+        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">

@@ -27,13 +27,13 @@ export default function DistributionSection() {
   }, []);
 
   if (!isMounted) {
-    return <div className="h-[300px] animate-pulse bg-muted rounded-xl"></div>;
+    return <div className="h-[300px] animate-pulse bg-[var(--surface-2)]"></div>;
   }
 
   return (
-    <Card className="backdrop-blur-xl bg-card/50">
-      <CardHeader>
-        <CardTitle>{t('diseaseDistribution', 'Disease Distribution')}</CardTitle>
+    <Card className="bg-card border border-[var(--border-soft)] shadow-[0_24px_50px_-40px_rgba(0,0,0,0.7)] theme-transition">
+      <CardHeader className="border-b border-[var(--border-soft)] mb-6">
+        <CardTitle className="uppercase tracking-tight">{t('diseaseDistribution', 'Disease Distribution')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -47,6 +47,8 @@ export default function DistributionSection() {
               outerRadius={80}
               fill="#8884d8"
               dataKey="value"
+              stroke="var(--border)"
+              strokeWidth={2}
             >
               {diseaseDistribution.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

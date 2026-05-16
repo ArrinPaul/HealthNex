@@ -14,16 +14,16 @@ export default function WaterResults({ results }: WaterResultsProps) {
   return (
     <>
       <Card className={`backdrop-blur-xl ${
-        results.status === 'Safe' ? 'bg-green-500/10 border-green-500/20' :
-        results.status === 'Warning' ? 'bg-yellow-500/10 border-yellow-500/20' :
-        'bg-red-500/10 border-red-500/20'
+        results.status === 'Safe' ? 'bg-emerald-500/10 border-emerald-500/20' :
+        results.status === 'Warning' ? 'bg-amber-500/10 border-amber-500/20' :
+        'bg-rose-500/10 border-rose-500/20'
       }`}>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
             {results.status === 'Safe' ? (
-              <CheckCircle className="w-12 h-12 text-green-600" />
+              <CheckCircle className="w-12 h-12 text-emerald-400" />
             ) : (
-              <AlertTriangle className="w-12 h-12 text-yellow-600" />
+              <AlertTriangle className="w-12 h-12 text-amber-400" />
             )}
             <div>
               <h3 className="text-xl font-bold">{results.location}</h3>
@@ -32,9 +32,9 @@ export default function WaterResults({ results }: WaterResultsProps) {
               </p>
               <div className="mt-2">
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  results.status === 'Safe' ? 'bg-green-500 text-white' :
-                  results.status === 'Warning' ? 'bg-yellow-500 text-white' :
-                  'bg-red-500 text-white'
+                  results.status === 'Safe' ? 'bg-emerald-500 text-white' :
+                  results.status === 'Warning' ? 'bg-amber-500 text-black' :
+                  'bg-rose-500 text-white'
                 }`}>
                   {results.status}
                 </span>
@@ -52,11 +52,11 @@ export default function WaterResults({ results }: WaterResultsProps) {
           { label: t('rainfall'), value: results.parameters.rainfall, unit: 'mm', icon: Droplet, safe: true },
           { label: t('humidity'), value: results.parameters.humidity, unit: '%', icon: Droplet, safe: true }
         ].map((param, index) => (
-          <Card key={index} className="backdrop-blur-xl bg-card/50">
+          <Card key={index} className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <param.icon className="w-5 h-5 text-muted-foreground" />
-                {!param.safe && <AlertTriangle className="w-4 h-4 text-yellow-600" />}
+                {!param.safe && <AlertTriangle className="w-4 h-4 text-amber-400" />}
               </div>
               <div className="text-2xl font-bold">{param.value}{param.unit}</div>
               <div className="text-sm text-muted-foreground">{param.label}</div>
@@ -65,7 +65,7 @@ export default function WaterResults({ results }: WaterResultsProps) {
         ))}
       </div>
 
-      <Card className="backdrop-blur-xl bg-card/50">
+      <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
         <CardHeader>
           <CardTitle>Recommendations</CardTitle>
         </CardHeader>
@@ -73,7 +73,7 @@ export default function WaterResults({ results }: WaterResultsProps) {
           <ul className="space-y-2">
             {results.recommendations.map((rec: string, index: number) => (
               <li key={index} className="flex items-start gap-2">
-                <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
                 <span>{rec}</span>
               </li>
             ))}

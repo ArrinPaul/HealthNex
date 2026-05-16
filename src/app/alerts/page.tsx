@@ -130,29 +130,29 @@ export default function AlertsPage() {
 
         {/* Stats */}
         <div className="grid md:grid-cols-4 gap-4">
-          <Card className="backdrop-blur-xl bg-card/50">
+          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{alerts.length}</div>
               <div className="text-sm text-muted-foreground">Total Alerts</div>
             </CardContent>
           </Card>
-          <Card className="backdrop-blur-xl bg-red-500/10 border-red-500/20">
+          <Card className="backdrop-blur-xl bg-rose-500/10 border-rose-500/20">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-bold text-rose-400">
                 {alerts.filter(a => a.severity === 'high').length}
               </div>
               <div className="text-sm text-muted-foreground">High Severity</div>
             </CardContent>
           </Card>
-          <Card className="backdrop-blur-xl bg-yellow-500/10 border-yellow-500/20">
+          <Card className="backdrop-blur-xl bg-amber-500/10 border-amber-500/20">
             <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-2xl font-bold text-amber-400">
                 {alerts.filter(a => a.severity === 'medium').length}
               </div>
               <div className="text-sm text-muted-foreground">Medium Severity</div>
             </CardContent>
           </Card>
-          <Card className="backdrop-blur-xl bg-card/50">
+          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">
                 {alerts.filter(a => !a.read).length}
@@ -163,7 +163,7 @@ export default function AlertsPage() {
         </div>
 
         {/* Filters */}
-        <Card className="backdrop-blur-xl bg-card/50">
+        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-4 items-center">
               <span className="font-medium">{t('filter')}:</span>
@@ -186,7 +186,7 @@ export default function AlertsPage() {
         {/* Alerts List */}
         <div className="space-y-4">
           {filteredAlerts.length === 0 ? (
-            <Card className="backdrop-blur-xl bg-card/50">
+            <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
               <CardContent className="pt-6 text-center py-12">
                 <Bell className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">No alerts to display</p>
@@ -197,19 +197,19 @@ export default function AlertsPage() {
               const Icon = getIcon(alert.type);
               return (
                 <Card key={alert.id} className={`backdrop-blur-xl ${
-                  !alert.read ? 'bg-primary/5 border-primary/20' : 'bg-card/50'
+                  !alert.read ? 'bg-primary/5 border-primary/20' : 'bg-card/60 border border-[var(--border-soft)]'
                 }`}>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
                       <div className={`p-3 rounded-lg ${
-                        alert.severity === 'high' ? 'bg-red-100 dark:bg-red-900/30' :
-                        alert.severity === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
-                        'bg-blue-100 dark:bg-blue-900/30'
+                        alert.severity === 'high' ? 'bg-rose-500/15' :
+                        alert.severity === 'medium' ? 'bg-amber-500/15' :
+                        'bg-sky-500/15'
                       }`}>
                         <Icon className={`w-6 h-6 ${
-                          alert.severity === 'high' ? 'text-red-600' :
-                          alert.severity === 'medium' ? 'text-yellow-600' :
-                          'text-blue-600'
+                          alert.severity === 'high' ? 'text-rose-400' :
+                          alert.severity === 'medium' ? 'text-amber-400' :
+                          'text-sky-400'
                         }`} />
                       </div>
 

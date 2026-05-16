@@ -26,52 +26,54 @@ export default function StatsGrid() {
       change: '+12%',
       icon: Activity,
       color: 'text-primary',
-      bg: 'bg-primary/10 border-primary/20'
+      bg: 'bg-primary/15'
     },
     {
       title: t('aiPredictions', 'AI Predictions'),
       value: 'N/A',
       change: 'Pending',
       icon: AlertTriangle,
-      color: 'text-violet-500',
-      bg: 'bg-violet-500/10 border-violet-500/20'
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/15'
     },
     {
       title: t('waterQualityAlerts', 'Water Quality Alerts'),
       value: waterAlerts.toString(),
       change: 'Live',
       icon: Droplet,
-      color: 'text-cyan-500',
-      bg: 'bg-cyan-500/10 border-cyan-500/20'
+      color: 'text-sky-400',
+      bg: 'bg-sky-500/15'
     },
     {
       title: t('aiInsights', 'AI Insights Today'),
       value: 'N/A',
       change: 'Live',
       icon: TrendingUp,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-500/10 border-emerald-500/20'
+      color: 'text-emerald-400',
+      bg: 'bg-emerald-500/15'
     }
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
-        <Card key={index} className="glass border-0 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-          <CardHeader className="flex flex-row items-center justify-between pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-muted-foreground font-display">
+        <Card key={index} className="bg-card border border-[var(--border-soft)] shadow-[0_24px_50px_-40px_rgba(0,0,0,0.7)] theme-transition">
+          <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-[var(--border-soft)] mb-6">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
               {stat.title}
             </CardTitle>
-            <div className={`p-2.5 rounded-xl border ${stat.bg} transition-colors group-hover:bg-opacity-20`}>
+            <div className={`w-10 h-10 flex items-center justify-center rounded-lg border border-[var(--border-soft)] ${stat.bg}`}>
               <stat.icon className={`w-5 h-5 ${stat.color}`} />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold font-display tracking-tight">{stat.value}</div>
-            <p className={`text-xs font-medium mt-1 ${stat.change.startsWith('+') || stat.change === 'Accurate' ? 'text-emerald-500' : 'text-rose-500'}`}>
-              {stat.change} <span className="text-muted-foreground/60">from last month</span>
-            </p>
+          <CardContent>
+            <div className="text-4xl font-semibold tracking-tight uppercase">{stat.value}</div>
+            <div className="flex items-center gap-2 mt-4">
+                <div className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full border ${stat.change.startsWith('+') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30' : 'bg-[var(--surface-3)] text-muted-foreground border-[var(--border-soft)]'}`}>
+                  {stat.change}
+                </div>
+                <span className="text-[10px] font-semibold uppercase text-muted-foreground">Trend</span>
+            </div>
           </CardContent>
         </Card>
       ))}

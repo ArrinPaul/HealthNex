@@ -1,19 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, DM_Sans } from "next/font/google";
+import { Unbounded, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import ClientProviders from "@/components/providers/ClientProviders";
 import { validateEnv } from "@/lib/env-config";
 
-const outfit = Outfit({ 
+const unbounded = Unbounded({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-unbounded",
   display: "swap",
 });
 
-const dmSans = DM_Sans({ 
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-instrument-sans",
+  display: "swap",
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
@@ -41,7 +47,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#2563eb",
+  themeColor: "#00d9ff",
 };
 
 export default function RootLayout({
@@ -56,7 +62,7 @@ export default function RootLayout({
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
       </head>
-      <body className={`${outfit.variable} ${dmSans.variable} font-sans antialiased`}>
+      <body className={`${unbounded.variable} ${instrumentSans.variable} ${jetBrainsMono.variable} font-sans antialiased`}>
         <ClientProviders>
           {children}
         </ClientProviders>

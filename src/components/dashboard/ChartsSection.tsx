@@ -20,8 +20,6 @@ export default function ChartsSection() {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   
-  // Historical data should be fetched from Convex/API in production.
-  // Removing hardcoded mock data.
   const casesTrendData: any[] = [];
   const waterQualityData: any[] = [];
 
@@ -30,20 +28,20 @@ export default function ChartsSection() {
   }, []);
 
   if (!isMounted) {
-    return <div className="grid gap-6 lg:grid-cols-2 h-[300px] animate-pulse bg-muted rounded-xl"></div>;
+    return <div className="grid gap-6 lg:grid-cols-2 h-[300px] animate-pulse bg-[var(--surface-2)]"></div>;
   }
 
   const EmptyState = ({ message }: { message: string }) => (
-    <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-muted/20 rounded-lg">
-      <p>{message}</p>
+    <div className="h-[300px] flex items-center justify-center text-muted-foreground bg-[var(--surface-2)] border border-dashed border-[var(--border-soft)] rounded-2xl">
+      <p className="font-semibold uppercase tracking-widest text-xs">{message}</p>
     </div>
   );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="backdrop-blur-xl bg-card/50">
-        <CardHeader>
-          <CardTitle>{t('casesTrend', 'Cases Trend')}</CardTitle>
+    <div className="grid gap-8 lg:grid-cols-2">
+      <Card className="bg-card border border-[var(--border-soft)] shadow-[0_24px_50px_-40px_rgba(0,0,0,0.7)] theme-transition">
+        <CardHeader className="border-b border-[var(--border-soft)] mb-6">
+          <CardTitle className="uppercase tracking-tight">{t('casesTrend', 'Cases Trend')}</CardTitle>
         </CardHeader>
         <CardContent>
           {casesTrendData.length > 0 ? (
@@ -54,7 +52,7 @@ export default function ChartsSection() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="cases" stroke="#3b82f6" strokeWidth={2} name="Actual Cases" />
+                <Line type="monotone" dataKey="cases" stroke="#00d9ff" strokeWidth={2} name="Actual Cases" />
                 <Line type="monotone" dataKey="predictions" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" name="Predicted" />
               </LineChart>
             </ResponsiveContainer>
@@ -64,9 +62,9 @@ export default function ChartsSection() {
         </CardContent>
       </Card>
 
-      <Card className="backdrop-blur-xl bg-card/50">
-        <CardHeader>
-          <CardTitle>{t('waterQualityTrend', 'Water Quality Trend')}</CardTitle>
+      <Card className="bg-card border border-[var(--border-soft)] shadow-[0_24px_50px_-40px_rgba(0,0,0,0.7)] theme-transition">
+        <CardHeader className="border-b border-[var(--border-soft)] mb-6">
+          <CardTitle className="uppercase tracking-tight">{t('waterQualityTrend', 'Water Quality Trend')}</CardTitle>
         </CardHeader>
         <CardContent>
           {waterQualityData.length > 0 ? (
@@ -77,7 +75,7 @@ export default function ChartsSection() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="pH" fill="#3b82f6" name="pH Level" />
+                <Bar dataKey="pH" fill="#00d9ff" name="pH Level" />
                 <Bar dataKey="turbidity" fill="#f59e0b" name="Turbidity (NTU)" />
               </BarChart>
             </ResponsiveContainer>

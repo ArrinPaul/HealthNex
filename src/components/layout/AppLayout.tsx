@@ -12,18 +12,40 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background Mesh Gradients */}
-      <div className="fixed inset-0 pointer-events-none z-0 opacity-40 dark:opacity-20">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-500/20 blur-[120px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }} />
+    <div className="min-h-screen bg-background text-foreground relative selection:bg-primary/20 theme-transition">
+      {/* Atmospheric background layers */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute -top-40 -left-40 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,rgba(0,217,255,0.2)_0%,transparent_65%)] blur-2xl" />
+        <div className="absolute -bottom-40 right-0 h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18)_0%,transparent_70%)] blur-3xl" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.02)_0%,transparent_45%,rgba(0,217,255,0.03)_100%)]" />
       </div>
 
       <div className="relative z-10 flex min-h-screen">
         <Navigation />
-        <main className="flex-1 lg:ml-80 transition-all duration-300">
-          <div className="p-6 lg:p-10 max-w-7xl mx-auto pt-24 lg:pt-10">
-            {children}
+        
+        <main className="flex-1 lg:ml-72 transition-all duration-300">
+          <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto pt-24 lg:pt-12">
+            {/* Glassy control surface container */}
+            <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[2rem] shadow-[0_40px_90px_-50px_rgba(0,0,0,0.7)] overflow-hidden flex flex-col min-h-[calc(100vh-100px)] theme-transition">
+              
+              {/* Window Header */}
+              <div className="h-14 border-b border-[var(--border-soft)] bg-[var(--surface-2)]/80 backdrop-blur flex items-center px-8 justify-between shrink-0 theme-transition">
+                <div className="flex gap-2.5">
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#FF5F56] shadow-sm" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#FFBD2E] shadow-sm" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#27C93F] shadow-sm" />
+                </div>
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
+                  HealthNex Intelligence Session
+                </div>
+                <div className="w-16" />
+              </div>
+
+              {/* Window Content */}
+              <div className="flex-1 overflow-auto p-10 lg:p-12 custom-scrollbar">
+                {children}
+              </div>
+            </div>
           </div>
         </main>
       </div>

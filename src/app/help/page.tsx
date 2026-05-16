@@ -79,10 +79,10 @@ export default function HelpPage() {
 
         {/* Quick Help Cards */}
         <div className="grid md:grid-cols-3 gap-4">
-          <Card className="backdrop-blur-xl bg-card/50 hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:shadow-lg transition-shadow cursor-pointer">
             <CardContent className="pt-6 text-center">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Phone className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-sky-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Phone className="w-6 h-6 text-sky-400" />
               </div>
               <h3 className="font-semibold mb-1">Call Us</h3>
               <p className="text-sm text-muted-foreground mb-2">24/7 Support</p>
@@ -90,10 +90,10 @@ export default function HelpPage() {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-card/50 hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:shadow-lg transition-shadow cursor-pointer">
             <CardContent className="pt-6 text-center">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Mail className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Mail className="w-6 h-6 text-emerald-400" />
               </div>
               <h3 className="font-semibold mb-1">Email Support</h3>
               <p className="text-sm text-muted-foreground mb-2">Response within 24h</p>
@@ -101,10 +101,10 @@ export default function HelpPage() {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-card/50 hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:shadow-lg transition-shadow cursor-pointer">
             <CardContent className="pt-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
-                <MessageCircle className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-violet-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
+                <MessageCircle className="w-6 h-6 text-violet-400" />
               </div>
               <h3 className="font-semibold mb-1">Live Chat</h3>
               <p className="text-sm text-muted-foreground mb-2">Chat with support</p>
@@ -114,7 +114,7 @@ export default function HelpPage() {
         </div>
 
         {/* FAQs */}
-        <Card className="backdrop-blur-xl bg-card/50">
+        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <HelpCircle className="w-5 h-5" />
@@ -138,7 +138,7 @@ export default function HelpPage() {
         </Card>
 
         {/* Contact Form */}
-        <Card className="backdrop-blur-xl bg-card/50">
+        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
           <CardHeader>
             <CardTitle>Contact Support</CardTitle>
           </CardHeader>
@@ -202,27 +202,27 @@ export default function HelpPage() {
         </Card>
 
         {/* Emergency Information */}
-        <Card className="backdrop-blur-xl bg-gradient-to-r from-red-500/10 to-orange-500/10 border-red-500/20">
+        <Card className="backdrop-blur-xl bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-[var(--border-soft)]">
           <CardHeader>
-            <CardTitle className="text-red-600 dark:text-red-400">Emergency Numbers</CardTitle>
+            <CardTitle className="text-rose-400">Emergency Numbers</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <p className="font-semibold mb-1">Medical Emergency</p>
-                <p className="text-2xl font-bold text-red-600">108</p>
+                <p className="text-2xl font-bold text-rose-400">108</p>
               </div>
               <div>
                 <p className="font-semibold mb-1">Health Helpline</p>
-                <p className="text-2xl font-bold text-red-600">104</p>
+                <p className="text-2xl font-bold text-rose-400">104</p>
               </div>
               <div>
                 <p className="font-semibold mb-1">Women & Child Helpline</p>
-                <p className="text-2xl font-bold text-red-600">1098</p>
+                <p className="text-2xl font-bold text-rose-400">1098</p>
               </div>
               <div>
                 <p className="font-semibold mb-1">Disaster Management</p>
-                <p className="text-2xl font-bold text-red-600">108</p>
+                <p className="text-2xl font-bold text-rose-400">108</p>
               </div>
             </div>
           </CardContent>

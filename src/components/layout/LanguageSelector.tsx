@@ -317,7 +317,7 @@ const LanguageSelector: React.FC = () => {
             <span className="text-lg">{currentLang.flag}</span>
             <span className="text-sm font-medium">{currentLang.code.toUpperCase()}</span>
             {voiceSettings.enabled && getVoiceSupport(currentLanguage) && (
-              <Volume2 className="w-3 h-3 text-green-500" />
+              <Volume2 className="w-3 h-3 text-emerald-400" />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -337,7 +337,7 @@ const LanguageSelector: React.FC = () => {
               <DropdownMenuItem
                 key={language.code}
                 onClick={() => changeLanguage(language.code)}
-                className="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50"
+                className="flex items-center justify-between p-3 cursor-pointer hover:bg-[var(--surface-2)]"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-xl">{language.flag}</span>
@@ -345,14 +345,14 @@ const LanguageSelector: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{language.name}</span>
                       {hasVoiceSupport && (
-                        <Volume2 className="w-3 h-3 text-green-500" />
+                        <Volume2 className="w-3 h-3 text-emerald-400" />
                       )}
                     </div>
-                    <span className="text-sm text-gray-500">{language.nativeName}</span>
+                    <span className="text-sm text-muted-foreground">{language.nativeName}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  {isSelected && <Check className="w-4 h-4 text-green-500" />}
+                  {isSelected && <Check className="w-4 h-4 text-emerald-400" />}
                   <Badge variant={hasVoiceSupport ? "default" : "secondary"} className="text-xs">
                     {language.code.toUpperCase()}
                   </Badge>
@@ -373,9 +373,9 @@ const LanguageSelector: React.FC = () => {
             className="flex items-center gap-2"
           >
             {voiceSettings.enabled ? (
-              <Volume2 className="w-4 h-4 text-green-500" />
+              <Volume2 className="w-4 h-4 text-emerald-400" />
             ) : (
-              <VolumeX className="w-4 h-4 text-gray-400" />
+              <VolumeX className="w-4 h-4 text-muted-foreground" />
             )}
             {t('enableVoice') || 'Enable Voice'}
           </DropdownMenuCheckboxItem>
@@ -385,7 +385,7 @@ const LanguageSelector: React.FC = () => {
             onCheckedChange={(checked) => updateVoiceSettings({ autoSpeak: checked })}
             disabled={!voiceSettings.enabled}
           >
-            <Mic className="w-4 h-4 text-blue-500" />
+            <Mic className="w-4 h-4 text-primary" />
             {t('autoSpeak') || 'Auto-speak responses'}
           </DropdownMenuCheckboxItem>
           
@@ -395,7 +395,7 @@ const LanguageSelector: React.FC = () => {
               <div className="px-3 py-2">
                 <div className="space-y-3">
                   <div>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-foreground">
                       {t('speechRate') || 'Speech Rate'}: {voiceSettings.rate.toFixed(1)}
                     </label>
                     <input
@@ -410,7 +410,7 @@ const LanguageSelector: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-foreground">
                       {t('speechPitch') || 'Speech Pitch'}: {voiceSettings.pitch.toFixed(1)}
                     </label>
                     <input
@@ -425,7 +425,7 @@ const LanguageSelector: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-foreground">
                       {t('volume') || 'Volume'}: {Math.round(voiceSettings.volume * 100)}%
                     </label>
                     <input

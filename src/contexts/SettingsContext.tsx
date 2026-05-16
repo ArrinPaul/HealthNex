@@ -30,14 +30,25 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         const storedLanguage = localStorage.getItem('language');
         const storedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
 
-        if (storedFontSize) setFontSize(storedFontSize);
+        const initialFontSize = storedFontSize ?? 'medium';
+        const initialContrast = storedHighContrast ? 'high' : 'normal';
+
+        setFontSize(initialFontSize as 'small' | 'medium' | 'large');
         if (storedHighContrast) setHighContrast(true);
+
+        if (typeof document !== 'undefined') {
+          document.documentElement.dataset.fontSize = initialFontSize;
+          document.documentElement.dataset.contrast = initialContrast;
+        }
         if (storedLanguage) setLanguage(storedLanguage);
         if (storedTheme) {
           setTheme(storedTheme);
-          // Apply theme
-          if (storedTheme === 'dark' && typeof document !== 'undefined') {
-            document.documentElement.classList.add('dark');
+          if (typeof document !== 'undefined') {
+            if (storedTheme === 'dark') {
+              document.documentElement.classList.add('dark');
+            } else {
+              document.documentElement.classList.remove('dark');
+            }
           }
         }
       } catch (error) {
@@ -51,12 +62,18 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('fontSize', size);
     }
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.fontSize = size;
+    }
   };
 
   const handleSetHighContrast = (enabled: boolean) => {
     setHighContrast(enabled);
     if (typeof window !== 'undefined') {
       localStorage.setItem('highContrast', enabled.toString());
+    }
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.contrast = enabled ? 'high' : 'normal';
     }
   };
 

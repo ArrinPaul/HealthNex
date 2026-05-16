@@ -11,7 +11,6 @@ import {
   Heart,
   MapPin,
   Clock,
-  Users,
   X,
   Sparkles,
   Activity
@@ -33,7 +32,6 @@ interface Suggestion {
 const AISuggestions: React.FC = () => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
-  const [hasError, setHasError] = useState(false);
 
   // Generate AI-powered suggestions based on current conditions
   const generateSuggestions = (): Suggestion[] => {
@@ -128,7 +126,6 @@ const AISuggestions: React.FC = () => {
   useEffect(() => {
     const loadSuggestions = async () => {
       try {
-        // Try to load from backend AI service
         const response = await fetch('/api/suggestions/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -144,21 +141,15 @@ const AISuggestions: React.FC = () => {
           const data = await response.json();
           setSuggestions(data.suggestions || []);
         } else {
-          // Fallback to local suggestions
           setSuggestions(generateSuggestions());
         }
       } catch (error) {
-        console.error('Failed to load AI suggestions:', error);
-        // Fallback to local suggestions
         setSuggestions(generateSuggestions());
       }
     };
 
     loadSuggestions();
-
-    // Refresh suggestions every 30 minutes
     const interval = setInterval(loadSuggestions, 30 * 60 * 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -172,28 +163,14 @@ const AISuggestions: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityStyles = (priority: string) => {
     switch (priority) {
-      case 'high': return 'border-red-200 bg-red-50';
-      case 'medium': return 'border-yellow-200 bg-yellow-50';
-      case 'low': return 'border-blue-200 bg-blue-50';
-      default: return 'border-gray-200 bg-gray-50';
+      case 'high': return 'bg-rose-600 text-white border-rose-300/40';
+      case 'medium': return 'bg-amber-500 text-black border-amber-200/40';
+      case 'low': return 'bg-sky-500 text-black border-sky-200/40';
+      default: return 'bg-[var(--surface-3)] text-foreground border-[var(--border-soft)]';
     }
   };
-
-  const getPriorityIconColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'text-red-500';
-      case 'medium': return 'text-yellow-500';
-      case 'low': return 'text-blue-500';
-      default: return 'text-gray-500';
-    }
-  };
-
-  // Safety check
-  if (hasError) {
-    return null;
-  }
 
   const activeSuggestions = suggestions.filter(s => !dismissedSuggestions.has(s.id));
 
@@ -202,113 +179,89 @@ const AISuggestions: React.FC = () => {
   }
 
   return (
-    <Card className="mb-6 border-l-4 border-l-purple-500 shadow-lg">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-purple-100 rounded-lg">
-            <Sparkles className="w-5 h-5 text-purple-600" />
+    <Card className="bg-card border border-[var(--border-soft)] shadow-[0_30px_70px_-50px_rgba(0,0,0,0.7)] overflow-hidden theme-transition">
+      <CardHeader className="pb-6 bg-[var(--surface-3)] border-b border-[var(--border-soft)]">
+        <div className="flex items-center gap-6">
+          <div className="w-12 h-12 bg-[var(--surface-1)] text-primary flex items-center justify-center rounded-xl border border-primary/40 shadow-[0_0_22px_rgba(0,217,255,0.35)]">
+            <Sparkles className="w-6 h-6" />
           </div>
-          <div>
-            <CardTitle className="text-lg flex items-center gap-2">
-              AI-Powered Suggestions
-              <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">
+          <div className="flex-1">
+            <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-4 uppercase">
+              Intelligent Insights
+              <span className="text-[10px] font-semibold bg-primary text-primary-foreground px-3 py-1 rounded-full border border-primary/60">
                 {activeSuggestions.length} Active
               </span>
             </CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Personalized recommendations based on AI analysis
-            </p>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="p-8">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {activeSuggestions.slice(0, 3).map((suggestion) => {
             const Icon = suggestion.icon;
+            const styles = getPriorityStyles(suggestion.priority);
             return (
               <div
                 key={suggestion.id}
-                className={`p-4 rounded-lg border-l-4 ${getPriorityColor(suggestion.priority)} relative`}
+                className={`p-8 rounded-2xl border flex flex-col justify-between shadow-[0_20px_40px_-30px_rgba(0,0,0,0.6)] theme-transition ${styles}`}
               >
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => dismissSuggestion(suggestion.id)}
-                  className="absolute top-2 right-2 w-6 h-6 p-0 opacity-50 hover:opacity-100"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-
-                <div className="flex items-start gap-3 pr-8">
-                  <div className={`p-2 rounded-lg bg-white shadow-sm`}>
-                    <Icon className={`w-5 h-5 ${getPriorityIconColor(suggestion.priority)}`} />
+                <div>
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="w-10 h-10 bg-black/10 flex items-center justify-center rounded-lg border border-black/20">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => dismissSuggestion(suggestion.id)}
+                      className="w-8 h-8 p-0 bg-black/10 text-current border border-black/20 hover:bg-black/20 theme-transition"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
                   </div>
                   
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-gray-900">{suggestion.title}</h3>
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        suggestion.priority === 'high' ? 'bg-red-100 text-red-700' :
-                        suggestion.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-blue-100 text-blue-700'
-                      }`}>
-                        {suggestion.priority.toUpperCase()}
-                      </span>
+                  <h3 className="font-semibold text-lg mb-4 uppercase leading-tight tracking-tight">{suggestion.title}</h3>
+                  <p className="text-sm font-semibold opacity-90 mb-8 leading-relaxed">
+                    {suggestion.description}
+                  </p>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest opacity-80 border-t border-current pt-4">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3 h-3" />
+                      {(suggestion.timestamp instanceof Date ? suggestion.timestamp : new Date(suggestion.timestamp)).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
                     </div>
-                    
-                    <p className="text-gray-600 text-sm mb-3 leading-relaxed">
-                      {suggestion.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {(suggestion.timestamp instanceof Date ? suggestion.timestamp : new Date(suggestion.timestamp)).toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </div>
-                        {suggestion.location && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {suggestion.location}
-                          </div>
-                        )}
+                    {suggestion.location && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-3 h-3" />
+                        {suggestion.location}
                       </div>
-                      
-                      {suggestion.action && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleAction(suggestion.actionUrl)}
-                          className="ml-auto"
-                        >
-                          {suggestion.action}
-                        </Button>
-                      )}
-                    </div>
+                    )}
                   </div>
+                  
+                  {suggestion.action && (
+                    <Button
+                      size="sm"
+                      onClick={() => handleAction(suggestion.actionUrl)}
+                      className="w-full h-10 bg-black/10 text-current border border-black/20 font-semibold uppercase text-[10px] tracking-widest hover:bg-black/20 theme-transition"
+                    >
+                      {suggestion.action}
+                    </Button>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
 
-        {activeSuggestions.length > 3 && (
-          <div className="mt-4 pt-4 border-t">
-            <Button variant="outline" className="w-full">
-              View {activeSuggestions.length - 3} More Suggestions
-            </Button>
-          </div>
-        )}
-
-        <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
-          <div className="flex items-center gap-2 text-sm">
-            <Lightbulb className="w-4 h-4 text-purple-500" />
-            <span className="text-gray-600">
-              Suggestions are updated every 30 minutes based on real-time data analysis and AI models.
-            </span>
+        <div className="mt-10 p-6 bg-[var(--surface-2)] text-foreground border border-[var(--border-soft)] rounded-2xl theme-transition">
+          <div className="flex items-center gap-4 text-xs font-semibold uppercase tracking-widest">
+            <Lightbulb className="w-5 h-5" />
+            <span>Intelligence protocol refreshed every 30 minutes based on local telemetry and regional health trends.</span>
           </div>
         </div>
       </CardContent>
