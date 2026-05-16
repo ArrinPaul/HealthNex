@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import ThemeToggle from '@/components/layout/ThemeToggle';
-import { motion, AnimatePresence, useInView, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
+import { motion, AnimatePresence, useInView, useScroll, useSpring, useTransform, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
@@ -89,49 +89,59 @@ const PipelineStage = ({ icon: Icon, title, desc, delay, children }: any) => (
 );
 
 const FeatureCard = ({ title, desc, icon: Icon, color, delay }: any) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["10deg", "-10deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-10deg", "10deg"]);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  const handleMouseMove = ({ currentTarget, clientX, clientY }: React.MouseEvent) => {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
   };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
+      transition={{ delay, duration: 0.8 }}
       viewport={{ once: true }}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => { x.set(0); y.set(0); }}
-      style={{ rotateY, rotateX, transformStyle: "preserve-3d" }}
-      className="relative group p-10 rounded-[3rem] border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-[0_24px_60px_-40px_rgba(0,0,0,0.7)] hover:shadow-[0_40px_90px_-50px_rgba(0,0,0,0.8)] hover:border-primary/50 theme-transition overflow-hidden"
+      className="group relative p-8 md:p-10 lg:p-12 rounded-[2.5rem] md:rounded-[3rem] lg:rounded-[3.5rem] border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-[0_30px_70px_-50px_rgba(0,0,0,0.7)] hover:border-primary/50 transition-all duration-500 overflow-hidden flex flex-col text-left h-full"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      {/* Spotlight Effect */}
+      <motion.div
+        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(0, 217, 255, 0.08), transparent 80%)`,
+        }}
+      />
       
-      <motion.div 
-        style={{ transform: "translateZ(50px)" }}
-        className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-10 relative z-10 bg-[var(--surface-2)] ${color} group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-inner`}
-      >
-        <Icon className="w-8 h-8 relative z-10" />
-      </motion.div>
+      {/* Glowing Border Spotlight */}
+      <motion.div
+        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem] md:rounded-[3rem] lg:rounded-[3.5rem] border-2 border-primary/30"
+        style={{
+          WebkitMaskImage: useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, black 0%, transparent 100%)`,
+        }}
+      />
 
-      <div style={{ transform: "translateZ(30px)" }} className="relative z-10">
-        <h3 className="text-xl font-bold mb-4 tracking-tight group-hover:text-primary transition-colors">
-          {title}
-        </h3>
-        <p className="text-muted-foreground leading-relaxed text-sm">
-          {desc}
-        </p>
+      <div className="relative z-10 w-full flex-1 flex flex-col">
+        <div className={`w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-[1.25rem] md:rounded-[1.5rem] flex items-center justify-center mb-8 md:mb-10 bg-[var(--surface-2)] ${color} group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-700 shadow-inner group-hover:scale-110 group-hover:rotate-3`}>
+          <Icon className="w-8 h-8 md:w-10 md:h-10 transition-transform duration-500 group-hover:scale-110" />
+        </div>
+
+        <div className="space-y-3 md:space-y-4 mb-8">
+          <h3 className="text-xl md:text-2xl font-bold tracking-tight group-hover:text-primary transition-colors duration-500">
+            {title}
+          </h3>
+          <p className="text-muted-foreground leading-relaxed text-sm md:text-base opacity-80 group-hover:opacity-100 transition-opacity duration-500">
+            {desc}
+          </p>
+        </div>
+        
+        <div className="mt-auto pt-6 md:pt-8 border-t border-[var(--border-soft)] w-full flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-4 group-hover:translate-y-0">
+           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Protocol Active</span>
+           <ArrowRight className="w-5 h-5 text-primary" />
+        </div>
       </div>
-
-      <div className="absolute bottom-0 right-0 w-24 h-24 bg-primary/5 rounded-tl-[100px] translate-x-12 translate-y-12 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-700" />
     </motion.div>
   );
 };
@@ -160,7 +170,7 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
         <div className="w-12" />
       </div>
 
-      <div className="flex flex-col md:flex-row h-[650px]">
+      <div className="flex flex-col md:flex-row min-h-[750px] md:h-[800px]">
         <div className="hidden md:flex flex-col w-72 border-r border-[var(--border-soft)] bg-[var(--surface-2)]/50 p-8 gap-10">
            <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
@@ -184,7 +194,7 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
            </div>
         </div>
 
-            <div className="flex-1 p-10 bg-[var(--surface-1)] overflow-auto custom-scrollbar">
+            <div className="flex-1 p-10 bg-[var(--surface-1)] overflow-hidden">
            <div className="flex justify-between items-center mb-12">
               <div className="space-y-1">
                  <h4 className="text-2xl font-bold tracking-tight">System Core</h4>
@@ -324,33 +334,33 @@ const ModuleShowcase = () => {
     <div className="grid lg:grid-cols-12 gap-16 py-20 items-center">
       <div className="lg:col-span-5 space-y-6">
         {modules.map((m, i) => (
-          <motion.div 
+            <motion.div 
             key={m.id}
             onMouseEnter={() => setActive(i)}
             whileHover={{ x: 10 }}
-            className={`cursor-pointer p-8 rounded-[2.5rem] border transition-all duration-500 ${
+            className={`cursor-pointer p-10 rounded-[3rem] border transition-all duration-500 ${
               active === i 
                 ? 'bg-[var(--surface-1)] border-primary shadow-2xl shadow-primary/10 scale-105' 
                 : 'border-transparent opacity-40 hover:opacity-100'
             }`}
           >
-            <div className="flex items-center gap-6">
-              <div className={`w-16 h-16 rounded-2xl bg-[var(--surface-2)] flex items-center justify-center ${active === i ? m.color : 'text-muted-foreground'} shadow-sm`}>
-                <m.icon className="w-8 h-8" />
+            <div className="flex items-center gap-8">
+              <div className={`w-20 h-20 shrink-0 rounded-[1.5rem] bg-[var(--surface-2)] flex items-center justify-center ${active === i ? m.color : 'text-muted-foreground'} shadow-sm`}>
+                <m.icon className="w-10 h-10" />
               </div>
-              <div>
-                <div className="flex items-center gap-3 mb-1.5">
-                  <h3 className="font-bold text-xl tracking-tight">{m.title}</h3>
-                  <span className={`text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-[var(--surface-2)] ${active === i ? m.color : 'text-muted-foreground'}`}>{m.tag}</span>
+              <div className="space-y-2">
+                <div className="flex items-center gap-4">
+                  <h3 className="font-bold text-2xl tracking-tight">{m.title}</h3>
+                  <span className={`text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-[var(--surface-2)] ${active === i ? m.color : 'text-muted-foreground'}`}>{m.tag}</span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">{m.desc}</p>
+                <p className="text-base text-muted-foreground leading-relaxed">{m.desc}</p>
               </div>
             </div>
           </motion.div>
         ))}
       </div>
 
-      <div className="lg:col-span-7 relative h-[550px] bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[4rem] overflow-hidden shadow-2xl group/preview">
+      <div className="lg:col-span-7 relative bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[4rem] overflow-hidden shadow-2xl group/preview flex flex-col min-h-[700px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
@@ -358,7 +368,7 @@ const ModuleShowcase = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5, ease: "circOut" }}
-            className="absolute inset-0 p-16 flex flex-col justify-center bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_50%)] bg-opacity-5"
+            className="w-full flex-1 p-12 md:p-16 lg:p-20 flex flex-col justify-start bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_50%)] bg-opacity-5"
           >
              <div className="mb-12">
                 <div className="flex items-center gap-3 text-primary font-bold text-xs uppercase tracking-[0.4em] mb-4">
@@ -366,25 +376,25 @@ const ModuleShowcase = () => {
                    {modules[active].title} Interface
                 </div>
                 <h4 className="text-3xl font-bold tracking-tight mb-4">Unified Visualization</h4>
-                <p className="text-muted-foreground leading-relaxed max-w-md">Real-time simulation of the {modules[active].title} control layer, optimized for professional medical clarity.</p>
+                <p className="text-muted-foreground leading-relaxed max-w-md text-sm md:text-base">Real-time simulation of the {modules[active].title} control layer, optimized for professional medical clarity.</p>
              </div>
              
-             <div className="grid gap-6">
+             <div className="grid gap-5 md:gap-6">
                {modules[active].features.map((f, i) => (
                  <motion.div 
                    key={f}
                    initial={{ opacity: 0, x: -30 }}
                    animate={{ opacity: 1, x: 0 }}
                    transition={{ delay: 0.2 + i * 0.1 }}
-                   className="flex items-center justify-between p-6 rounded-[2rem] bg-[var(--surface-2)]/60 border border-[var(--border-soft)] backdrop-blur-sm group-hover/preview:border-primary/30 transition-colors shadow-sm"
+                   className="flex items-center justify-between p-6 md:p-8 rounded-[2rem] bg-[var(--surface-2)]/60 border border-[var(--border-soft)] backdrop-blur-sm group-hover/preview:border-primary/30 transition-colors shadow-sm"
                  >
-                   <div className="flex items-center gap-5">
-                     <div className="w-12 h-12 rounded-2xl bg-[var(--surface-1)] flex items-center justify-center text-primary shadow-sm">
-                        <CheckCircle2 className="w-6 h-6" />
+                   <div className="flex items-center gap-6 md:gap-8">
+                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-[var(--surface-1)] flex items-center justify-center text-primary shadow-sm shrink-0">
+                        <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6" />
                      </div>
-                     <span className="font-bold tracking-tight text-lg">{f}</span>
+                     <span className="font-bold tracking-tight text-base md:text-lg">{f}</span>
                    </div>
-                   <div className="flex gap-1.5">
+                   <div className="flex gap-1.5 shrink-0">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_var(--emerald-500)]" />
                       <div className="w-2 h-2 rounded-full bg-emerald-500 opacity-30 shadow-[0_0_5px_var(--emerald-500)]" />
                    </div>
@@ -702,20 +712,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-24 bg-black text-white overflow-hidden relative">
-          <div className="container mx-auto px-6 relative z-10 text-center">
-            <div className="grid md:grid-cols-4 gap-12">
-              {statItems.map((stat, i) => (
-                <div key={i} className="space-y-2">
-                  <div className="text-4xl md:text-5xl font-black uppercase text-primary">
-                    <Counter value={stat.value} />
-                  </div>
-                  <div className="text-[10px] font-black uppercase tracking-widest opacity-50">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         <section id="performance" className="py-32 border-t border-border">
           <div className="container mx-auto px-6 text-center">

@@ -55,24 +55,23 @@ export default function StatsGrid() {
   ];
 
   return (
-    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="bg-card border border-[var(--border-soft)] shadow-[0_24px_50px_-40px_rgba(0,0,0,0.7)] theme-transition">
-          <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-[var(--border-soft)] mb-6">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-              {stat.title}
-            </CardTitle>
-            <div className={`w-10 h-10 flex items-center justify-center rounded-lg border border-[var(--border-soft)] ${stat.bg}`}>
-              <stat.icon className={`w-5 h-5 ${stat.color}`} />
+        <Card key={index} className="bg-card border border-[var(--border-soft)] shadow-md theme-transition group hover:border-primary/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+               <CardTitle className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">
+                 {stat.title}
+               </CardTitle>
+               <div className={`w-10 h-10 flex items-center justify-center rounded-xl border border-[var(--border-soft)] ${stat.bg} shadow-inner`}>
+                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
+               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-semibold tracking-tight uppercase">{stat.value}</div>
-            <div className="flex items-center gap-2 mt-4">
-                <div className={`px-2 py-0.5 text-[10px] font-semibold uppercase rounded-full border ${stat.change.startsWith('+') ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30' : 'bg-[var(--surface-3)] text-muted-foreground border-[var(--border-soft)]'}`}>
-                  {stat.change}
-                </div>
-                <span className="text-[10px] font-semibold uppercase text-muted-foreground">Trend</span>
+            <div className="flex items-baseline justify-between">
+               <div className="text-3xl font-bold tracking-tight uppercase text-foreground">{stat.value}</div>
+               <div className={`px-2.5 py-1 text-[8px] font-bold uppercase rounded-lg border ${stat.change.startsWith('+') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-[var(--surface-3)] text-muted-foreground border-[var(--border-soft)]'}`}>
+                 {stat.change}
+               </div>
             </div>
           </CardContent>
         </Card>
