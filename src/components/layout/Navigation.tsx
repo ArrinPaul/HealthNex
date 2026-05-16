@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import Logo from './Logo';
 import { 
   LayoutDashboard, 
   FileText, 
@@ -121,12 +122,7 @@ export default function Navigation() {
     <>
       {/* Mobile Navigation Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[var(--surface-1)]/90 backdrop-blur border-b border-[var(--border-soft)] px-4 h-16 flex items-center justify-between theme-transition">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary text-primary-foreground flex items-center justify-center rounded-lg shadow-[0_0_18px_rgba(0,217,255,0.35)]">
-            <Activity className="w-5 h-5" />
-          </div>
-          <span className="font-display font-bold text-lg tracking-tighter uppercase">HealthNex</span>
-        </div>
+        <Logo size="sm" />
         
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
@@ -135,13 +131,8 @@ export default function Navigation() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72 flex flex-col p-0 bg-[var(--surface-1)] border-r border-[var(--border-soft)] theme-transition">
-            <div className="p-8 border-b border-[var(--border-soft)] flex items-center gap-4">
-              <div className="w-10 h-10 bg-primary text-primary-foreground flex items-center justify-center rounded-xl shadow-[0_0_18px_rgba(0,217,255,0.35)]">
-                <Activity className="w-6 h-6" />
-              </div>
-              <div>
-                <h2 className="text-xl font-display font-bold leading-tight uppercase">HealthNex</h2>
-              </div>
+            <div className="p-8 border-b border-[var(--border-soft)]">
+              <Logo size="md" />
             </div>
             <NavContent />
           </SheetContent>
@@ -150,16 +141,8 @@ export default function Navigation() {
 
       {/* Desktop Fixed Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 bottom-0 w-72 bg-[var(--surface-1)] border-r border-[var(--border-soft)] flex-col z-40 theme-transition">
-        <div className="p-8 border-b border-[var(--border-soft)] flex items-center gap-4">
-          <div className="w-11 h-11 bg-primary text-primary-foreground flex items-center justify-center rounded-xl shadow-[0_0_22px_rgba(0,217,255,0.35)]">
-            <Activity className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-display font-bold tracking-tighter uppercase leading-none">
-              HealthNex
-            </h1>
-            <p className="text-[10px] font-semibold text-primary tracking-[0.4em] uppercase mt-1">Intelligence</p>
-          </div>
+        <div className="p-8 border-b border-[var(--border-soft)]">
+          <Logo size="md" />
         </div>
 
         {user && (

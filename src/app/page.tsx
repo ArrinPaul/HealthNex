@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import ThemeToggle from '@/components/layout/ThemeToggle';
+import Logo from '@/components/layout/Logo';
 import { motion, AnimatePresence, useInView, useScroll, useSpring, useTransform, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
@@ -172,12 +173,7 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
 
       <div className="flex flex-col md:flex-row min-h-[750px] md:h-[800px]">
         <div className="hidden md:flex flex-col w-72 border-r border-[var(--border-soft)] bg-[var(--surface-2)]/50 p-8 gap-10">
-           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                <HeartPulse className="w-6 h-6" />
-              </div>
-              <span className="font-bold tracking-tight">HealthNex</span>
-           </div>
+           <Logo size="sm" />
            <div className="space-y-6">
               {[LineChart, Globe2, Brain, Waves, Bell].map((Icon, i) => (
                  <div key={i} className={`flex items-center gap-4 p-3 rounded-2xl transition-all ${i === 0 ? 'bg-[var(--surface-1)] shadow-sm border border-[var(--border-soft)] text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
@@ -429,9 +425,9 @@ const LegacyToolCollision = () => {
       </div>
 
       <div className="relative h-[550px] flex items-center justify-center">
-        <div className="relative z-20 w-56 h-56 rounded-[4rem] bg-primary flex items-center justify-center text-primary-foreground shadow-[0_0_120px_rgba(0,217,255,0.5)] transition-transform hover:scale-110 duration-700 cursor-pointer">
-          <HeartPulse className="w-24 h-24" />
-          <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.1, 0.4, 0.1] }} transition={{ duration: 4, repeat: Infinity }} className="absolute inset-0 border-4 border-white/30 rounded-[4rem]" />
+        <div className="relative z-20 transition-transform hover:scale-110 duration-700 cursor-pointer">
+          <Logo iconOnly size="xl" />
+          <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.1, 0.4, 0.1] }} transition={{ duration: 4, repeat: Infinity }} className="absolute inset-0 border-4 border-primary/30 rounded-[4rem]" />
         </div>
 
         {legacyTools.map((tool, i) => (
@@ -573,12 +569,7 @@ export default function Home() {
 
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/30">
-              <HeartPulse className="w-7 h-7" />
-            </div>
-            <span className="font-display font-bold text-3xl tracking-tighter">HealthNex</span>
-          </div>
+          <Logo size="md" />
 
           <nav className="hidden lg:flex items-center gap-12 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
             <Link href="#how-it-works" className="hover:text-primary transition-colors">Protocol</Link>
@@ -742,25 +733,22 @@ export default function Home() {
       <footer className="py-32 border-t border-border bg-[var(--surface-2)]/70">
         <div className="container mx-auto px-6 grid md:grid-cols-4 gap-24">
           <div className="col-span-2 space-y-10">
-            <div className="flex items-center gap-5">
-              <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-xl shadow-primary/30"><HeartPulse className="w-7 h-7" /></div>
-              <span className="font-display font-bold text-3xl tracking-tighter uppercase">HealthNex</span>
-            </div>
+            <Logo size="lg" />
             <p className="text-lg md:text-xl font-bold uppercase leading-relaxed tracking-tight">Standardizing the world's health response through unified intelligence and distributed collaboration.</p>
           </div>
           <div>
             <h4 className="font-bold uppercase tracking-[0.3em] text-[10px] mb-12 text-primary">Intelligence</h4>
             <ul className="space-y-8 text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              <li><Link href="#" className="hover:text-primary transition-all">Surveillance</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-all">Neural Engine</Link></li>
+              <li><Link href="/surveillance" className="hover:text-primary transition-all">Surveillance</Link></li>
+              <li><Link href="/neural-engine" className="hover:text-primary transition-all">Neural Engine</Link></li>
               <li><Link href="/help" className="hover:text-primary transition-all">Documentation</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold uppercase tracking-[0.3em] text-[10px] mb-12 text-primary">Organization</h4>
             <ul className="space-y-8 text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              <li><Link href="#" className="hover:text-primary transition-all">Privacy Code</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-all">Mission State</Link></li>
+              <li><Link href="/privacy-code" className="hover:text-primary transition-all">Privacy Code</Link></li>
+              <li><Link href="/mission-state" className="hover:text-primary transition-all">Mission State</Link></li>
               <li><Link href="/help" className="hover:text-primary transition-all">Help Center</Link></li>
             </ul>
           </div>
