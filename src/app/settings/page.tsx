@@ -94,7 +94,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="fontSize" className="flex items-center gap-2">
+                <Label className="flex items-center gap-2">
                   <Type className="w-4 h-4" />
                   {t('fontSize')}
                 </Label>
@@ -143,7 +143,7 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <Label htmlFor="language">Interface Language</Label>
+              <Label>Interface Language</Label>
               <Select value={language} onValueChange={handleLanguageChange}>
                 <SelectTrigger className="w-60">
                   <SelectValue />

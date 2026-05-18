@@ -180,6 +180,7 @@ export default function HealthReportForm() {
             <Label htmlFor="upload">{t('uploadImage')} (Optional)</Label>
             <div className="mt-2 relative border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer group">
               <input 
+                id="upload"
                 type="file" 
                 accept="image/*" 
                 onChange={handleFileUpload}

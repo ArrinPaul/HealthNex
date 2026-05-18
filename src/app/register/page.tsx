@@ -3,19 +3,20 @@
 import { useState } from 'react';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-// import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
-import { Shield, Stethoscope, Users, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Shield, ArrowRight, Lock, Mail, Users, Stethoscope, MapPin, CheckCircle2 } from 'lucide-react';
 import ThemeToggle from '@/components/layout/ThemeToggle';
-import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
+import Logo from '@/components/layout/Logo';
 import { PasswordInput } from '@/components/ui/PasswordInput';
+import PasswordStrengthIndicator from '@/components/ui/PasswordStrengthIndicator';
 import { validatePassword } from '@/lib/passwordValidation';
 
 export default function RegisterPage() {
+  const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -25,53 +26,30 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
-  // const { t } = useTranslation(); // Removed for SSR compatibility
-  
-  // Static translations for better SSR compatibility
-  const t = (key: string) => {
-    const translations: Record<string, string> = {
-      'createAccount': 'Create Account',
-      'fullName': 'Full Name',
-      'email': 'Email',
-      'password': 'Password',
-      'confirmPassword': 'Confirm Password',
-      'selectRole': 'Select Role',
-      'location': 'Location',
-      'creating': 'Creating...',
-      'signUp': 'Sign Up',
-      'alreadyHaveAccount': 'Already have an account?',
-      'signIn': 'Sign In',
-      'joinHealthSystem': 'Join the Health Surveillance System',
-      'roleDescriptions': 'Choose your role to get started',
-      'adminAccess': 'Admin Access',
-      'healthProfessional': 'Health Professional',
-      'communityUser': 'Community User'
-    };
-    return translations[key] || key;
-  };
+
+  const handleNext = () => setStep(2);
+  const handleBack = () => setStep(1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate password strength
     const { isValid } = validatePassword(password);
     if (!isValid) {
-      alert('Password does not meet the required criteria. Please check the requirements below.');
+      alert('Security requirements not met. Please check your access key strength.');
       return;
     }
     
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      alert('Access keys do not match.');
       return;
     }
+
     setLoading(true);
     try {
       await register(name, email, password, role, location);
-      
-      // Role-based redirect
       if (role === 'admin' || role === 'health-worker') {
         router.push('/dashboard');
-      } else if (role === 'community-user') {
+      } else {
         router.push('/education');
       }
     } catch (error) {
@@ -81,174 +59,210 @@ export default function RegisterPage() {
     }
   };
 
+  const roles = [
+    { value: 'community-user', label: 'Community User', icon: Users, desc: 'Decentralized reporting & alerts' },
+    { value: 'health-worker', label: 'Health Professional', icon: Stethoscope, desc: 'Medical verification & response' },
+    { value: 'admin', label: 'System Admin', icon: Shield, desc: 'Protocol & network management' }
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background relative">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5 pointer-events-none" />
-      
-      {/* Theme toggle */}
-      <div className="absolute top-6 right-6">
-        <ThemeToggle />
+    <div className="min-h-screen flex flex-col md:flex-row bg-background overflow-hidden relative">
+      {/* Visual Side */}
+      <div className="hidden md:flex flex-1 relative items-center justify-center p-20 overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_70%)] opacity-10" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]" />
+        
+        <div className="relative z-10 space-y-12 max-w-lg">
+           <Logo size="xl" className="dark:text-white" />
+           <div className="space-y-6">
+              <h2 className="text-4xl lg:text-6xl font-bold tracking-tighter text-white uppercase leading-none">
+                Join the <br />
+                <span className="text-primary">Network.</span>
+              </h2>
+              <p className="text-slate-400 text-lg leading-relaxed font-medium">
+                Become a part of the distributed intelligence protocol designed to protect and inform regional health ecosystems.
+              </p>
+           </div>
+
+           <div className="space-y-6">
+              {['End-to-End Encrypted', 'Real-time Synchronization', 'AI-Powered Insights'].map((text, i) => (
+                <div key={i} className="flex items-center gap-4 text-white font-bold uppercase tracking-widest text-xs">
+                   <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                      <CheckCircle2 className="w-4 h-4" />
+                   </div>
+                   {text}
+                </div>
+              ))}
+           </div>
+        </div>
       </div>
 
-      <div className="w-full max-w-md relative z-10 animate-fade-in-up">
-        <div className="text-center mb-12">
-          <Link href="/" className="inline-block mb-4">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Health Surveillance
-            </h1>
-          </Link>
-          <p className="text-xl text-muted-foreground">
-            Create your account
-          </p>
+      {/* Form Side */}
+      <div className="flex-1 flex flex-col items-center justify-center p-6 md:p-12 lg:p-24 relative overflow-y-auto">
+        <div className="absolute top-8 right-8 flex items-center gap-6">
+           <ThemeToggle />
+           <Button asChild variant="ghost" className="text-[10px] font-bold uppercase tracking-widest">
+             <Link href="/">Close</Link>
+           </Button>
         </div>
 
-        <div className="apple-card p-8 space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <Label htmlFor="name" className="text-sm font-medium">
-                {t('name')}
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="mt-2 h-11 rounded-xl"
-                placeholder="Your full name"
-              />
-            </div>
+        <motion.div 
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="w-full max-w-md space-y-12 py-12"
+        >
+          <div className="space-y-4">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
+                Step {step} of 2
+             </div>
+             <h1 className="text-4xl font-bold tracking-tight uppercase leading-none">
+               {step === 1 ? 'Personal' : 'Protocol'} <br />
+               <span className="text-primary">{step === 1 ? 'Identity.' : 'Selection.'}</span>
+             </h1>
+             <p className="text-muted-foreground font-medium">
+               {step === 1 ? 'Enter your professional details.' : 'Choose your role within the network.'}
+             </p>
+          </div>
 
-            <div>
-              <Label htmlFor="email" className="text-sm font-medium">
-                {t('email')}
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-2 h-11 rounded-xl"
-                placeholder="you@example.com"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="password" className="text-sm font-medium">
-                {t('password')}
-              </Label>
-              <PasswordInput
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-2 h-11 rounded-xl"
-                placeholder="••••••••"
-              />
-              <PasswordStrengthIndicator password={password} />
-            </div>
-
-            <div>
-              <Label htmlFor="confirmPassword" className="text-sm font-medium">
-                {t('confirmPassword')}
-              </Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="mt-2 h-11 rounded-xl"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="role" className="text-sm font-medium">
-                {t('role')}
-              </Label>
-              <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
-                <SelectTrigger className="mt-2 h-11 rounded-xl">
-                  <SelectValue placeholder={t('selectRole')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
-                      {t('admin')}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <AnimatePresence mode="wait">
+              {step === 1 ? (
+                <motion.div 
+                  key="step1"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-6"
+                >
+                  <div className="space-y-3">
+                    <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Full Name</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      placeholder="John Doe"
+                      className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Protocol ID (Email)</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="id@healthnex.io"
+                      className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                    />
+                  </div>
+                  <div className="space-y-3 text-right">
+                     <Button type="button" onClick={handleNext} className="h-14 px-8 rounded-2xl font-bold uppercase tracking-widest">
+                        Continue <ArrowRight className="ml-3 w-4 h-4" />
+                     </Button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="step2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Create Access Key</Label>
+                      <PasswordInput
+                        id="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                      />
+                      <PasswordStrengthIndicator password={password} />
                     </div>
-                  </SelectItem>
-                  <SelectItem value="health-worker">
-                    <div className="flex items-center gap-2">
-                      <Stethoscope className="w-4 h-4" />
-                      {t('healthWorker')}
+                    <div className="space-y-3">
+                      <Label htmlFor="confirm" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Confirm Access Key</Label>
+                      <Input
+                        id="confirm"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder="••••••••"
+                        className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                      />
                     </div>
-                  </SelectItem>
-                  <SelectItem value="community-user">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      {t('communityUser')}
+                    <div className="space-y-4">
+                      <Label className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Network Role</Label>
+                      <div className="grid gap-3">
+                         {roles.map((r) => (
+                           <button
+                             key={r.value}
+                             type="button"
+                             onClick={() => setRole(r.value as UserRole)}
+                             className={`flex items-center gap-4 p-4 rounded-2xl border text-left transition-all ${
+                               role === r.value 
+                                 ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' 
+                                 : 'bg-[var(--surface-2)] border-[var(--border-soft)] hover:border-primary/40'
+                             }`}
+                           >
+                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${role === r.value ? 'bg-primary text-primary-foreground' : 'bg-[var(--surface-3)] text-muted-foreground'}`}>
+                                 <r.icon className="w-5 h-5" />
+                              </div>
+                              <div>
+                                 <div className="font-bold text-xs uppercase tracking-tight">{r.label}</div>
+                                 <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{r.desc}</p>
+                              </div>
+                           </button>
+                         ))}
+                      </div>
                     </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="location" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Deployment Zone (City, State)</Label>
+                      <div className="relative group">
+                        <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          id="location"
+                          value={location}
+                          onChange={(e) => setLocation(e.target.value)}
+                          required
+                          placeholder="San Francisco, CA"
+                          className="h-16 pl-14 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-            <div>
-              <Label htmlFor="location" className="text-sm font-medium">
-                {t('location')}
-              </Label>
-              <Input
-                id="location"
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                required
-                className="mt-2 h-11 rounded-xl"
-                placeholder="City, State"
-              />
-            </div>
-
-            <Button 
-              type="submit" 
-              className="w-full h-11 rounded-full text-base font-medium shadow-lg shadow-primary/20" 
-              disabled={loading}
-            >
-              {loading ? t('loading') : (
-                <span className="flex items-center gap-2">
-                  {t('signUp')}
-                  <ArrowRight className="w-4 h-4" />
-                </span>
+                  <div className="flex items-center justify-between gap-6 pt-4">
+                    <button type="button" onClick={handleBack} className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                      Back
+                    </button>
+                    <Button 
+                      type="submit" 
+                      className="h-16 px-10 rounded-2xl text-lg font-bold bg-primary text-primary-foreground shadow-xl shadow-primary/20 transition-all group" 
+                      disabled={loading}
+                    >
+                      {loading ? 'Processing...' : (
+                        <span className="flex items-center gap-3">
+                          Request Access <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                        </span>
+                      )}
+                    </Button>
+                  </div>
+                </motion.div>
               )}
-            </Button>
+            </AnimatePresence>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border/40" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-4 text-muted-foreground">
-                Already have an account?
-              </span>
-            </div>
+          <div className="pt-8 border-t border-[var(--border-soft)] text-center">
+             <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+               Already Verified? <Link href="/login" className="text-primary ml-2 hover:opacity-80">Initialize Session</Link>
+             </p>
           </div>
-
-          <div className="text-center">
-            <Link 
-              href="/login" 
-              className="text-primary hover:text-primary/80 font-medium transition-colors text-sm"
-            >
-              Sign in instead
-            </Link>
-          </div>
-        </div>
-
-        <p className="text-center text-xs text-muted-foreground mt-8">
-          By continuing, you agree to our Terms of Service and Privacy Policy
-        </p>
+        </motion.div>
       </div>
     </div>
   );

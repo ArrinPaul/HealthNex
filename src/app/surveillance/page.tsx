@@ -239,9 +239,10 @@ export default function SurveillancePage() {
                   <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">Real-time Telemetry Synchronization</p>
                </div>
                
-               <div className="flex justify-center">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-2xl mx-auto">
                   {[
                     { label: 'Intelligence Latency', value: stats?.latency ?? '...', icon: Activity },
+                    { label: 'Community Reports', value: stats?.communityReports ?? 0, icon: BarChart3 }
                   ].map((stat, i) => (
                     <div key={stat.label} className="space-y-4 text-center">
                       <div className="w-16 h-16 rounded-2xl bg-background border border-[var(--border-soft)] flex items-center justify-center mx-auto text-primary shadow-sm group-hover:scale-110 transition-transform duration-500">

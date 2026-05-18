@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 // import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
 import {
   DropdownMenu,
@@ -41,10 +41,155 @@ interface VoiceSettings {
   autoSpeak: boolean;
 }
 
+const supportedLanguages: Language[] = [
+  {
+    code: 'en',
+    name: 'English',
+    nativeName: 'English',
+    flag: '🇺🇸',
+    voiceSupported: true,
+    region: 'Global'
+  },
+  {
+    code: 'hi',
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'bn',
+    name: 'Bengali',
+    nativeName: 'বাংলা',
+    flag: '🇧🇳',
+    voiceSupported: true,
+    region: 'India/Bangladesh'
+  },
+  {
+    code: 'ta',
+    name: 'Tamil',
+    nativeName: 'தமிழ்',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'te',
+    name: 'Telugu',
+    nativeName: 'తెలుగు',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'mr',
+    name: 'Marathi',
+    nativeName: 'मराठी',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'gu',
+    name: 'Gujarati',
+    nativeName: 'ગુજરાતી',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'kn',
+    name: 'Kannada',
+    nativeName: 'ಕನ್ನಡ',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'ml',
+    name: 'Malayalam',
+    nativeName: 'മലയാളം',
+    flag: '🇲🇱',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'pa',
+    name: 'Punjabi',
+    nativeName: 'ਪੰਜਾਬੀ',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'or',
+    name: 'Odia',
+    nativeName: 'ଓଡ଼ିଆ',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'as',
+    name: 'Assamese',
+    nativeName: 'অসমীয়া',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India'
+  },
+  {
+    code: 'ur',
+    name: 'Urdu',
+    nativeName: 'اردو',
+    flag: '🇮🇳',
+    voiceSupported: true,
+    region: 'India/Pakistan'
+  },
+  {
+    code: 'gom',
+    name: 'Konkani',
+    nativeName: 'कोंकणी',
+    flag: '🇮🇳',
+    voiceSupported: false,
+    region: 'India'
+  },
+  {
+    code: 'ne',
+    name: 'Nepali',
+    nativeName: 'नेपाली',
+    flag: '🇳🇵',
+    voiceSupported: true,
+    region: 'Nepal/India'
+  },
+  {
+    code: 'ar',
+    name: 'Arabic',
+    nativeName: 'العربية',
+    flag: '🇸🇦',
+    voiceSupported: true,
+    region: 'SA'
+  },
+  {
+    code: 'zh',
+    name: 'Chinese',
+    nativeName: '中文',
+    flag: '🇨🇳',
+    voiceSupported: true,
+    region: 'CN'
+  }
+];
+
 const LanguageSelector: React.FC = () => {
   // const { i18n, t } = useTranslation(); // Removed for SSR compatibility
   const t = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-  const i18n = { language: 'en', changeLanguage: (lang: string) => Promise.resolve() }; // Mock i18n
+  
+  // Use useMemo for mock i18n to prevent infinite re-renders
+  const i18n = useMemo(() => ({ 
+    language: 'en', 
+    changeLanguage: (lang: string) => Promise.resolve() 
+  }), []);
+
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
   const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>({
     enabled: true,
@@ -55,144 +200,18 @@ const LanguageSelector: React.FC = () => {
   });
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
 
-  const supportedLanguages: Language[] = [
-    {
-      code: 'en',
-      name: 'English',
-      nativeName: 'English',
-      flag: '🇺🇸',
-      voiceSupported: true,
-      region: 'Global'
-    },
-    {
-      code: 'hi',
-      name: 'Hindi',
-      nativeName: 'हिन्दी',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'bn',
-      name: 'Bengali',
-      nativeName: 'বাংলা',
-      flag: '��',
-      voiceSupported: true,
-      region: 'India/Bangladesh'
-    },
-    {
-      code: 'ta',
-      name: 'Tamil',
-      nativeName: 'தமிழ்',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'te',
-      name: 'Telugu',
-      nativeName: 'తెలుగు',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'mr',
-      name: 'Marathi',
-      nativeName: 'मराठी',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'gu',
-      name: 'Gujarati',
-      nativeName: 'ગુજરાતી',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'kn',
-      name: 'Kannada',
-      nativeName: 'ಕನ್ನಡ',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'ml',
-      name: 'Malayalam',
-      nativeName: 'മലയാളം',
-      flag: '��',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'pa',
-      name: 'Punjabi',
-      nativeName: 'ਪੰਜਾਬੀ',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'or',
-      name: 'Odia',
-      nativeName: 'ଓଡ଼ିଆ',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'as',
-      name: 'Assamese',
-      nativeName: 'অসমীয়া',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India'
-    },
-    {
-      code: 'ur',
-      name: 'Urdu',
-      nativeName: 'اردو',
-      flag: '🇮🇳',
-      voiceSupported: true,
-      region: 'India/Pakistan'
-    },
-    {
-      code: 'gom',
-      name: 'Konkani',
-      nativeName: 'कोंकणी',
-      flag: '🇮🇳',
-      voiceSupported: false,
-      region: 'India'
-    },
-    {
-      code: 'ne',
-      name: 'Nepali',
-      nativeName: 'नेपाली',
-      flag: '🇳🇵',
-      voiceSupported: true,
-      region: 'Nepal/India'
-    },
-    {
-      code: 'ar',
-      name: 'Arabic',
-      nativeName: 'العربية',
-      flag: '🇸🇦',
-      voiceSupported: true,
-      region: 'SA'
-    },
-    {
-      code: 'zh',
-      name: 'Chinese',
-      nativeName: '中文',
-      flag: '🇨🇳',
-      voiceSupported: true,
-      region: 'CN'
+  const loadAvailableVoices = useCallback(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+      
+      if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => {
+          setAvailableVoices(window.speechSynthesis.getVoices());
+        };
+      }
     }
-  ];
+  }, []);
 
   useEffect(() => {
     // Only access localStorage on client side
@@ -217,21 +236,29 @@ const LanguageSelector: React.FC = () => {
 
     // Load available voices
     loadAvailableVoices();
-  }, [i18n]);
+  }, [i18n, loadAvailableVoices]);
 
-  const loadAvailableVoices = () => {
-    if ('speechSynthesis' in window) {
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        setAvailableVoices(voices);
-      };
-      
-      loadVoices();
-      if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = loadVoices;
-      }
+  const speakText = useCallback((text: string, language?: string) => {
+    if (typeof window === 'undefined' || !voiceSettings.enabled || !('speechSynthesis' in window)) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    const langCode = language || currentLanguage;
+    
+    // Find best matching voice
+    const preferredVoice = availableVoices.find(voice => 
+      voice.lang.startsWith(langCode) || voice.lang.startsWith(langCode.split('-')[0])
+    );
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
     }
-  };
+    
+    utterance.rate = voiceSettings.rate;
+    utterance.pitch = voiceSettings.pitch;
+    utterance.volume = voiceSettings.volume;
+    
+    window.speechSynthesis.speak(utterance);
+  }, [availableVoices, currentLanguage, voiceSettings]);
 
   const changeLanguage = async (languageCode: string) => {
     try {
@@ -261,28 +288,6 @@ const LanguageSelector: React.FC = () => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('voiceSettings', JSON.stringify(updated));
     }
-  };
-
-  const speakText = (text: string, language?: string) => {
-    if (typeof window === 'undefined' || !voiceSettings.enabled || !('speechSynthesis' in window)) return;
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    const langCode = language || currentLanguage;
-    
-    // Find best matching voice
-    const preferredVoice = availableVoices.find(voice => 
-      voice.lang.startsWith(langCode) || voice.lang.startsWith(langCode.split('-')[0])
-    );
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-    
-    utterance.rate = voiceSettings.rate;
-    utterance.pitch = voiceSettings.pitch;
-    utterance.volume = voiceSettings.volume;
-    
-    window.speechSynthesis.speak(utterance);
   };
 
   const testVoice = () => {

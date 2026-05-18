@@ -11,10 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Upload, Droplet, AlertCircle } from 'lucide-react';
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export default function ReportForm() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const { token } = useAuth();
   const createReport = useMutation(api.communityReports.createReport);
 
   const [formData, setFormData] = useState({
@@ -26,6 +29,11 @@ export default function ReportForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!token) {
+      toast.error('Session Expired', { description: 'Please sign in again to submit reports.' });
+      return;
+    }
+
     setLoading(true);
     try {
       await createReport({
@@ -37,9 +45,12 @@ export default function ReportForm() {
           longitude: 0,
           address: formData.location
         },
-        severity: 3 as 1 | 2 | 3 | 4 | 5
+        severity: 3 as 1 | 2 | 3 | 4 | 5,
+        token: token // Pass the auth token
       });
-      alert(t('reportSuccess', 'Report submitted successfully!'));
+      toast.success('Report Transmitted', {
+        description: 'Ground intelligence received by the protocol.'
+      });
       setFormData({
         name: '',
         location: '',
@@ -48,7 +59,9 @@ export default function ReportForm() {
       });
     } catch (error) {
       console.error(error);
-      alert(t('reportError', 'Failed to submit report.'));
+      toast.error('Transmission Failed', {
+        description: 'The protocol could not ingest your report. Please try again.'
+      });
     } finally {
       setLoading(false);
     }
@@ -88,7 +101,7 @@ export default function ReportForm() {
           </div>
 
           <div>
-            <Label htmlFor="issueType">Issue Type</Label>
+            <Label>Issue Type</Label>
             <Select 
               value={formData.issueType} 
               onValueChange={(value: any) => setFormData({ ...formData, issueType: value })}
@@ -127,7 +140,7 @@ export default function ReportForm() {
           </div>
 
           <div>
-            <Label htmlFor="upload">{t('uploadImage')} (Optional)</Label>
+            <Label>{t('uploadImage')} (Optional)</Label>
             <div className="mt-2 border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
               <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">

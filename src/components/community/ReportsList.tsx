@@ -13,8 +13,11 @@ export default function ReportsList() {
 
   return (
     <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
         <CardTitle>Community Reports</CardTitle>
+        <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/30 text-primary font-mono text-sm">
+          {reports?.length ?? 0} Reports Found
+        </Badge>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
