@@ -21,26 +21,7 @@ HealthNex is an industry-grade intelligence protocol designed to standardize the
 HealthNex operates as a distributed intelligence network where every user acts as a node. The system is architected for sub-second latency and high availability in low-connectivity environments.
 
 ### System Architecture
-```text
-+-----------------------+      +-----------------------+      +-----------------------+
-|   Community Nodes     |      |  Convex Data Backend  |      |   Institutional Hub   |
-| (Reports / Telemetry) |----->|  (Real-time Sync)     |<-----| (Verification / Mgmt) |
-+-----------------------+      +-----------+-----------+      +-----------------------+
-                                           |
-                                           | (Intelligence Payload)
-                                           v
-                               +-----------+-----------+
-                               |   Gemini AI Engine    |
-                               | (Analysis & Forecast) |
-                               +-----------+-----------+
-                                           |
-                                           | (Active Protocols)
-                                           v
-                               +-----------+-----------+
-                               | Global HUD Alert Bus  |
-                               | (Network Broadcast)   |
-                               +-----------------------+
-```
+![System Architecture](public/docs/diagrams/system-arch.svg)
 
 ---
 
@@ -56,21 +37,7 @@ The protocol utilizes a strictly tiered access model to ensure data integrity an
 | **Public Visitor** | Default new account | Education access, global feed viewing, marketing suite. |
 
 ### Access Hierarchy
-```text
-[ SUPER ADMIN ] (Hidden/Root)
-       |
-       v
-   [ ADMIN ] (Protocol Management)
-       |
-       v
-[ HEALTH WORKER ] (Regional Response & Verification)
-       |
-       v
-[ COMMUNITY USER ] (Ground Intelligence & Alerts)
-       |
-       v
-[ PUBLIC VISITOR ] (Education & Discovery)
-```
+![Access Hierarchy](public/docs/diagrams/rbac-hierarchy.svg)
 
 ---
 
@@ -112,16 +79,7 @@ HealthNex integrates **Gemini v1.5 Pro** to provide high-fidelity clinical and p
 *   **Neural Forecasting**: Projection of threat vectors and outbreak risks with dynamic confidence metrics.
 
 ### Neural Data Flow
-```text
-INPUT (Voice/Text) --> GOOGLE GEMINI v1.5 --> NLP CONTEXTUALIZATION
-                               |
-                               +--> SYMPTOM CLUSTER IDENTIFICATION
-                               |
-                               +--> REGIONAL THREAT PROJECTION
-                               |
-                               v
-                     ACTIONABLE INTELLIGENCE HUD
-```
+![Neural Flow](public/docs/diagrams/neural-flow.svg)
 
 ---
 
@@ -135,17 +93,6 @@ The protocol is powered by a high-performance **Convex** backend.
 | `communityReports` | `by_status`, `by_category` | Ground-level intelligence and water quality alerts. |
 | `auditLogs` | `by_timestamp` | Immutable record of all administrative actions. |
 | `alerts` | `by_active`, `by_severity` | Regional broadcast payloads and system warnings. |
-
-### Data Relationships
-```text
-[ USERS ] ---< [ HEALTH DATA ]
-    |
-    +---------< [ COMMUNITY REPORTS ]
-    |
-    +---------< [ AUDIT LOGS ] (Immutable)
-    
-[ COMMUNITY REPORTS ] ---> [ ALERTS ] ---> [ GLOBAL HUD ]
-```
 
 ---
 

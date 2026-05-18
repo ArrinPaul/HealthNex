@@ -1,0 +1,28 @@
+<svg width="800" height="400" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="400" rx="40" fill="#020617"/>
+  
+  <!-- Connections -->
+  <path d="M400 60V340" stroke="#1e293b" stroke-width="4" stroke-dasharray="8 8"/>
+  
+  <!-- Super Admin -->
+  <rect x="300" y="40" width="200" height="60" rx="12" fill="#f43f5e" fill-opacity="0.1" stroke="#f43f5e" stroke-width="2"/>
+  <text x="400" y="75" fill="#f43f5e" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Super Admin</text>
+  
+  <!-- Admin -->
+  <rect x="300" y="120" width="200" height="60" rx="12" fill="#8b5cf6" fill-opacity="0.1" stroke="#8b5cf6" stroke-width="2"/>
+  <text x="400" y="155" fill="#8b5cf6" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Admin</text>
+  
+  <!-- Health Worker -->
+  <rect x="300" y="200" width="200" height="60" rx="12" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-width="2"/>
+  <text x="400" y="235" fill="#10b981" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Health Worker</text>
+  
+  <!-- Community User -->
+  <rect x="300" y="280" width="200" height="60" rx="12" fill="#0ea5e9" fill-opacity="0.1" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="400" y="315" fill="#0ea5e9" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="middle">Community User</text>
+
+  <!-- Permissions Labels -->
+  <text x="520" y="75" fill="#94a3b8" font-family="sans-serif" font-size="10">Root Control &amp; Auditing</text>
+  <text x="520" y="155" fill="#94a3b8" font-family="sans-serif" font-size="10">Protocol &amp; User Mgmt</text>
+  <text x="520" y="235" fill="#94a3b8" font-family="sans-serif" font-size="10">Verification &amp; Response</text>
+  <text x="520" y="315" fill="#94a3b8" font-family="sans-serif" font-size="10">Reporting &amp; Tracking</text>
+</svg>
