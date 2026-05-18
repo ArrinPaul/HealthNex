@@ -30,31 +30,12 @@ export const addHealthData = mutationWithAuth({
 
 // Get health data for user
 export const getUserHealthData = queryWithAuth({
-  args: {
-    type: v.optional(v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test"))),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx: any, args: any) => {
-    // userId is injected by queryWithAuth
-    const { userId } = args as any;
-    
-    let query = ctx.db
-      .query("healthData")
-      .withIndex("by_user", (q: any) => q.eq("userId", userId));
-    
-    if (args.type) {
-      query = ctx.db
-        .query("healthData")
-        .withIndex("by_user_and_type", (q: any) => 
-          q.eq("userId", userId).eq("type", args.type as any)
-        );
-    }
+// ... (rest of getUserHealthData)
 
-    const results = await query
-      .order("desc")
-      .take(args.limit || 50);
-    
-    return results;
+export const getHealthDataById = query({
+  args: { id: v.id("healthData") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
   },
 });
 

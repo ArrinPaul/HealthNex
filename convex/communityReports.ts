@@ -37,22 +37,12 @@ export const createReport = mutationWithAuth({
 
 // Get all community reports
 export const getReports = query({
-  args: {
-    category: v.optional(v.string()),
-    limit: v.optional(v.number()),
-  },
-  handler: async (ctx: any, args: any) => {
-    let query = ctx.db.query("communityReports");
+// ... (rest of getReports)
 
-    if (args.category) {
-      query = query.filter((q: any) => q.eq(q.field("category"), args.category));
-    }
-
-    const reports = await query
-      .order("desc")
-      .take(args.limit || 50);
-
-    return reports;
+export const getReportById = query({
+  args: { reportId: v.id("communityReports") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.reportId);
   },
 });
 

@@ -10,10 +10,23 @@ export default defineSchema({
     name: v.string(),
     passwordHash: v.string(),
     role: v.optional(v.string()),
+    requestedRole: v.optional(v.string()),
+    verificationDocUrl: v.optional(v.string()), // URL for license/ID
+    verificationStatus: v.optional(v.union(v.literal("none"), v.literal("pending"), v.literal("verified"), v.literal("rejected"))),
     createdAt: v.number(),
     lastLoginAt: v.optional(v.number()),
     isActive: v.boolean(),
-  }).index("by_email", ["email"]),
+  }).index("by_email", ["email"])
+    .index("by_verification_status", ["verificationStatus"]),
+
+  auditLogs: defineTable({
+    userId: v.id("users"), // Admin who performed the action
+    targetId: v.optional(v.string()), // ID of user/report/etc being modified
+    action: v.string(), // "ROLE_CHANGE", "REPORT_RESOLVED", "PASSWORD_RESET", "ALERT_BROADCAST"
+    details: v.string(),
+    timestamp: v.number(),
+  }).index("by_timestamp", ["timestamp"])
+    .index("by_user", ["userId"]),
 
   healthData: defineTable({
     userId: v.id("users"),

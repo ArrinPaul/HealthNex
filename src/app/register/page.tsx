@@ -60,9 +60,9 @@ export default function RegisterPage() {
   };
 
   const roles = [
+    { value: 'public', label: 'Public Visitor', icon: Globe, desc: 'View global trends & education' },
     { value: 'community-user', label: 'Community User', icon: Users, desc: 'Decentralized reporting & alerts' },
-    { value: 'health-worker', label: 'Health Professional', icon: Stethoscope, desc: 'Medical verification & response' },
-    { value: 'admin', label: 'System Admin', icon: Shield, desc: 'Protocol & network management' }
+    { value: 'health-worker', label: 'Health Professional', icon: Stethoscope, desc: 'Medical verification & response' }
   ];
 
   return (
@@ -198,6 +198,9 @@ export default function RegisterPage() {
                     <div className="space-y-4">
                       <Label className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Network Role</Label>
                       <div className="grid gap-3">
+                         <div className="p-4 mb-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold leading-relaxed">
+                            Note: All new accounts are initialized with 'Public' access by default. Your requested role below will be reviewed and assigned by a network administrator.
+                         </div>
                          {roles.map((r) => (
                            <button
                              key={r.value}

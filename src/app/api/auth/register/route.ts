@@ -39,16 +39,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate JWT token
+    // Generate JWT token with the actual assigned role
+    const assignedRole = 'public';
     const token = JWTService.generateToken({
       userId,
       email,
-      role
+      role: assignedRole
     });
 
     const response = NextResponse.json({
       success: true,
-      user: { id: userId, email, name, role }
+      user: { id: userId, email, name, role: assignedRole }
     });
 
     response.cookies.set({

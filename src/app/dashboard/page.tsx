@@ -18,13 +18,14 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   const diseaseData = useDiseaseData();
+  const { user } = useAuth();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker', 'community-user']}>
       <div className="h-full flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
         {/* Compact Dashboard Header */}
@@ -41,7 +42,7 @@ export default function DashboardPage() {
                   Live Sync
                 </span>
               </h1>
-              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">HealthNex Global Surveillance Layer</p>
+              <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">{user?.role?.replace('-', ' ')} Layer Access</p>
             </div>
           </div>
           

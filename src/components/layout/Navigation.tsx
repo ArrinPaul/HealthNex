@@ -31,13 +31,15 @@ export default function Navigation() {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'health-worker'] },
-    { href: '/health-data', label: 'Health Data', icon: FileText, roles: ['admin', 'health-worker'] },
-    { href: '/water-quality', label: 'Water Quality', icon: Droplet, roles: ['admin', 'health-worker'] },
-    { href: '/ai-features', label: 'AI Insights', icon: Activity, roles: ['admin', 'health-worker'] },
-    { href: '/alerts', label: 'Alerts', icon: Bell, roles: ['admin', 'health-worker'] },
-    { href: '/education', label: 'Education', icon: BookOpen, roles: ['admin', 'health-worker', 'community-user'] },
-    { href: '/community-reports', label: 'Community', icon: MessageSquare, roles: ['admin', 'health-worker', 'community-user'] },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['super-admin', 'admin', 'health-worker', 'community-user'] },
+    { href: '/health-data', label: 'Health Data', icon: FileText, roles: ['super-admin', 'admin', 'health-worker'] },
+    { href: '/water-quality', label: 'Water Quality', icon: Droplet, roles: ['super-admin', 'admin', 'health-worker'] },
+    { href: '/ai-features', label: 'AI Insights', icon: Activity, roles: ['super-admin', 'admin', 'health-worker'] },
+    { href: '/alerts', label: 'Alerts', icon: Bell, roles: ['super-admin', 'admin', 'health-worker'] },
+    { href: '/education', label: 'Education', icon: BookOpen, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'] },
+    { href: '/community-reports', label: 'Community', icon: MessageSquare, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'] },
+    { href: '/user-management', label: 'User Mgmt', icon: User, roles: ['super-admin', 'admin', 'health-worker'] },
+    { href: '/admin', label: 'Admin', icon: Settings, roles: ['super-admin'] },
   ];
 
   const bottomNavItems = [
