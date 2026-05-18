@@ -130,5 +130,16 @@ export default defineSchema({
         tokens: v.optional(v.number()),
       }).index("by_feature", ["feature"])
         .index("by_timestamp", ["timestamp"]),
+
+      supportTickets: defineTable({
+        name: v.string(),
+        email: v.string(),
+        subject: v.string(),
+        message: v.string(),
+        status: v.union(v.literal("open"), v.literal("in-progress"), v.literal("closed")),
+        priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+        createdAt: v.number(),
+      }).index("by_status", ["status"])
+        .index("by_created", ["createdAt"]),
     });
     

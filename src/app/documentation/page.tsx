@@ -8,6 +8,7 @@ import {
   FileCode, Layers, Radio, Globe
 } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 const DocSection = ({ title, desc, icon: Icon, children }: any) => (
   <div className="space-y-10 py-16 border-b border-[var(--border-soft)] last:border-0">

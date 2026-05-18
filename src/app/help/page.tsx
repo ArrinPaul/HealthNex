@@ -12,35 +12,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { toast } from 'sonner';
+
 const FAQItem = ({ question, answer }: { question: string, answer: string }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <div className="border-b border-[var(--border-soft)] last:border-0 py-8">
-      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center justify-between w-full text-left group">
-        <span className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">{question}</span>
-        <div className={`w-10 h-10 rounded-full border border-[var(--border-soft)] flex items-center justify-center transition-all ${isOpen ? 'bg-primary border-primary text-white rotate-180 shadow-lg shadow-primary/20' : 'group-hover:border-primary group-hover:text-primary'}`}>
-           <ChevronDown className="w-5 h-5" />
-        </div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }} 
-            animate={{ height: 'auto', opacity: 1 }} 
-            exit={{ height: 0, opacity: 0 }} 
-            className="overflow-hidden"
-          >
-            <p className="pt-6 text-lg text-muted-foreground leading-relaxed max-w-4xl">
-              {answer}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
+// ... (rest of FAQItem)
 
 export default function HelpPage() {
+  const sendTicket = useMutation(api.support.sendTicket);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -52,11 +32,24 @@ export default function HelpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert('Your message has been sent! We will respond within 24 hours.');
+    try {
+      await sendTicket({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      });
+      toast.success('Protocol Message Transmitted', {
+        description: 'Your high-priority ticket has been received by our intelligence team.'
+      });
       setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 1000);
+    } catch (error) {
+      toast.error('Transmission Failed', {
+        description: 'Could not connect to the Intelligence Protocol. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const faqs = [
