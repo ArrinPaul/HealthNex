@@ -5,9 +5,21 @@ import { usePathname } from 'next/navigation';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/';
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/register',
+    '/surveillance',
+    '/neural-engine',
+    '/privacy-code',
+    '/mission-state',
+    '/help',
+    '/documentation'
+  ];
+  
+  const isPublicPage = publicRoutes.includes(pathname);
 
-  if (isAuthPage) {
+  if (isPublicPage) {
     return <>{children}</>;
   }
 

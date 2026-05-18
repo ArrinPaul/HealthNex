@@ -1,19 +1,46 @@
 "use client";
 
 import { useState } from 'react';
-// import { useTranslation } from 'react-i18next'; // Removed for SSR compatibility
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { motion, AnimatePresence } from 'framer-motion';
+import LandingLayout from '@/components/layout/LandingLayout';
+import { 
+  HelpCircle, MessageCircle, Phone, Mail, Send, 
+  ChevronDown, Search, Book, Shield, Zap, LifeBuoy
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { HelpCircle, MessageCircle, Phone, Mail, Send } from 'lucide-react';
-import ProtectedRoute from '@/components/layout/ProtectedRoute';
+
+const FAQItem = ({ question, answer }: { question: string, answer: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  return (
+    <div className="border-b border-[var(--border-soft)] last:border-0 py-8">
+      <button onClick={() => setIsOpen(!isOpen)} className="flex items-center justify-between w-full text-left group">
+        <span className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">{question}</span>
+        <div className={`w-10 h-10 rounded-full border border-[var(--border-soft)] flex items-center justify-center transition-all ${isOpen ? 'bg-primary border-primary text-white rotate-180 shadow-lg shadow-primary/20' : 'group-hover:border-primary group-hover:text-primary'}`}>
+           <ChevronDown className="w-5 h-5" />
+        </div>
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }} 
+            animate={{ height: 'auto', opacity: 1 }} 
+            exit={{ height: 0, opacity: 0 }} 
+            className="overflow-hidden"
+          >
+            <p className="pt-6 text-lg text-muted-foreground leading-relaxed max-w-4xl">
+              {answer}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export default function HelpPage() {
-  // const { t } = useTranslation(); // Removed for SSR compatibility  
-  const t = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -52,182 +79,163 @@ export default function HelpPage() {
     {
       question: 'Can I use the app offline?',
       answer: 'Yes! The app works offline for data collection. Your reports will be saved locally and automatically synced when you reconnect to the internet.'
-    },
-    {
-      question: 'How do I update my profile information?',
-      answer: 'Visit the Profile page, click "Edit Profile", make your changes, and click Save. You can update your name, location, phone number, and password.'
-    },
-    {
-      question: 'Who can access the health data I submit?',
-      answer: 'Only authorized health officials and workers can access submitted health data. All personal information is kept confidential and used solely for disease surveillance and prevention purposes.'
-    },
-    {
-      question: 'How often is the water quality data updated?',
-      answer: 'Water quality data is updated daily using environmental parameters from weather APIs and available water quality databases. Real-time monitoring is performed for critical parameters.'
     }
   ];
 
   return (
-    <ProtectedRoute>
-      <div className="space-y-6 max-w-4xl">
-        <div>
-          <h1 className="text-3xl font-bold">{t('help')}</h1>
-          <p className="text-muted-foreground mt-2">
-            Get assistance and find answers to common questions
-          </p>
-        </div>
-
-        {/* Quick Help Cards */}
-        <div className="grid md:grid-cols-3 gap-4">
-          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <div className="w-12 h-12 bg-sky-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Phone className="w-6 h-6 text-sky-400" />
-              </div>
-              <h3 className="font-semibold mb-1">Call Us</h3>
-              <p className="text-sm text-muted-foreground mb-2">24/7 Support</p>
-              <p className="text-lg font-bold">1800-XXX-XXXX</p>
-            </CardContent>
-          </Card>
-
-          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <div className="w-12 h-12 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Mail className="w-6 h-6 text-emerald-400" />
-              </div>
-              <h3 className="font-semibold mb-1">Email Support</h3>
-              <p className="text-sm text-muted-foreground mb-2">Response within 24h</p>
-              <p className="text-sm font-medium">support@health.gov.in</p>
-            </CardContent>
-          </Card>
-
-          <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:shadow-lg transition-shadow cursor-pointer">
-            <CardContent className="pt-6 text-center">
-              <div className="w-12 h-12 bg-violet-500/15 rounded-full flex items-center justify-center mx-auto mb-3">
-                <MessageCircle className="w-6 h-6 text-violet-400" />
-              </div>
-              <h3 className="font-semibold mb-1">Live Chat</h3>
-              <p className="text-sm text-muted-foreground mb-2">Chat with support</p>
-              <Button size="sm" variant="outline" className="mt-1">Start Chat</Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* FAQs */}
-        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <HelpCircle className="w-5 h-5" />
-              Frequently Asked Questions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger className="text-left">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </CardContent>
-        </Card>
-
-        {/* Contact Form */}
-        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-          <CardHeader>
-            <CardTitle>Contact Support</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">{t('name')}</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="email">{t('email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="subject">Subject</Label>
-                <Input
-                  id="subject"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  required
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="message">Message</Label>
-                <Textarea
-                  id="message"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  required
-                  className="mt-1"
-                  rows={5}
-                  placeholder="Describe your issue or question..."
-                />
-              </div>
-
-              <Button type="submit" disabled={loading}>
-                <Send className="w-4 h-4 mr-2" />
-                {loading ? t('loading') : 'Send Message'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Emergency Information */}
-        <Card className="backdrop-blur-xl bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-[var(--border-soft)]">
-          <CardHeader>
-            <CardTitle className="text-rose-400">Emergency Numbers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <p className="font-semibold mb-1">Medical Emergency</p>
-                <p className="text-2xl font-bold text-rose-400">108</p>
-              </div>
-              <div>
-                <p className="font-semibold mb-1">Health Helpline</p>
-                <p className="text-2xl font-bold text-rose-400">104</p>
-              </div>
-              <div>
-                <p className="font-semibold mb-1">Women & Child Helpline</p>
-                <p className="text-2xl font-bold text-rose-400">1098</p>
-              </div>
-              <div>
-                <p className="font-semibold mb-1">Disaster Management</p>
-                <p className="text-2xl font-bold text-rose-400">108</p>
-              </div>
+    <LandingLayout>
+      <section className="pt-24 pb-32 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(0,217,255,0.03)_0%,transparent_70%)] pointer-events-none" />
+        
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto text-center space-y-8 mb-32"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest">
+              <LifeBuoy className="w-3.5 h-3.5" />
+              Support Protocol
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </ProtectedRoute>
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-none">
+              Help Center <br />
+              <span className="text-primary">& Documentation</span>
+            </h1>
+            <p className="text-muted-foreground text-xl leading-relaxed max-w-3xl mx-auto">
+              Access technical documentation, find answers to common inquiries, or reach out to our dedicated support team for assistance with the HealthNex Intelligence Protocol.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-32">
+            {[
+              { title: 'Call Support', desc: '24/7 dedicated helpline for urgent regional health alerts.', icon: Phone, action: '1800-XXX-XXXX', color: 'text-sky-400', bg: 'bg-sky-400/10' },
+              { title: 'Email Desk', desc: 'Detailed inquiries and integration support. Response within 24h.', icon: Mail, action: 'support@healthnex.io', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
+              { title: 'Live Interface', desc: 'Real-time chat support with our intelligence leads.', icon: MessageCircle, action: 'Initialize Chat', color: 'text-violet-400', bg: 'bg-violet-400/10' }
+            ].map((item, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="p-10 rounded-[3rem] border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-xl hover:border-primary/40 transition-all group text-center"
+              >
+                <div className={`w-16 h-16 rounded-2xl ${item.bg} ${item.color} flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform`}>
+                  <item.icon className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 uppercase tracking-tight">{item.title}</h3>
+                <p className="text-muted-foreground leading-relaxed mb-8">{item.desc}</p>
+                <div className="text-lg font-bold text-foreground">{item.action}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-16 mb-32">
+            <div className="space-y-12">
+               <div className="space-y-4">
+                  <h2 className="text-4xl font-bold uppercase tracking-tight">Common Inquiries</h2>
+                  <p className="text-muted-foreground">Standardized responses to the most frequent technical and operational questions.</p>
+               </div>
+               <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] p-10 md:p-14 shadow-xl">
+                  {faqs.map((faq, i) => (
+                    <FAQItem key={i} {...faq} />
+                  ))}
+               </div>
+            </div>
+
+            <div className="space-y-12">
+               <div className="space-y-4">
+                  <h2 className="text-4xl font-bold uppercase tracking-tight">Contact Support</h2>
+                  <p className="text-muted-foreground">Submit a high-priority ticket to our intelligence and support teams.</p>
+               </div>
+               <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] p-10 md:p-14 shadow-xl">
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div className="space-y-3">
+                        <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest ml-4">Full Name</Label>
+                        <Input
+                          id="name"
+                          placeholder="John Doe"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          required
+                          className="h-14 rounded-2xl bg-[var(--surface-2)] border-[var(--border-soft)] px-6"
+                        />
+                      </div>
+                      <div className="space-y-3">
+                        <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-widest ml-4">Email Address</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="john@example.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          required
+                          className="h-14 rounded-2xl bg-[var(--surface-2)] border-[var(--border-soft)] px-6"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="subject" className="text-[10px] font-bold uppercase tracking-widest ml-4">Subject</Label>
+                      <Input
+                        id="subject"
+                        placeholder="Technical Inquiry"
+                        value={formData.subject}
+                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                        required
+                        className="h-14 rounded-2xl bg-[var(--surface-2)] border-[var(--border-soft)] px-6"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="message" className="text-[10px] font-bold uppercase tracking-widest ml-4">Protocol Message</Label>
+                      <Textarea
+                        id="message"
+                        placeholder="Describe your issue or question in detail..."
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        required
+                        rows={6}
+                        className="rounded-[2rem] bg-[var(--surface-2)] border-[var(--border-soft)] p-6"
+                      />
+                    </div>
+                    <Button type="submit" disabled={loading} className="w-full h-16 rounded-[2rem] font-bold text-lg bg-primary text-primary-foreground shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                      {loading ? 'Transmitting...' : (
+                        <span className="flex items-center gap-3">
+                           Transmit Message <Send className="w-5 h-5" />
+                        </span>
+                      )}
+                    </Button>
+                  </form>
+               </div>
+            </div>
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            className="p-12 md:p-20 rounded-[4rem] bg-gradient-to-br from-rose-500/10 to-amber-500/5 border border-rose-500/20 relative overflow-hidden text-center"
+          >
+             <div className="relative z-10 space-y-12">
+                <div className="space-y-4">
+                   <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight text-rose-500">Emergency Protocols</h2>
+                   <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">Critical Regional Helplines</p>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                   {[
+                     { label: 'Medical Emergency', value: '108' },
+                     { label: 'Health Helpline', value: '104' },
+                     { label: 'Women & Child', value: '1098' },
+                     { label: 'Disaster Mgmt', value: '108' }
+                   ].map((item, i) => (
+                     <div key={i} className="p-8 rounded-3xl bg-background/50 border border-rose-500/20 backdrop-blur-sm">
+                        <div className="text-4xl font-bold text-rose-500 mb-2">{item.value}</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{item.label}</div>
+                     </div>
+                   ))}
+                </div>
+             </div>
+          </motion.div>
+        </div>
+      </section>
+    </LandingLayout>
   );
 }

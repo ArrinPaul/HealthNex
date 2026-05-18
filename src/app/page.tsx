@@ -15,11 +15,11 @@ import {
   Microscope, Stethoscope, Waves, DownloadCloud
 } from 'lucide-react';
 import Link from 'next/link';
-import ThemeToggle from '@/components/layout/ThemeToggle';
-import Logo from '@/components/layout/Logo';
-import { motion, AnimatePresence, useInView, useScroll, useSpring, useTransform, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { motion, AnimatePresence, useInView, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import Logo from '@/components/layout/Logo';
+import LandingLayout from '@/components/layout/LandingLayout';
 
 // --- Sub-components ---
 
@@ -532,14 +532,10 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 export default function Home() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   
   const statsData = useQuery(api.stats.getLandingPageStats);
   
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-
   useEffect(() => {
     setMounted(true);
     if (isAuthenticated) router.push('/dashboard');
@@ -556,218 +552,140 @@ export default function Home() {
     { title: "Insightful Analytics", desc: "Rich, interactive visualizations that transform complex data into actionable intelligence.", icon: BarChart3, color: "text-amber-400" }
   ];
 
-  const statItems = [
-    { label: "Data Nodes", value: statsData?.dataNodes ? `${statsData.dataNodes}` : "10,000+" },
-    { label: "Avg. Latency", value: statsData?.latency || "<1s" },
-    { label: "AI Accuracy", value: statsData?.accuracy ? `${statsData.accuracy}%` : "99.9%" },
-    { label: "Alerts Sent", value: statsData?.alertsSent ? `${statsData.alertsSent}` : "2,000,000+" }
-  ];
-
   return (
-    <div className="relative min-h-screen bg-background font-sans selection:bg-primary/10 overflow-x-hidden">
-      <motion.div className="fixed top-0 left-0 right-0 h-1.5 bg-primary z-[100] origin-left shadow-[0_0_10px_var(--primary)]" style={{ scaleX }} />
-
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <Logo size="md" />
-
-          <nav className="hidden lg:flex items-center gap-12 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
-            <Link href="#how-it-works" className="hover:text-primary transition-colors">Protocol</Link>
-            <Link href="#modules" className="hover:text-primary transition-colors">Showcase</Link>
-            <Link href="#performance" className="hover:text-primary transition-colors">Performance</Link>
-            <Link href="#faq" className="hover:text-primary transition-colors">Support</Link>
-          </nav>
-
-          <div className="flex items-center gap-6">
-            <ThemeToggle />
-            <div className="hidden md:flex items-center gap-4">
-              <Button asChild variant="ghost" className="text-[10px] font-bold uppercase tracking-widest">
-                <Link href="/login">Sign In</Link>
+    <LandingLayout>
+      <section className="pt-24 pb-20 md:pb-32 bg-[var(--surface-2)]/70 border-b border-[var(--border-soft)] relative overflow-hidden text-center">
+        <div className="absolute top-0 left-0 w-full h-full opacity-5 dark:opacity-10 pointer-events-none">
+           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[100vw] bg-[radial-gradient(circle,var(--primary)_0%,transparent_70%)]" />
+        </div>
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-12">
+              <Zap className="w-3.5 h-3.5" />
+              <span>Next Generation Intelligence Protocol</span>
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-12 text-foreground leading-[0.8]">
+              Predict. Protect. <br />
+              <span className="text-primary">Redefine.</span>
+            </h1>
+            <p className="text-base md:text-xl text-muted-foreground mb-16 max-w-3xl mx-auto leading-relaxed font-medium text-balance">
+              Distributed surveillance and predictive intelligence built for the future of public health. Safeguard communities with real-time analysis and neural foresight.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
+              <Button onClick={() => router.push('/register')} className="h-20 px-16 text-xl rounded-[2rem] font-bold bg-primary text-primary-foreground shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                Get Started Free
               </Button>
-              <Button onClick={() => router.push('/register')} className="h-11 px-8 rounded-xl font-bold bg-primary text-primary-foreground hover:shadow-xl hover:shadow-primary/20 transition-all">
-                Initialize
+              <Button asChild variant="ghost" className="h-20 px-12 text-xl font-bold group rounded-[2rem]">
+                <Link href="/documentation" className="flex items-center gap-3">
+                  View Docs <ChevronRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                </Link>
               </Button>
             </div>
-            <button className="lg:hidden p-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? <X className="w-8 h-8" /> : <Menu className="w-8 h-8" />}
-            </button>
+          </motion.div>
+          <InteractiveDashboardMockup stats={statsData} />
+        </div>
+      </section>
+
+      <section id="how-it-works" className="py-32 md:py-48 bg-background border-b border-border relative overflow-hidden text-center">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="mb-32 text-center">
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-8 text-balance">The Intelligence Pipeline</h2>
+            <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">A high-fidelity telemetry stream, processed at the regional edge for sub-second actionability.</p>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-12 relative text-left">
+            <PipelineStage icon={DownloadCloud} title="Data Ingestion" desc="Real-time multi-modal ingestion of reports and telemetry via Convex sync." delay={0}>
+              <div className="grid grid-cols-3 gap-4">
+                 {[Smartphone, Wifi, Database].map((I, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] shadow-sm group-hover:bg-[var(--surface-1)] transition-colors">
+                      <I className="w-5 h-5 text-primary" />
+                      <span className="text-[8px] font-bold uppercase opacity-60">Node {idx+1}</span>
+                   </div>
+                 ))}
+              </div>
+            </PipelineStage>
+            <PipelineStage icon={Brain} title="Neural Analysis" desc="Proprietary models identify regional anomalies and forecast vector expansion." delay={0.2}>
+              <div className="space-y-5">
+                 <div className="flex items-center justify-between text-[10px] font-bold text-primary tracking-widest">
+                    <span>PROCESSING_PAYLOAD...</span>
+                    <span>98% CONF</span>
+                 </div>
+                 <div className="h-2 w-full bg-[var(--surface-3)] rounded-full overflow-hidden">
+                    <motion.div animate={{ width: ['20%', '85%', '60%', '95%', '40%'] }} transition={{ duration: 10, repeat: Infinity }} className="h-full bg-primary shadow-[0_0_10px_var(--primary)]" />
+                 </div>
+                 <div className="flex gap-3">
+                   <div className="h-7 w-1/2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center shadow-sm">
+                       <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 shadow-[0_0_5px_var(--emerald-500)]" />
+                       <span className="text-[9px] font-bold uppercase opacity-60">Neural</span>
+                    </div>
+                   <div className="h-7 w-1/2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center shadow-sm">
+                       <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2 shadow-[0_0_5px_var(--primary)]" />
+                       <span className="text-[9px] font-bold uppercase opacity-60">Heuristic</span>
+                    </div>
+                 </div>
+              </div>
+            </PipelineStage>
+            <PipelineStage icon={ShieldCheck} title="Active Shield" desc="Automated broadcasting of actionable protocols to verified health leads." delay={0.4}>
+              <div className="space-y-4">
+                 {[ { label: "E2EE Sync", icon: Lock }, { label: "Broadcast", icon: Radio }, { label: "Verification", icon: Target } ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)]/60 shadow-sm">
+                      <item.icon className="w-4 h-4 text-primary" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
+                   </div>
+                 ))}
+              </div>
+            </PipelineStage>
           </div>
         </div>
-      </header>
+      </section>
 
-      <main>
-        <section className="pt-48 pb-20 md:pb-32 bg-[var(--surface-2)]/70 border-b border-[var(--border-soft)] relative overflow-hidden text-center">
-          <div className="absolute top-0 left-0 w-full h-full opacity-5 dark:opacity-10 pointer-events-none">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[100vw] bg-[radial-gradient(circle,var(--primary)_0%,transparent_70%)]" />
-          </div>
-          <div className="container mx-auto px-6 relative z-10">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-              <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-12">
-                <Zap className="w-3.5 h-3.5" />
-                <span>Next Generation Intelligence Protocol</span>
-              </div>
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-12 text-foreground leading-[0.8]">
-                Predict. Protect. <br />
-                <span className="text-primary">Redefine.</span>
-              </h1>
-              <p className="text-base md:text-xl text-muted-foreground mb-16 max-w-3xl mx-auto leading-relaxed font-medium text-balance">
-                Distributed surveillance and predictive intelligence built for the future of public health. Safeguard communities with real-time analysis and neural foresight.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-                <Button onClick={() => router.push('/register')} className="h-20 px-16 text-xl rounded-[2rem] font-bold bg-primary text-primary-foreground shadow-2xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-                  Get Started Free
-                </Button>
-                <Button asChild variant="ghost" className="h-20 px-12 text-xl font-bold group rounded-[2rem]">
-                  <Link href="/help" className="flex items-center gap-3">
-                    View Docs <ChevronRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                  </Link>
-                </Button>
-              </div>
-            </motion.div>
-            <InteractiveDashboardMockup stats={statsData} />
-          </div>
-        </section>
+          <section id="modules" className="py-32 border-t border-border bg-[var(--surface-2)]/40">
+        <div className="container mx-auto px-6">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-24 leading-none uppercase">Engineered for <br /><span className="text-muted-foreground">total visibility.</span></h2>
+          <ModuleShowcase />
+        </div>
+      </section>
 
-        <section id="how-it-works" className="py-32 md:py-48 bg-background border-b border-border relative overflow-hidden text-center">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
-          <div className="container mx-auto px-6 relative z-10">
-            <div className="mb-32 text-center">
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-8 text-balance">The Intelligence Pipeline</h2>
-              <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">A high-fidelity telemetry stream, processed at the regional edge for sub-second actionability.</p>
+      <section id="features" className="py-32 bg-background border-b border-border overflow-hidden">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-32">
+            <div className="inline-flex items-center gap-3 text-primary font-bold text-[10px] uppercase tracking-[0.5em] mb-8">
+              <Sparkles className="w-4 h-4" />
+              Feature Protocol
             </div>
-            <div className="grid lg:grid-cols-3 gap-12 relative text-left">
-              <PipelineStage icon={DownloadCloud} title="Data Ingestion" desc="Real-time multi-modal ingestion of reports and telemetry via Convex sync." delay={0}>
-                <div className="grid grid-cols-3 gap-4">
-                   {[Smartphone, Wifi, Database].map((I, idx) => (
-                    <div key={idx} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] shadow-sm group-hover:bg-[var(--surface-1)] transition-colors">
-                        <I className="w-5 h-5 text-primary" />
-                        <span className="text-[8px] font-bold uppercase opacity-60">Node {idx+1}</span>
-                     </div>
-                   ))}
-                </div>
-              </PipelineStage>
-              <PipelineStage icon={Brain} title="Neural Analysis" desc="Proprietary models identify regional anomalies and forecast vector expansion." delay={0.2}>
-                <div className="space-y-5">
-                   <div className="flex items-center justify-between text-[10px] font-bold text-primary tracking-widest">
-                      <span>PROCESSING_PAYLOAD...</span>
-                      <span>98% CONF</span>
-                   </div>
-                   <div className="h-2 w-full bg-[var(--surface-3)] rounded-full overflow-hidden">
-                      <motion.div animate={{ width: ['20%', '85%', '60%', '95%', '40%'] }} transition={{ duration: 10, repeat: Infinity }} className="h-full bg-primary shadow-[0_0_10px_var(--primary)]" />
-                   </div>
-                   <div className="flex gap-3">
-                     <div className="h-7 w-1/2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center shadow-sm">
-                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2 shadow-[0_0_5px_var(--emerald-500)]" />
-                         <span className="text-[9px] font-bold uppercase opacity-60">Neural</span>
-                      </div>
-                     <div className="h-7 w-1/2 rounded-xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center shadow-sm">
-                         <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2 shadow-[0_0_5px_var(--primary)]" />
-                         <span className="text-[9px] font-bold uppercase opacity-60">Heuristic</span>
-                      </div>
-                   </div>
-                </div>
-              </PipelineStage>
-              <PipelineStage icon={ShieldCheck} title="Active Shield" desc="Automated broadcasting of actionable protocols to verified health leads." delay={0.4}>
-                <div className="space-y-4">
-                   {[ { label: "E2EE Sync", icon: Lock }, { label: "Broadcast", icon: Radio }, { label: "Verification", icon: Target } ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)]/60 shadow-sm">
-                        <item.icon className="w-4 h-4 text-primary" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
-                     </div>
-                   ))}
-                </div>
-              </PipelineStage>
-            </div>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-8 leading-none uppercase">Stay ahead of <br /><span className="text-primary">the curve.</span></h2>
           </div>
-        </section>
-
-            <section id="modules" className="py-32 border-t border-border bg-[var(--surface-2)]/40">
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-24 leading-none uppercase">Engineered for <br /><span className="text-muted-foreground">total visibility.</span></h2>
-            <ModuleShowcase />
-          </div>
-        </section>
-
-        <section id="features" className="py-32 bg-background border-b border-border overflow-hidden">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-32">
-              <div className="inline-flex items-center gap-3 text-primary font-bold text-[10px] uppercase tracking-[0.5em] mb-8">
-                <Sparkles className="w-4 h-4" />
-                Feature Protocol
-              </div>
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-8 leading-none uppercase">Stay ahead of <br /><span className="text-primary">the curve.</span></h2>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {features.map((feature, i) => <FeatureCard key={i} {...feature} delay={i * 0.1} />)}
-            </div>
-          </div>
-        </section>
-
-
-        <section id="performance" className="py-32 border-t border-border">
-          <div className="container mx-auto px-6 text-center">
-            <div className="mb-32">
-              <div className="text-primary font-bold uppercase tracking-[0.5em] text-[10px] mb-8 text-balance">Operational Benchmark</div>
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tighter leading-none uppercase">Superior by design.</h2>
-            </div>
-            <ComparisonSection />
-          </div>
-        </section>
-
-        <section id="faq" className="py-32 bg-[var(--surface-2)]/70">
-          <div className="container mx-auto px-6 max-w-5xl">
-            <div className="mb-20 text-center">
-              <div className="text-primary font-bold text-xs uppercase tracking-[0.5em] mb-6">Support Protocol</div>
-              <h2 className="text-4xl md:text-6xl font-bold tracking-tight uppercase leading-none">Common Inquiries.</h2>
-            </div>
-            <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] p-10 md:p-14 shadow-xl shadow-black/10">
-              <FAQItem question="How does HealthNex predict disease hotspots?" answer="Our neural engine utilizes multi-modal data synchronization, correlating community symptom reports with regional environmental factors and historical telemetry to project growth vectors up to 14 days in advance." />
-              <FAQItem question="Is medical data truly end-to-end encrypted?" answer="Yes. We implement medical-grade zero-trust architecture where all reports are end-to-end encrypted at the regional edge before synchronization with our distributed Convex backend." />
-              <FAQItem question="Can local health workers use this offline?" answer="Yes. HealthNex is built as a high-fidelity PWA. It maintains a robust offline data cache and automatically synchronizes all local telemetry as soon as a secure node connection is established." />
-              <FAQItem question="How do I integrate existing medical databases?" answer="We provide standardized API adapters and real-time ingestion hooks for legacy SQL and Paper-to-Digital systems, allowing for a seamless transition to the Unified Intelligence Layer." />
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer className="py-32 border-t border-border bg-[var(--surface-2)]/70">
-        <div className="container mx-auto px-6 grid md:grid-cols-4 gap-24">
-          <div className="col-span-2 space-y-10">
-            <Logo size="lg" />
-            <p className="text-lg md:text-xl font-bold uppercase leading-relaxed tracking-tight">Standardizing the world's health response through unified intelligence and distributed collaboration.</p>
-          </div>
-          <div>
-            <h4 className="font-bold uppercase tracking-[0.3em] text-[10px] mb-12 text-primary">Intelligence</h4>
-            <ul className="space-y-8 text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              <li><Link href="/surveillance" className="hover:text-primary transition-all">Surveillance</Link></li>
-              <li><Link href="/neural-engine" className="hover:text-primary transition-all">Neural Engine</Link></li>
-              <li><Link href="/help" className="hover:text-primary transition-all">Documentation</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold uppercase tracking-[0.3em] text-[10px] mb-12 text-primary">Organization</h4>
-            <ul className="space-y-8 text-sm font-bold text-muted-foreground uppercase tracking-widest">
-              <li><Link href="/privacy-code" className="hover:text-primary transition-all">Privacy Code</Link></li>
-              <li><Link href="/mission-state" className="hover:text-primary transition-all">Mission State</Link></li>
-              <li><Link href="/help" className="hover:text-primary transition-all">Help Center</Link></li>
-            </ul>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {features.map((feature, i) => <FeatureCard key={i} {...feature} delay={i * 0.1} />)}
           </div>
         </div>
-        <div className="container mx-auto px-6 pt-32 mt-32 border-t border-border flex flex-col md:flex-row justify-between items-center text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
-           <span>© 2026 HealthNex Intelligence Protocol. Built for Humanity.</span>
-           <div className="flex gap-12 mt-12 md:mt-0">
-             <Link href="#" className="hover:text-primary transition-all">Twitter</Link>
-             <Link href="#" className="hover:text-primary transition-all">LinkedIn</Link>
-             <Link href="#" className="hover:text-primary transition-all">GitHub</Link>
-           </div>
+      </section>
+
+
+      <section id="performance" className="py-32 border-t border-border">
+        <div className="container mx-auto px-6 text-center">
+          <div className="mb-32">
+            <div className="text-primary font-bold uppercase tracking-[0.5em] text-[10px] mb-8 text-balance">Operational Benchmark</div>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter leading-none uppercase">Superior by design.</h2>
+          </div>
+          <ComparisonSection />
         </div>
-      </footer>
-    </div>
+      </section>
+
+      <section id="faq" className="py-32 bg-[var(--surface-2)]/70">
+        <div className="container mx-auto px-6 max-w-5xl">
+          <div className="mb-20 text-center">
+            <div className="text-primary font-bold text-xs uppercase tracking-[0.5em] mb-6">Support Protocol</div>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight uppercase leading-none">Common Inquiries.</h2>
+          </div>
+          <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] p-10 md:p-14 shadow-xl shadow-black/10">
+            <FAQItem question="How does HealthNex predict disease hotspots?" answer="Our neural engine utilizes multi-modal data synchronization, correlating community symptom reports with regional environmental factors and historical telemetry to project growth vectors up to 14 days in advance." />
+            <FAQItem question="Is medical data truly end-to-end encrypted?" answer="Yes. We implement medical-grade zero-trust architecture where all reports are end-to-end encrypted at the regional edge before synchronization with our distributed backend." />
+            <FAQItem question="Can local health workers use this offline?" answer="Yes. HealthNex is built as a high-fidelity PWA. It maintains a robust offline data cache and automatically synchronizes all local telemetry as soon as a secure node connection is established." />
+            <FAQItem question="How do I integrate existing medical databases?" answer="We provide standardized API adapters and real-time ingestion hooks for legacy SQL and Paper-to-Digital systems, allowing for a seamless transition to the Unified Intelligence Layer." />
+          </div>
+        </div>
+      </section>
+    </LandingLayout>
   );
 }
-
-const ImportIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 20h16" />
-  </svg>
-);
