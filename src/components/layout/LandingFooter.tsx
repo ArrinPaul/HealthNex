@@ -20,7 +20,9 @@ export default function LandingFooter() {
           </ul>
         </div>
         <div>
-          <h4 className="font-bold uppercase tracking-[0.3em] text-[10px] mb-12 text-primary">Organization</h4>
+          <h4 className="font-bold uppercase tracking-[0.3em] text-[10px] mb-12 text-primary">
+            <Link href="/organization" className="hover:opacity-80 transition-all">Organization</Link>
+          </h4>
           <ul className="space-y-8 text-sm font-bold text-muted-foreground uppercase tracking-widest">
             <li><Link href="/privacy-code" className="hover:text-primary transition-all">Privacy Code</Link></li>
             <li><Link href="/mission-state" className="hover:text-primary transition-all">Mission State</Link></li>

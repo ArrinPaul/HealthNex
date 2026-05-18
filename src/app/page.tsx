@@ -28,7 +28,6 @@ const Counter = ({ value, duration = 2 }: { value: string, duration?: number }) 
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   
-  // Extract number and suffix safely
   const numericMatch = value.match(/\d+/);
   const numericValue = numericMatch ? parseInt(numericMatch[0]) : 0;
   const suffix = value.replace(/[0-9]/g, '');
@@ -51,7 +50,6 @@ const Counter = ({ value, duration = 2 }: { value: string, duration?: number }) 
     }
   }, [isInView, numericValue, duration]);
 
-  // If the actual value is 0 or NaN, show the fallback/target vision instead of a "dead" 0
   if (!numericValue || isNaN(numericValue)) {
     return <span>{value}</span>;
   }
@@ -108,7 +106,6 @@ const FeatureCard = ({ title, desc, icon: Icon, color, delay }: any) => {
       onMouseMove={handleMouseMove}
       className="group relative p-8 md:p-10 lg:p-12 rounded-[2.5rem] md:rounded-[3rem] lg:rounded-[3.5rem] border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-[0_30px_70px_-50px_rgba(0,0,0,0.7)] hover:border-primary/50 transition-all duration-500 overflow-hidden flex flex-col text-left h-full"
     >
-      {/* Spotlight Effect */}
       <motion.div
         className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
@@ -116,14 +113,6 @@ const FeatureCard = ({ title, desc, icon: Icon, color, delay }: any) => {
         }}
       />
       
-      {/* Glowing Border Spotlight */}
-      <motion.div
-        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem] md:rounded-[3rem] lg:rounded-[3.5rem] border-2 border-primary/30"
-        style={{
-          WebkitMaskImage: useMotionTemplate`radial-gradient(300px circle at ${mouseX}px ${mouseY}px, black 0%, transparent 100%)`,
-        }}
-      />
-
       <div className="relative z-10 w-full flex-1 flex flex-col">
         <div className={`w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-[1.25rem] md:rounded-[1.5rem] flex items-center justify-center mb-8 md:mb-10 bg-[var(--surface-2)] ${color} group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-700 shadow-inner group-hover:scale-110 group-hover:rotate-3`}>
           <Icon className="w-8 h-8 md:w-10 md:h-10 transition-transform duration-500 group-hover:scale-110" />
@@ -217,7 +206,7 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
                        <Users className="w-6 h-6" />
                     </div>
                     <div className="text-right">
-                       <div className="text-2xl font-bold">{stats?.activeUsers ?? '0'}</div>
+                       <div className="text-2xl font-bold">{stats?.activeUsers?.toLocaleString() ?? '0'}</div>
                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Users</div>
                     </div>
                  </div>
@@ -247,7 +236,7 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
                        <Brain className="w-6 h-6" />
                     </div>
                     <div>
-                       <div className="text-xl font-bold">{stats?.dataNodes ?? '0'}</div>
+                       <div className="text-xl font-bold">{stats?.dataNodes?.toLocaleString() ?? '0'}</div>
                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Health Nodes</div>
                     </div>
                  </div>
@@ -266,8 +255,8 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
                   <div className="lg:col-span-3 p-10 rounded-[2.5rem] bg-[var(--surface-2)] border border-[var(--border-soft)] relative overflow-hidden group/chart theme-transition">
                  <div className="flex justify-between items-start mb-12 relative z-10">
                     <div>
-                       <h5 className="text-xl font-bold tracking-tight">Global Threat Vector</h5>
-                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Live Telemetry Analysis</p>
+                       <h5 className="text-xl font-bold tracking-tight">Regional Trend Analysis</h5>
+                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Live Synchronization Analysis</p>
                     </div>
                     <div className="flex gap-3">
                         <div className="px-4 py-1.5 rounded-full bg-[var(--surface-1)] border border-[var(--border-soft)] text-[10px] font-bold uppercase shadow-sm">Weekly</div>
@@ -303,8 +292,8 @@ const ModuleShowcase = () => {
       tag: 'Live Monitoring',
       icon: LineChart, 
       color: 'text-sky-400', 
-      desc: 'Centralized telemetry command center for real-time regional health tracking.',
-      features: ['Automated Anomaly Flags', 'Geospatial Heatmaps', 'Node Health Audits']
+      desc: 'Centralized command center for real-time regional health tracking and community reports.',
+      features: ['Automated Anomaly Detection', 'Geospatial Heatmaps', 'Node Health Audits']
     },
     { 
       id: 1, 
@@ -312,8 +301,8 @@ const ModuleShowcase = () => {
       tag: 'Predictive AI',
       icon: Target, 
       color: 'text-violet-400', 
-      desc: 'Advanced predictive modeling to forecast health risks before they impact communities.',
-      features: ['Outbreak Projections', 'Risk Factor Correlates', 'Vector Growth Mapping']
+      desc: 'Gemini-powered processing to identify emerging health trends and analyze reported symptoms.',
+      features: ['Symptom Analysis', 'Risk Factor Correlation', 'Trend Projections']
     },
     { 
       id: 2, 
@@ -321,8 +310,8 @@ const ModuleShowcase = () => {
       tag: 'Collaborative',
       icon: Stethoscope, 
       color: 'text-emerald-400', 
-      desc: 'Bridging the gap between decentralized reporting and professional medical response.',
-      features: ['Verified Field Reports', 'Crisis Broadcast Unit', 'Community Education']
+      desc: 'Bridging the gap between community reporting and professional health organization response.',
+      features: ['Verified Field Reports', 'Regional Alert Broadcasts', 'Water Quality Tracking']
     }
   ];
 
@@ -372,7 +361,7 @@ const ModuleShowcase = () => {
                    {modules[active].title} Interface
                 </div>
                 <h4 className="text-3xl font-bold tracking-tight mb-4">Unified Visualization</h4>
-                <p className="text-muted-foreground leading-relaxed max-w-md text-sm md:text-base">Real-time simulation of the {modules[active].title} control layer, optimized for professional medical clarity.</p>
+                <p className="text-muted-foreground leading-relaxed max-w-md text-sm md:text-base">Real-time simulation of the {modules[active].title} control layer, optimized for regional visibility.</p>
              </div>
              
              <div className="grid gap-5 md:gap-6">
@@ -407,10 +396,10 @@ const ModuleShowcase = () => {
 const LegacyToolCollision = () => {
   const legacyTools = [
     { name: 'Paper Logs', icon: FileText, delay: 0 },
-    { name: 'Old Database', icon: SqlIcon, delay: 0.5 },
-    { name: 'Email Chain', icon: Mail, delay: 1 },
-    { name: 'Static Map', icon: MapIcon, delay: 1.5 },
-    { name: 'Form Stack', icon: Layers, delay: 2 }
+    { name: 'Siloed Database', icon: SqlIcon, delay: 0.5 },
+    { name: 'Manual Alerts', icon: Mail, delay: 1 },
+    { name: 'Static Reports', icon: MapIcon, delay: 1.5 },
+    { name: 'Form Stacks', icon: Layers, delay: 2 }
   ];
 
   return (
@@ -421,7 +410,7 @@ const LegacyToolCollision = () => {
             Consolidation
          </div>
          <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mb-8 text-balance leading-none">Evolve beyond <br />the chaos.</h2>
-         <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">Healthcare data is scattered across legacy silos. HealthNex unifies them into a single, high-fidelity intelligence protocol.</p>
+         <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">Regional health data is often scattered across legacy silos. HealthNex unifies these reports into a single, synchronized intelligence protocol.</p>
       </div>
 
       <div className="relative h-[550px] flex items-center justify-center">
@@ -461,18 +450,18 @@ const ComparisonSection = () => (
       <table className="w-full border-collapse text-left">
         <thead>
           <tr className="bg-[var(--surface-2)]/70 border-b border-[var(--border-soft)] text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-            <th className="p-8 w-1/3 text-left">Performance Metric</th>
+            <th className="p-8 w-1/3 text-left">Protocol Metric</th>
             <th className="p-8 w-1/3 text-left">Legacy Systems</th>
             <th className="p-8 w-1/3 text-right text-primary">HealthNex Protocol</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
           {[
-            { label: 'Outbreak Detection', legacy: '4-7 Days', next: 'Real-time' },
-            { label: 'Data Ingestion', legacy: 'Manual Entry', next: 'Neural Sync' },
-            { label: 'Security Model', legacy: 'Centralized', next: 'Distributed' },
-            { label: 'System Uptime', legacy: '89.4%', next: '99.99%' },
-            { label: 'Response Strategy', legacy: 'Reactive', next: 'Predictive' },
+            { label: 'Alert Latency', legacy: 'Delayed', next: 'Real-time' },
+            { label: 'Data Synchronization', legacy: 'Manual Entry', next: 'Convex Sync' },
+            { label: 'Community Feedback', legacy: 'Limited', next: 'Distributed' },
+            { label: 'System Uptime', legacy: 'Variable', next: 'High-Availability' },
+            { label: 'Reporting Model', legacy: 'Reactive', next: 'Proactive' },
           ].map((row, i) => (
             <motion.tr 
               key={row.label}
@@ -492,7 +481,7 @@ const ComparisonSection = () => (
                 <div className="inline-flex items-center gap-3">
                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_5px_var(--primary)]" />
                    <span className="text-lg font-bold text-primary tracking-tight">
-                     {row.next === 'Real-time' ? 'Unified Layer ' : ''}{row.next}
+                     {row.next}
                    </span>
                 </div>
               </td>
@@ -544,12 +533,12 @@ export default function Home() {
   if (!mounted) return <div className="min-h-screen bg-background" />;
 
   const features = [
-    { title: "Real-time Surveillance", desc: "Monitor health data streams instantly with sub-second latency for critical anomaly detection.", icon: Activity, color: "text-sky-400" },
-    { title: "Predictive Intelligence", desc: "Leverage AI to forecast outbreak vectors and identify trends before they manifest.", icon: Brain, color: "text-violet-400" },
-    { title: "Community Reporting", desc: "Enable verified decentralized reporting to empower local communities as first responders.", icon: Users, color: "text-emerald-400" },
-    { title: "Water Quality Analysis", desc: "Automated analysis of water sources to prevent waterborne disease spread.", icon: Waves, color: "text-cyan-400" },
-    { title: "Advanced Data Security", desc: "End-to-end encrypted health data management following international standards.", icon: ShieldCheck, color: "text-muted-foreground" },
-    { title: "Insightful Analytics", desc: "Rich, interactive visualizations that transform complex data into actionable intelligence.", icon: BarChart3, color: "text-amber-400" }
+    { title: "Real-time Surveillance", desc: "Monitor regional health data instantly with low-latency synchronization for anomaly detection.", icon: Activity, color: "text-sky-400" },
+    { title: "Gemini AI Insights", desc: "Utilize advanced AI to analyze symptom reports and identify regional health trends.", icon: Brain, color: "text-violet-400" },
+    { title: "Community Reporting", desc: "Enable verified reporting to empower local communities as first responders.", icon: Users, color: "text-emerald-400" },
+    { title: "Water Quality Tracking", desc: "Monitor water source quality data to help prevent waterborne disease spread.", icon: Waves, color: "text-cyan-400" },
+    { title: "Secure Data Management", desc: "Role-based access and secure data synchronization for regional health telemetry.", icon: ShieldCheck, color: "text-muted-foreground" },
+    { title: "Interactive Analytics", desc: "Rich visualizations that transform complex community data into actionable intelligence.", icon: BarChart3, color: "text-amber-400" }
   ];
 
   return (
@@ -591,10 +580,10 @@ export default function Home() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="mb-32 text-center">
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-8 text-balance">The Intelligence Pipeline</h2>
-            <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">A high-fidelity telemetry stream, processed at the regional edge for sub-second actionability.</p>
+            <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">A high-fidelity telemetry stream, processed through Gemini AI for regional actionability.</p>
           </div>
           <div className="grid lg:grid-cols-3 gap-12 relative text-left">
-            <PipelineStage icon={DownloadCloud} title="Data Ingestion" desc="Real-time multi-modal ingestion of reports and telemetry via Convex sync." delay={0}>
+            <PipelineStage icon={DownloadCloud} title="Data Ingestion" desc="Real-time ingestion of reports and telemetry via Convex synchronization." delay={0}>
               <div className="grid grid-cols-3 gap-4">
                  {[Smartphone, Wifi, Database].map((I, idx) => (
                   <div key={idx} className="flex flex-col items-center gap-3 p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] shadow-sm group-hover:bg-[var(--surface-1)] transition-colors">
@@ -604,11 +593,11 @@ export default function Home() {
                  ))}
               </div>
             </PipelineStage>
-            <PipelineStage icon={Brain} title="Neural Analysis" desc="Proprietary models identify regional anomalies and forecast vector expansion." delay={0.2}>
+            <PipelineStage icon={Brain} title="Neural Analysis" desc="Gemini-powered models identify regional anomalies and analyze symptom clusters." delay={0.2}>
               <div className="space-y-5">
                  <div className="flex items-center justify-between text-[10px] font-bold text-primary tracking-widest">
-                    <span>PROCESSING_PAYLOAD...</span>
-                    <span>98% CONF</span>
+                    <span>PROCESSING_DATA...</span>
+                    <span>AI ANALYZING</span>
                  </div>
                  <div className="h-2 w-full bg-[var(--surface-3)] rounded-full overflow-hidden">
                     <motion.div animate={{ width: ['20%', '85%', '60%', '95%', '40%'] }} transition={{ duration: 10, repeat: Infinity }} className="h-full bg-primary shadow-[0_0_10px_var(--primary)]" />
@@ -625,9 +614,9 @@ export default function Home() {
                  </div>
               </div>
             </PipelineStage>
-            <PipelineStage icon={ShieldCheck} title="Active Shield" desc="Automated broadcasting of actionable protocols to verified health leads." delay={0.4}>
+            <PipelineStage icon={ShieldCheck} title="Alert Broadcast" desc="Automated broadcasting of high-priority alerts to verified health leads." delay={0.4}>
               <div className="space-y-4">
-                 {[ { label: "E2EE Sync", icon: Lock }, { label: "Broadcast", icon: Radio }, { label: "Verification", icon: Target } ].map((item, i) => (
+                 {[ { label: "Secure Sync", icon: Lock }, { label: "Broadcast", icon: Radio }, { label: "Verification", icon: Target } ].map((item, i) => (
                   <div key={i} className="flex items-center gap-4 p-3 rounded-2xl border border-[var(--border-soft)] bg-[var(--surface-2)]/60 shadow-sm">
                       <item.icon className="w-4 h-4 text-primary" />
                       <span className="text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
@@ -641,7 +630,7 @@ export default function Home() {
 
           <section id="modules" className="py-32 border-t border-border bg-[var(--surface-2)]/40">
         <div className="container mx-auto px-6">
-          <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-24 leading-none uppercase">Engineered for <br /><span className="text-muted-foreground">total visibility.</span></h2>
+          <h2 className="text-4xl md:text-6xl font-bold tracking-tighter mb-24 leading-none uppercase">Engineered for <br /><span className="text-muted-foreground">regional visibility.</span></h2>
           <ModuleShowcase />
         </div>
       </section>
@@ -679,10 +668,10 @@ export default function Home() {
             <h2 className="text-4xl md:text-6xl font-bold tracking-tight uppercase leading-none">Common Inquiries.</h2>
           </div>
           <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] p-10 md:p-14 shadow-xl shadow-black/10">
-            <FAQItem question="How does HealthNex predict disease hotspots?" answer="Our neural engine utilizes multi-modal data synchronization, correlating community symptom reports with regional environmental factors and historical telemetry to project growth vectors up to 14 days in advance." />
-            <FAQItem question="Is medical data truly end-to-end encrypted?" answer="Yes. We implement medical-grade zero-trust architecture where all reports are end-to-end encrypted at the regional edge before synchronization with our distributed backend." />
-            <FAQItem question="Can local health workers use this offline?" answer="Yes. HealthNex is built as a high-fidelity PWA. It maintains a robust offline data cache and automatically synchronizes all local telemetry as soon as a secure node connection is established." />
-            <FAQItem question="How do I integrate existing medical databases?" answer="We provide standardized API adapters and real-time ingestion hooks for legacy SQL and Paper-to-Digital systems, allowing for a seamless transition to the Unified Intelligence Layer." />
+            <FAQItem question="How does HealthNex identify disease clusters?" answer="Our intelligence engine utilizes Gemini AI to analyze community symptom reports and correlate them with regional data, helping identify potential clusters in real-time." />
+            <FAQItem question="Is medical data synchronized securely?" answer="Yes. We implement secure synchronization protocols where all reports are transmitted through encrypted channels to our distributed Convex backend." />
+            <FAQItem question="Can local health workers use this offline?" answer="Yes. HealthNex is built as a PWA with intelligent caching. It maintains a local data cache and synchronizes telemetry as soon as a secure connection is established." />
+            <FAQItem question="How do I report health issues?" answer="Authorized users and community members can submit verified reports through the Community Reporting interface, providing critical ground-level data to the protocol." />
           </div>
         </div>
       </section>

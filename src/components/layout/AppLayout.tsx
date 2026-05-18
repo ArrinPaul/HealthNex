@@ -14,7 +14,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     '/privacy-code',
     '/mission-state',
     '/help',
-    '/documentation'
+    '/documentation',
+    '/organization'
   ];
   
   const isPublicPage = publicRoutes.includes(pathname);

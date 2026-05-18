@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
+import { useAuth } from '@/contexts/AuthContext';
+
 interface LogoProps {
   className?: string;
   iconOnly?: boolean;
@@ -10,6 +12,8 @@ interface LogoProps {
 }
 
 export default function Logo({ className = "", iconOnly = false, size = 'md' }: LogoProps) {
+  const { isAuthenticated } = useAuth();
+  
   const sizeClasses = {
     sm: { icon: 'w-6 h-6', text: 'text-lg', gap: 'gap-2' },
     md: { icon: 'w-10 h-10', text: 'text-2xl', gap: 'gap-3' },
@@ -20,7 +24,7 @@ export default function Logo({ className = "", iconOnly = false, size = 'md' }: 
   const { icon: iconSize, text: textSize, gap } = sizeClasses[size];
 
   return (
-    <div className={`flex items-center ${gap} ${className}`}>
+    <Link href={isAuthenticated ? "/dashboard" : "/"} className={`flex items-center ${gap} ${className} hover:opacity-90 transition-opacity`}>
       <motion.div 
         whileHover={{ scale: 1.05, rotate: 5 }}
         className={`${iconSize} relative shrink-0`}
@@ -60,6 +64,7 @@ export default function Logo({ className = "", iconOnly = false, size = 'md' }: 
           Health<span className="text-primary">Nex</span>
         </span>
       )}
-    </div>
+    </Link>
   );
 }
+

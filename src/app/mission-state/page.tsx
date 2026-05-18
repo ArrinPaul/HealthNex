@@ -1,8 +1,72 @@
 "use client";
 
 import LandingLayout from '@/components/layout/LandingLayout';
-import { motion } from 'framer-motion';
-import { Globe2, Users2, HeartPulse, Sparkles, Target, Zap, Shield } from 'lucide-react';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import { Globe2, Users2, HeartPulse, Sparkles, Target, Zap, Shield, ChevronRight, Activity, CheckCircle2 } from 'lucide-react';
+
+const CorePillar = ({ title, desc, icon: Icon, delay }: any) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.8 }}
+    viewport={{ once: true }}
+    className="group relative p-10 rounded-[3rem] bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-xl hover:border-primary/40 transition-all duration-500 overflow-hidden"
+  >
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_50%)] opacity-0 group-hover:opacity-5 transition-opacity" />
+    <div className="relative z-10 space-y-6">
+       <div className="w-16 h-16 rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500">
+          <Icon className="w-8 h-8" />
+       </div>
+       <div className="space-y-3">
+          <h4 className="text-2xl font-bold uppercase tracking-tight">{title}</h4>
+          <p className="text-muted-foreground leading-relaxed">{desc}</p>
+       </div>
+       <div className="pt-6 border-t border-[var(--border-soft)] flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0">
+          <span>Explore Protocol</span>
+          <ChevronRight className="w-3 h-3" />
+       </div>
+    </div>
+  </motion.div>
+);
+
+const ImpactTimeline = () => {
+  const events = [
+    { year: '2024', title: 'Protocol Genesis', desc: 'Initial architecture established for zero-trust health synchronization.' },
+    { year: '2025', title: 'Regional Alpha', desc: 'First successful deployment of intelligence nodes in Southeast Asia.' },
+    { year: '2026', title: 'Intelligence v2', desc: 'Gemini AI integration for real-time symptom cluster analysis.' },
+    { year: '2027', title: 'Global Grid', desc: 'Target for 100,000+ active intelligence nodes worldwide.' }
+  ];
+
+  return (
+    <div className="py-24 relative">
+       <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border hidden md:block" />
+       <div className="space-y-24">
+          {events.map((event, i) => (
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className={`flex flex-col md:flex-row items-center gap-12 ${i % 2 === 0 ? '' : 'md:flex-row-reverse'}`}
+            >
+               <div className={`flex-1 ${i % 2 === 0 ? 'text-right' : 'text-left'} space-y-4`}>
+                  <span className="text-primary font-mono text-xl font-bold">{event.year}</span>
+                  <h3 className="text-3xl font-bold uppercase tracking-tight text-foreground">{event.title}</h3>
+                  <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto md:mx-0">{event.desc}</p>
+               </div>
+               <div className="relative z-10">
+                  <div className="w-12 h-12 rounded-full bg-background border-4 border-primary shadow-[0_0_20px_var(--primary)] flex items-center justify-center">
+                     <div className="w-2 h-2 rounded-full bg-primary" />
+                  </div>
+               </div>
+               <div className="flex-1 hidden md:block" />
+            </motion.div>
+          ))}
+       </div>
+    </div>
+  );
+};
 
 export default function MissionStatePage() {
   return (
@@ -47,10 +111,10 @@ export default function MissionStatePage() {
                   {[
                     { title: 'Global Transparency', icon: Globe2, desc: 'Real-time visibility into health trends across borders.' },
                     { title: 'Decentralized Support', icon: Users2, desc: 'Empowering local communities as first responders.' },
-                    { title: 'Medical-Grade Accuracy', icon: HeartPulse, desc: 'Uncompromising precision in threat detection.' }
+                    { title: 'Intelligence Accuracy', icon: HeartPulse, desc: 'Uncompromising precision in regional threat detection.' }
                   ].map((item, i) => (
                     <div key={item.title} className="flex items-center gap-6 p-6 rounded-[2rem] bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-sm hover:border-primary/40 transition-colors group">
-                       <div className="w-14 h-14 rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                       <div className="w-14 h-14 rounded-2xl bg-[var(--surface-2)] flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-transform">
                           <item.icon className="w-6 h-6" />
                        </div>
                        <div>
@@ -88,6 +152,14 @@ export default function MissionStatePage() {
             </motion.div>
           </div>
 
+          <div className="space-y-24 mb-48">
+             <div className="text-center space-y-4">
+                <h2 className="text-4xl font-bold uppercase tracking-tight">Impact Roadmap</h2>
+                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">The evolution of the HealthNex Protocol</p>
+             </div>
+             <ImpactTimeline />
+          </div>
+
           <div className="text-center space-y-24">
              <div className="space-y-4">
                 <h2 className="text-4xl font-bold uppercase tracking-tight">Our Core Values</h2>
@@ -100,19 +172,7 @@ export default function MissionStatePage() {
                   { title: 'Agility', icon: Zap, desc: 'Responding to emerging threats with sub-second latency.' },
                   { title: 'Precision', icon: Target, desc: 'Leveraging advanced AI for unmatched predictive foresight.' }
                 ].map((value, i) => (
-                  <motion.div 
-                    key={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="space-y-6 p-10 rounded-[3rem] bg-[var(--surface-1)] border border-[var(--border-soft)] hover:border-primary/40 transition-colors"
-                  >
-                    <div className="w-16 h-16 rounded-2xl bg-[var(--surface-2)] flex items-center justify-center mx-auto text-primary">
-                      <value.icon className="w-8 h-8" />
-                    </div>
-                    <h4 className="text-2xl font-bold uppercase tracking-tight">{value.title}</h4>
-                    <p className="text-muted-foreground leading-relaxed">{value.desc}</p>
-                  </motion.div>
+                  <CorePillar key={i} {...value} delay={i * 0.1} />
                 ))}
              </div>
           </div>
