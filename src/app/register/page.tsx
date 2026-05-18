@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ArrowRight, Lock, Mail, Users, Stethoscope, MapPin, CheckCircle2 } from 'lucide-react';
+import { Shield, ArrowRight, Lock, Mail, Users, Stethoscope, MapPin, CheckCircle2, Upload, FileText, Globe } from 'lucide-react';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import Logo from '@/components/layout/Logo';
 import { PasswordInput } from '@/components/ui/PasswordInput';
@@ -23,16 +23,28 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [role, setRole] = useState<UserRole>('public');
   const [location, setLocation] = useState('');
+  const [verificationFile, setVerificationFile] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
 
-  const handleNext = () => setStep(2);
-  const handleBack = () => setStep(1);
+  const handleNext = () => {
+    if (step === 2 && role === 'health-worker') {
+      setStep(3);
+    } else {
+      setStep(step + 1);
+    }
+  };
+  const handleBack = () => setStep(step - 1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (role === 'health-worker' && !verificationFile) {
+      alert('Verification credentials are required for Health Professionals.');
+      return;
+    }
+
     const { isValid } = validatePassword(password);
     if (!isValid) {
       alert('Security requirements not met. Please check your access key strength.');
@@ -109,20 +121,20 @@ export default function RegisterPage() {
         >
           <div className="space-y-4">
              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
-                Step {step} of 2
+                Step {step} of {role === 'health-worker' ? 3 : 2}
              </div>
              <h1 className="text-4xl font-bold tracking-tight uppercase leading-none">
-               {step === 1 ? 'Personal' : 'Protocol'} <br />
-               <span className="text-primary">{step === 1 ? 'Identity.' : 'Selection.'}</span>
+               {step === 1 ? 'Personal' : step === 2 ? 'Protocol' : 'Verification'} <br />
+               <span className="text-primary">{step === 1 ? 'Identity.' : step === 2 ? 'Selection.' : 'Credentials.'}</span>
              </h1>
              <p className="text-muted-foreground font-medium">
-               {step === 1 ? 'Enter your professional details.' : 'Choose your role within the network.'}
+               {step === 1 ? 'Enter your professional details.' : step === 2 ? 'Choose your role within the network.' : 'Provide medical license or institutional ID.'}
              </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <AnimatePresence mode="wait">
-              {step === 1 ? (
+              {step === 1 && (
                 <motion.div 
                   key="step1"
                   initial={{ opacity: 0, x: -20 }}
@@ -159,7 +171,9 @@ export default function RegisterPage() {
                      </Button>
                   </div>
                 </motion.div>
-              ) : (
+              )}
+
+              {step === 2 && (
                 <motion.div 
                   key="step2"
                   initial={{ opacity: 0, x: 20 }}
@@ -239,14 +253,78 @@ export default function RegisterPage() {
                     <button type="button" onClick={handleBack} className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
                       Back
                     </button>
+                    {role === 'health-worker' ? (
+                       <Button type="button" onClick={handleNext} className="h-16 px-10 rounded-2xl text-lg font-bold bg-primary text-primary-foreground">
+                          Verify Identity <ArrowRight className="ml-3 w-5 h-5" />
+                       </Button>
+                    ) : (
+                      <Button 
+                        type="submit" 
+                        className="h-16 px-10 rounded-2xl text-lg font-bold bg-primary text-primary-foreground shadow-xl shadow-primary/20 transition-all group" 
+                        disabled={loading}
+                      >
+                        {loading ? 'Processing...' : (
+                          <span className="flex items-center gap-3">
+                            Request Access <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                          </span>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {step === 3 && role === 'health-worker' && (
+                <motion.div 
+                  key="step3"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-8"
+                >
+                   <div className="space-y-6">
+                      <div className="p-8 rounded-[2.5rem] border-2 border-dashed border-[var(--border-soft)] bg-[var(--surface-2)] text-center space-y-4 hover:border-primary transition-colors cursor-pointer relative group">
+                         <input 
+                           type="file" 
+                           className="absolute inset-0 opacity-0 cursor-pointer" 
+                           onChange={(e) => setVerificationFile(e.target.files?.[0]?.name || 'license.pdf')}
+                         />
+                         <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                            <Upload className="w-10 h-10 text-primary" />
+                         </div>
+                         <div className="space-y-1">
+                            <h4 className="font-bold uppercase tracking-tight">Institutional Credentials</h4>
+                            <p className="text-xs text-muted-foreground">Upload Medical License, Gov ID, or NGO Authorization (PDF/JPG)</p>
+                         </div>
+                         {verificationFile && (
+                           <div className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-500">
+                              <FileText className="w-5 h-5" />
+                              <span className="text-xs font-bold font-mono truncate">{verificationFile}</span>
+                           </div>
+                         )}
+                      </div>
+                      
+                      <div className="p-6 rounded-2xl bg-[var(--surface-3)] border border-[var(--border-soft)] space-y-3">
+                         <div className="flex items-center gap-3">
+                            <Shield className="w-4 h-4 text-primary" />
+                            <span className="text-[10px] font-bold uppercase tracking-widest">Verification Policy</span>
+                         </div>
+                         <p className="text-[10px] text-muted-foreground leading-relaxed">Your credentials will be manually reviewed by a HealthNex Intelligence Lead. Verification typically completes within 12-24 hours.</p>
+                      </div>
+                   </div>
+
+                   <div className="flex items-center justify-between gap-6 pt-4">
+                    <button type="button" onClick={handleBack} className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                      Back
+                    </button>
                     <Button 
                       type="submit" 
                       className="h-16 px-10 rounded-2xl text-lg font-bold bg-primary text-primary-foreground shadow-xl shadow-primary/20 transition-all group" 
                       disabled={loading}
                     >
-                      {loading ? 'Processing...' : (
+                      {loading ? 'Transmitting...' : (
                         <span className="flex items-center gap-3">
-                          Request Access <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                          Establish Connection <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
                         </span>
                       )}
                     </Button>

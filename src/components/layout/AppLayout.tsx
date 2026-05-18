@@ -3,6 +3,8 @@
 import Navigation from './Navigation';
 import { usePathname } from 'next/navigation';
 
+import GlobalHUDAlert from './GlobalHUDAlert';
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const publicRoutes = [
@@ -59,6 +61,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 {children}
               </div>
             </div>
+
+            <GlobalHUDAlert />
           </div>
         </main>
       </div>

@@ -53,11 +53,29 @@ export const updateReportStatus = mutationWithAuth({
     status: v.union(v.literal("open"), v.literal("investigating"), v.literal("resolved")),
   },
   handler: async (ctx: any, args: any) => {
-    // Ideally we should check if the user is an admin or the owner
-    // For now we just require auth
-    await ctx.db.patch(args.reportId, {
+    const { userId, reportId, status } = args as any;
+    
+    // Auth check
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== "admin" && user.role !== "super-admin" && user.role !== "health-worker")) {
+      throw new Error("Unauthorized to update reports");
+    }
+
+    const report = await ctx.db.get(reportId);
+    if (!report) throw new Error("Report not found");
+
+    await ctx.db.patch(reportId, {
       status: args.status,
       updatedAt: Date.now(),
+    });
+
+    // AUDIT LOG
+    await ctx.db.insert("auditLogs", {
+      userId,
+      targetId: reportId,
+      action: "REPORT_STATUS_CHANGE",
+      details: `${user.name} changed status of report "${report.title}" to ${status}`,
+      timestamp: Date.now(),
     });
   },
 });
