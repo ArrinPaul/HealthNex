@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('community-user');
+  const [role, setRole] = useState<UserRole>('public');
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -47,11 +47,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(name, email, password, role, location);
-      if (role === 'admin' || role === 'health-worker') {
-        router.push('/dashboard');
-      } else {
-        router.push('/education');
-      }
+      router.push('/dashboard');
     } catch (error) {
       console.error('Registration failed:', error);
     } finally {

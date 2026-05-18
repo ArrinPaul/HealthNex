@@ -9,16 +9,21 @@ import { api } from "../../../convex/_generated/api";
 
 import Link from 'next/link';
 
-export default function ReportsList() {
+export default function ReportsList({ personalOnly = false }: { personalOnly?: boolean }) {
   const { t } = useTranslation();
-  const reports = useQuery(api.communityReports.getReports, {});
+  const { user } = useAuth();
+  const allReports = useQuery(api.communityReports.getReports, {});
+  
+  const reports = personalOnly && user 
+    ? allReports?.filter((r: any) => r.userId === user.id)
+    : allReports;
 
   return (
     <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-7">
-        <CardTitle>Community Reports</CardTitle>
+        <CardTitle className="text-xl font-bold uppercase tracking-tight">{personalOnly ? 'My Submissions' : 'Global Intelligence Feed'}</CardTitle>
         <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/30 text-primary font-mono text-sm">
-          {reports?.length ?? 0} Reports Found
+          {reports?.length ?? 0} {personalOnly ? 'Contributions' : 'Reports Found'}
         </Badge>
       </CardHeader>
       <CardContent>

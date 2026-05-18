@@ -20,19 +20,54 @@ import {
   Zap,
   Eye,
   Heart,
-  MapPin
+  MapPin,
+  Mic,
+  MicOff
 } from 'lucide-react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import { toast } from 'sonner';
+import { useSettings } from '@/contexts/SettingsContext';
 
 export default function AIFeaturesPage() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
+  const [isListening, setIsListening] = useState(false);
+  const { language } = useSettings();
   
-  // AI Feature States
+  // Input states
   const [symptoms, setSymptoms] = useState('');
   const [healthQuery, setHealthQuery] = useState('');
   const [location, setLocation] = useState('');
-  const [outbreakData, setOutbreakData] = useState('');
+
+  const startVoiceCapture = () => {
+    if (typeof window === 'undefined' || !('webkitSpeechRecognition' in window)) {
+      toast.error('Voice Capture Not Supported', { description: 'Your browser does not support the Web Speech API.' });
+      return;
+    }
+
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognition.lang = language === 'bn' ? 'bn-IN' : language === 'hi' ? 'hi-IN' : 'en-US';
+    recognition.continuous = false;
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info('Voice Protocol Active', { description: `Listening for symptoms in ${recognition.lang}...` });
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSymptoms(prev => prev ? `${prev}, ${transcript}` : transcript);
+      setIsListening(false);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+      toast.error('Voice Capture Failed', { description: 'Could not process audio stream.' });
+    };
+
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
 
   // Test AI Symptom Analysis
   const analyzeSymptoms = async () => {
@@ -179,108 +214,98 @@ export default function AIFeaturesPage() {
   ];
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">🤖 AI & ML Features</h1>
-          <p className="text-muted-foreground mt-2">
-            Explore our AI-powered health surveillance capabilities
+          <h1 className="text-3xl font-bold uppercase tracking-tight">🤖 AI & ML Features</h1>
+          <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest mt-2">
+            Intelligence Protocol Analytical Suite
           </p>
         </div>
 
         <Tabs defaultValue="features" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="features">AI Features</TabsTrigger>
-            <TabsTrigger value="dashboard">ML Dashboard</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 rounded-2xl p-1 bg-[var(--surface-2)]">
+            <TabsTrigger value="features" className="rounded-xl font-bold uppercase text-[10px] tracking-widest">AI Tools</TabsTrigger>
+            <TabsTrigger value="dashboard" className="rounded-xl font-bold uppercase text-[10px] tracking-widest">ML Performance</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="features" className="space-y-6">
-            {/* AI Features Grid */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {aiFeatures.map((feature) => (
-                <Card key={feature.id} className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:bg-card/70 transition-all">
-                  <CardHeader className="pb-4">
-                    <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${feature.color} p-2 mb-4`}>
-                      <feature.icon className="w-full h-full text-white" />
-                    </div>
-                    <CardTitle className="text-lg">{feature.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <Button 
-                      onClick={feature.action}
-                      disabled={loading}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <Brain className="w-4 h-4 mr-2" />
-                      Test AI
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* AI Input Forms */}
-            <div className="grid md:grid-cols-2 gap-6">
+          <TabsContent value="features" className="space-y-8">
+            <div className="grid md:grid-cols-2 gap-8">
               {/* Symptom Analysis Input */}
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] shadow-xl overflow-hidden">
+                <CardHeader className="border-b border-[var(--border-soft)] bg-primary/5">
+                  <CardTitle className="flex items-center gap-3 text-lg uppercase font-bold tracking-tight">
+                    <Activity className="w-5 h-5 text-primary" />
                     Symptom Analysis
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-8 space-y-6">
                   <div>
-                    <Label htmlFor="symptoms">Symptoms (comma-separated)</Label>
+                    <div className="flex justify-between items-center mb-4">
+                       <Label htmlFor="symptoms" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-2">Ground Telemetry (Symptoms)</Label>
+                       <Button 
+                         type="button" 
+                         variant="outline" 
+                         size="sm" 
+                         onClick={startVoiceCapture}
+                         className={`h-9 gap-3 rounded-xl px-4 border-[var(--border-soft)] transition-all ${isListening ? 'text-rose-500 bg-rose-500/10 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : 'text-primary hover:bg-primary/5'}`}
+                       >
+                          {isListening ? <MicOff className="w-4 h-4 animate-pulse" /> : <Mic className="w-4 h-4" />}
+                          <span className="text-[10px] font-bold uppercase tracking-widest">{isListening ? 'Listening...' : 'Voice Capture'}</span>
+                       </Button>
+                    </div>
                     <Textarea
                       id="symptoms"
-                      placeholder="fever, headache, diarrhea, nausea"
+                      placeholder="e.g., severe dehydration, high fever, abdominal cramps"
                       value={symptoms}
                       onChange={(e) => setSymptoms(e.target.value)}
-                      className="mt-1"
+                      className="min-h-[140px] rounded-2xl bg-[var(--surface-2)] border-[var(--border-soft)] p-6 text-lg"
                     />
                   </div>
-                  <Button onClick={analyzeSymptoms} disabled={loading} className="w-full">
-                    <Zap className="w-4 h-4 mr-2" />
-                    Analyze Symptoms
+                  <Button onClick={analyzeSymptoms} disabled={loading} className="w-full h-16 rounded-2xl text-lg font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-[1.02]">
+                    <Zap className="w-5 h-5 mr-3" />
+                    Run Neural Analysis
                   </Button>
                 </CardContent>
               </Card>
 
               {/* Health Query Input */}
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] shadow-xl overflow-hidden">
+                <CardHeader className="border-b border-[var(--border-soft)] bg-emerald-500/5">
+                  <CardTitle className="flex items-center gap-3 text-lg uppercase font-bold tracking-tight text-emerald-500">
                     <MessageSquare className="w-5 h-5" />
                     Health Assistant
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="query">Ask a health question</Label>
-                    <Textarea
-                      id="query"
-                      placeholder="How can we prevent cholera in rural areas?"
-                      value={healthQuery}
-                      onChange={(e) => setHealthQuery(e.target.value)}
-                      className="mt-1"
-                    />
+                <CardContent className="p-8 space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                       <Label htmlFor="query" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-2">Protocol Inquiry</Label>
+                       <Textarea
+                         id="query"
+                         placeholder="How can we prevent cholera in rural areas?"
+                         value={healthQuery}
+                         onChange={(e) => setHealthQuery(e.target.value)}
+                         className="min-h-[100px] rounded-2xl bg-[var(--surface-2)] border-[var(--border-soft)] p-6"
+                       />
+                    </div>
+                    <div className="space-y-2">
+                       <Label htmlFor="location" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-2">Regional Context</Label>
+                       <div className="relative group">
+                          <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-emerald-500 transition-colors" />
+                          <Input
+                            id="location"
+                            placeholder="Current Region..."
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            className="h-14 pl-14 rounded-2xl bg-[var(--surface-2)] border-[var(--border-soft)]"
+                          />
+                       </div>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="location">Location (optional)</Label>
-                    <Input
-                      id="location"
-                      placeholder="Kadapa, Andhra Pradesh"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                  <Button onClick={askHealthQuestion} disabled={loading} className="w-full">
-                    <Brain className="w-4 h-4 mr-2" />
-                    Ask AI Assistant
+                  <Button onClick={askHealthQuestion} disabled={loading} className="w-full h-16 rounded-2xl text-lg font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02]">
+                    <Brain className="w-5 h-5 mr-3" />
+                    Query Gemini Assistant
                   </Button>
                 </CardContent>
               </Card>
@@ -288,201 +313,85 @@ export default function AIFeaturesPage() {
 
             {/* Results Display */}
             {results && (
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Eye className="w-5 h-5" />
-                    AI Results
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {results.type === 'symptoms' && (
-                    <div className="space-y-4">
-                      <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                        <h4 className="font-semibold mb-2">AI Analysis</h4>
-                        <p className="text-sm">{results.data.analysis}</p>
-                      </div>
-                      {results.data.urgency && (
-                        <Badge variant={results.data.urgency === 'High' ? 'destructive' : results.data.urgency === 'Medium' ? 'default' : 'secondary'}>
-                          Urgency: {results.data.urgency}
-                        </Badge>
-                      )}
-                      {results.data.recommendations && (
-                        <div>
-                          <h5 className="font-medium mb-2">Recommendations:</h5>
-                          <ul className="space-y-1">
-                            {results.data.recommendations.map((rec: string, idx: number) => (
-                              <li key={idx} className="flex items-start gap-2 text-sm">
-                                <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                                {rec}
-                              </li>
-                            ))}
-                          </ul>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                <Card className="backdrop-blur-xl bg-[var(--surface-2)]/40 border border-[var(--border-soft)] shadow-2xl overflow-hidden">
+                  <CardHeader className="border-b border-[var(--border-soft)] py-6">
+                    <CardTitle className="flex items-center gap-3 text-sm uppercase font-bold tracking-[0.2em]">
+                      <Eye className="w-4 h-4 text-primary" />
+                      Intelligence Output
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-10">
+                    {results.type === 'symptoms' && (
+                      <div className="space-y-8">
+                        <div className="p-8 bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl shadow-sm">
+                          <h4 className="font-bold uppercase tracking-widest text-[10px] text-primary mb-4">Neural Analysis Summary</h4>
+                          <p className="text-xl leading-relaxed font-medium">{results.data.analysis}</p>
                         </div>
-                      )}
-                    </div>
-                  )}
-
-                  {results.type === 'query' && (
-                    <div className="space-y-4">
-                      <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                        <h4 className="font-semibold mb-2">AI Health Assistant</h4>
-                        <p className="text-sm">{results.data.answer}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {results.type === 'outbreak' && (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-4">
-                        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-lg flex-1">
-                          <h4 className="font-semibold">Outbreak Risk</h4>
-                          <p className="text-2xl font-bold">{results.data.outbreakRisk}</p>
+                        <div className="flex flex-wrap gap-6 items-center">
+                          {results.data.urgency && (
+                            <Badge className={`h-10 px-6 rounded-full text-xs font-bold uppercase tracking-widest ${
+                              results.data.urgency === 'High' ? 'bg-rose-500 text-white' : 'bg-amber-500 text-white'
+                            }`}>
+                              Protocol Urgency: {results.data.urgency}
+                            </Badge>
+                          )}
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                             <span className="text-[10px] font-bold uppercase tracking-widest">Verified by Gemini v1.5</span>
+                          </div>
                         </div>
-                        {results.data.confidence && (
-                          <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                            <h4 className="font-semibold">Confidence</h4>
-                            <p className="text-xl font-bold">{(results.data.confidence * 100).toFixed(1)}%</p>
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {results.type === 'forecast' && (
-                    <div className="space-y-4">
-                      <h4 className="font-semibold">Health Trend Forecast</h4>
-                      <div className="grid gap-3">
-                        {results.data.forecast?.map((item: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between p-3 bg-violet-500/10 border border-violet-500/20 rounded-lg">
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4" />
-                              <span className="font-medium">{item.community}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge variant={item.trend === 'Increasing' ? 'destructive' : 'secondary'}>
-                                {item.trend}
-                              </Badge>
-                              <Badge variant={item.risk === 'High' ? 'destructive' : 'secondary'}>
-                                {item.risk} Risk
-                              </Badge>
-                            </div>
-                          </div>
-                        ))}
+                    {results.type === 'query' && (
+                      <div className="space-y-6">
+                        <div className="p-8 bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl shadow-sm border-l-4 border-l-emerald-500">
+                          <h4 className="font-bold uppercase tracking-widest text-[10px] text-emerald-500 mb-4">Assistant Response</h4>
+                          <p className="text-xl leading-relaxed font-medium">{results.data.answer}</p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
           </TabsContent>
 
           <TabsContent value="dashboard" className="space-y-6">
-            {/* ML Dashboard */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="w-5 h-5" />
-                    AI Status
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Gemini AI</span>
-                      <Badge variant="default">Active</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">ML Models</span>
-                      <Badge variant="default">Ready</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Data Pipeline</span>
-                      <Badge variant="default">Running</Badge>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+             <div className="grid md:grid-cols-3 gap-8">
+                {[
+                  { title: 'AI Operational', icon: Brain, label: 'Gemini v1.5 Pro', color: 'text-primary' },
+                  { title: 'Processing', icon: Zap, label: 'Real-time', color: 'text-amber-500' },
+                  { title: 'Sync Fidelity', icon: Shield, label: 'High-Integrity', color: 'text-emerald-500' }
+                ].map((stat, i) => (
+                  <Card key={i} className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] shadow-lg hover:border-primary/30 transition-all">
+                    <CardContent className="p-8 flex items-center gap-6">
+                       <div className={`w-14 h-14 rounded-2xl bg-[var(--surface-2)] flex items-center justify-center ${stat.color}`}>
+                          <stat.icon className="w-7 h-7" />
+                       </div>
+                       <div>
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">{stat.title}</p>
+                          <p className="text-lg font-bold uppercase tracking-tight">{stat.label}</p>
+                       </div>
+                    </CardContent>
+                  </Card>
+                ))}
+             </div>
 
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5" />
-                    ML Performance
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Prediction Accuracy</span>
-                      <span className="font-bold text-muted-foreground italic">Pending Data</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Response Time</span>
-                      <span className="font-bold text-muted-foreground italic">--</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">API Calls Today</span>
-                      <span className="font-bold text-muted-foreground italic">--</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="w-5 h-5" />
-                    Health Impact
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Early Detections</span>
-                      <span className="font-bold text-emerald-400">12</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Prevented Outbreaks</span>
-                      <span className="font-bold text-sky-400">3</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Lives Protected</span>
-                      <span className="font-bold text-violet-400">1,200+</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Button onClick={predictOutbreak} disabled={loading} className="h-20 flex-col">
-                <TrendingUp className="w-6 h-6 mb-2" />
-                Run Prediction
-              </Button>
-              <Button onClick={generateHealthForecast} disabled={loading} variant="outline" className="h-20 flex-col">
-                <BarChart3 className="w-6 h-6 mb-2" />
-                Generate Forecast
-              </Button>
-              <Button onClick={() => setResults(null)} variant="outline" className="h-20 flex-col">
-                <Eye className="w-6 h-6 mb-2" />
-                Clear Results
-              </Button>
-              <Button 
-                onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    window.open('/api/api-docs', '_blank');
-                  }
-                }} 
-                variant="outline" 
-                className="h-20 flex-col"
-              >
-                <Brain className="w-6 h-6 mb-2" />
-                API Docs
-              </Button>
-            </div>
+             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+               {[
+                 { action: predictOutbreak, icon: TrendingUp, label: 'Outbreak Vector' },
+                 { action: generateHealthForecast, icon: BarChart3, label: 'Health Trends' },
+                 { action: () => setResults(null), icon: Eye, label: 'Clear Cache' },
+                 { action: () => window.open('/documentation', '_blank'), icon: Book, label: 'View Protocol' }
+               ].map((btn, i) => (
+                 <Button key={i} onClick={btn.action} variant="outline" className="h-24 rounded-2xl flex-col gap-3 border-[var(--border-soft)] hover:border-primary/40 hover:bg-primary/5 transition-all group">
+                    <btn.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">{btn.label}</span>
+                 </Button>
+               ))}
+             </div>
           </TabsContent>
         </Tabs>
       </div>

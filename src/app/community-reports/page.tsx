@@ -24,9 +24,10 @@ export default function CommunityReportsPage() {
         </div>
 
         <Tabs defaultValue={canSubmit ? "submit" : "reports"} className="space-y-6">
-          <TabsList>
-            {canSubmit && <TabsTrigger value="submit">{t('reportIssue')}</TabsTrigger>}
-            <TabsTrigger value="reports">View Reports</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-grid">
+            {canSubmit && <TabsTrigger value="submit" className="uppercase text-[10px] font-bold tracking-widest">{t('reportIssue')}</TabsTrigger>}
+            <TabsTrigger value="reports" className="uppercase text-[10px] font-bold tracking-widest">Global Feed</TabsTrigger>
+            <TabsTrigger value="my-reports" className="uppercase text-[10px] font-bold tracking-widest">My Intelligence</TabsTrigger>
           </TabsList>
 
           {canSubmit && (
@@ -37,6 +38,10 @@ export default function CommunityReportsPage() {
 
           <TabsContent value="reports">
             <ReportsList />
+          </TabsContent>
+
+          <TabsContent value="my-reports">
+            <ReportsList personalOnly />
           </TabsContent>
         </Tabs>
       </div>
