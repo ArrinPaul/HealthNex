@@ -98,8 +98,27 @@ export default function OrganizationPage() {
             </p>
           </motion.div>
 
-          <div className="mb-48">
+          <div className="mb-48 space-y-12">
+             <div className="text-center space-y-4">
+                <h2 className="text-4xl font-bold uppercase tracking-tight">Global Infrastructure</h2>
+                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">The physical layer of our intelligence network</p>
+             </div>
              <GlobalNetworkVisualizer />
+             
+             <div className="grid md:grid-cols-4 gap-8">
+                {[
+                  { label: 'Active Nodes', value: '1,240', desc: 'Regional surveillance units' },
+                  { label: 'Certified Labs', value: '84', desc: 'Verified testing facilities' },
+                  { label: 'Partner NGOs', value: '215', desc: 'Community response teams' },
+                  { label: 'Cloud Clusters', value: '12', desc: 'Distributed data synchronization' }
+                ].map((stat, i) => (
+                  <div key={i} className="p-8 rounded-3xl bg-[var(--surface-2)] border border-[var(--border-soft)] text-center space-y-2">
+                     <div className="text-3xl font-bold text-primary font-mono">{stat.value}</div>
+                     <p className="text-[10px] font-bold uppercase tracking-widest text-foreground">{stat.label}</p>
+                     <p className="text-[10px] text-muted-foreground leading-tight">{stat.desc}</p>
+                  </div>
+                ))}
+             </div>
           </div>
 
           <div className="space-y-24 mb-48">

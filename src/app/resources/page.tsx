@@ -115,10 +115,54 @@ export default function ResourcesPage() {
            </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pt-6">
-           {facilities.map((f, i) => (
-             <FacilityCard key={f.name} {...f} delay={i * 0.1} />
-           ))}
+        <div className="grid lg:grid-cols-12 gap-8">
+           <div className="lg:col-span-8 space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                 {facilities.map((f, i) => (
+                   <FacilityCard key={f.name} {...f} delay={i * 0.1} />
+                 ))}
+              </div>
+           </div>
+
+           <div className="lg:col-span-4 space-y-6">
+              <Card className="bg-rose-500/10 border border-rose-500/20 shadow-xl overflow-hidden group">
+                 <CardHeader className="bg-rose-500/10 border-b border-rose-500/20">
+                    <CardTitle className="flex items-center gap-3 text-rose-500 text-sm uppercase font-bold tracking-[0.2em]">
+                       <ShieldCheck className="w-4 h-4 animate-pulse" />
+                       Emergency Protocols
+                    </CardTitle>
+                 </CardHeader>
+                 <CardContent className="p-6 space-y-4">
+                    <Button className="w-full h-14 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] gap-3">
+                       <Phone className="w-4 h-4" /> Call Immediate Response
+                    </Button>
+                    <div className="grid grid-cols-2 gap-3">
+                       <Button variant="outline" className="h-12 rounded-xl border-rose-500/20 text-rose-500 hover:bg-rose-500/10 uppercase text-[8px] font-bold tracking-widest">Symptom SOS</Button>
+                       <Button variant="outline" className="h-12 rounded-xl border-rose-500/20 text-rose-500 hover:bg-rose-500/10 uppercase text-[8px] font-bold tracking-widest">Water Halt</Button>
+                    </div>
+                 </CardContent>
+              </Card>
+
+              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
+                 <CardHeader>
+                    <CardTitle className="text-sm font-bold uppercase tracking-widest">Protocol Navigation</CardTitle>
+                 </CardHeader>
+                 <CardContent className="space-y-6">
+                    {[
+                      { label: 'Nearest Lab', value: '0.4km', node: 'Lab-A1' },
+                      { label: 'Supply Point', value: '1.2km', node: 'Pharma-02' }
+                    ].map((node, i) => (
+                      <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-[var(--surface-2)] border border-[var(--border-soft)]">
+                         <div>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase">{node.label}</p>
+                            <p className="text-sm font-bold">{node.node}</p>
+                         </div>
+                         <Badge className="bg-primary/20 text-primary border-0">{node.value}</Badge>
+                      </div>
+                    ))}
+                 </CardContent>
+              </Card>
+           </div>
         </div>
 
         <motion.div 

@@ -109,10 +109,18 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
+import IntelligencePulse from '@/components/dashboard/IntelligencePulse';
+import CommunityImpact from '@/components/dashboard/CommunityImpact';
+
+export default function DashboardPage() {
+// ...
           {/* Stats Column - 4x4 Grid */}
           <div className="md:col-span-4 md:row-span-4 flex flex-col gap-6">
-            <div className="flex-1 overflow-auto custom-scrollbar pr-1">
-              <StatsGrid />
+            <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl p-6 flex-1 shadow-lg shadow-black/5 overflow-hidden">
+               <IntelligencePulse />
+            </div>
+            <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl p-6 h-80 shadow-lg shadow-black/5 overflow-hidden">
+               <CommunityImpact />
             </div>
           </div>
 
