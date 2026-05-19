@@ -25,6 +25,11 @@ export const useDashboardAggregates = () => {
   return data;
 };
 
+export const useGlobalInstitutionalData = (type: string = "outbreak_global") => {
+  const data = useQuery(api.externalData.getGlobalStats, { type });
+  return data;
+};
+
 export const useAddHealthData = () => {
   const addData = useMutation(api.healthData.addHealthData);
   return addData;

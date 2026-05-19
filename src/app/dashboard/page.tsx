@@ -11,7 +11,7 @@ import DistributionSection from '@/components/dashboard/DistributionSection';
 import { Globe, Map as MapIcon, Zap, LayoutGrid, Bell, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import IntelligencePulse from '@/components/dashboard/IntelligencePulse';
+import InstitutionalTrust from '@/components/dashboard/InstitutionalTrust';
 
 const DiseaseMap = dynamic(() => import('@/components/DiseaseMap'), { ssr: false });
 
@@ -102,9 +102,9 @@ export default function DashboardPage() {
           {/* Intelligence Sidebar (Right Column) */}
           <div className="lg:col-span-4 flex flex-col gap-8">
             
-            {/* Intelligence Pulse - Consistently active visual */}
+            {/* Institutional Trust Layer */}
             <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[2.5rem] p-8 shadow-lg flex-1 min-h-[300px] overflow-hidden">
-               <IntelligencePulse />
+               <InstitutionalTrust />
             </div>
 
             {/* Simplified Data Insights */}

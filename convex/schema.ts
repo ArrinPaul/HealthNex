@@ -154,5 +154,12 @@ export default defineSchema({
         createdAt: v.number(),
       }).index("by_status", ["status"])
         .index("by_created", ["createdAt"]),
+
+      externalInstitutionalData: defineTable({
+        source: v.string(), // e.g., "disease.sh", "WHO"
+        type: v.string(), // e.g., "outbreak_global", "indicator_life_expectancy"
+        data: v.any(),
+        lastUpdated: v.number(),
+      }).index("by_source_and_type", ["source", "type"]),
     });
     
