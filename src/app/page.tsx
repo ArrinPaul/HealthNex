@@ -292,6 +292,7 @@ const ModuleShowcase = () => {
       tag: 'Live Monitoring',
       icon: LineChart, 
       color: 'text-sky-400', 
+      href: '/surveillance',
       desc: 'Centralized command center for real-time regional health tracking and community reports.',
       features: ['Automated Anomaly Detection', 'Geospatial Heatmaps', 'Node Health Audits']
     },
@@ -301,6 +302,7 @@ const ModuleShowcase = () => {
       tag: 'Predictive AI',
       icon: Target, 
       color: 'text-violet-400', 
+      href: '/neural-engine',
       desc: 'Gemini-powered processing to identify emerging health trends and analyze reported symptoms.',
       features: ['Symptom Analysis', 'Risk Factor Correlation', 'Trend Projections']
     },
@@ -310,6 +312,7 @@ const ModuleShowcase = () => {
       tag: 'Collaborative',
       icon: Stethoscope, 
       color: 'text-emerald-400', 
+      href: '/organization',
       desc: 'Bridging the gap between community reporting and professional health organization response.',
       features: ['Verified Field Reports', 'Regional Alert Broadcasts', 'Water Quality Tracking']
     }
@@ -319,29 +322,30 @@ const ModuleShowcase = () => {
     <div className="grid lg:grid-cols-12 gap-16 py-20 items-center">
       <div className="lg:col-span-5 space-y-6">
         {modules.map((m, i) => (
+          <Link key={m.id} href={m.href}>
             <motion.div 
-            key={m.id}
-            onMouseEnter={() => setActive(i)}
-            whileHover={{ x: 10 }}
-            className={`cursor-pointer p-10 rounded-[3rem] border transition-all duration-500 ${
-              active === i 
-                ? 'bg-[var(--surface-1)] border-primary shadow-2xl shadow-primary/10 scale-105' 
-                : 'border-transparent opacity-40 hover:opacity-100'
-            }`}
-          >
-            <div className="flex items-center gap-8">
-              <div className={`w-20 h-20 shrink-0 rounded-[1.5rem] bg-[var(--surface-2)] flex items-center justify-center ${active === i ? m.color : 'text-muted-foreground'} shadow-sm`}>
-                <m.icon className="w-10 h-10" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-4">
-                  <h3 className="font-bold text-2xl tracking-tight">{m.title}</h3>
-                  <span className={`text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-[var(--surface-2)] ${active === i ? m.color : 'text-muted-foreground'}`}>{m.tag}</span>
+              onMouseEnter={() => setActive(i)}
+              whileHover={{ x: 10 }}
+              className={`cursor-pointer p-10 rounded-[3rem] border transition-all duration-500 mb-6 ${
+                active === i 
+                  ? 'bg-[var(--surface-1)] border-primary shadow-2xl shadow-primary/10 scale-105' 
+                  : 'border-transparent opacity-40 hover:opacity-100'
+              }`}
+            >
+              <div className="flex items-center gap-8">
+                <div className={`w-20 h-20 shrink-0 rounded-[1.5rem] bg-[var(--surface-2)] flex items-center justify-center ${active === i ? m.color : 'text-muted-foreground'} shadow-sm`}>
+                  <m.icon className="w-10 h-10" />
                 </div>
-                <p className="text-base text-muted-foreground leading-relaxed">{m.desc}</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-4">
+                    <h3 className="font-bold text-2xl tracking-tight">{m.title}</h3>
+                    <span className={`text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-1.5 rounded-full bg-[var(--surface-2)] ${active === i ? m.color : 'text-muted-foreground'}`}>{m.tag}</span>
+                  </div>
+                  <p className="text-base text-muted-foreground leading-relaxed">{m.desc}</p>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </Link>
         ))}
       </div>
 

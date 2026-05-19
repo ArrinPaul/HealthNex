@@ -11,6 +11,9 @@ import ChartsSection from '@/components/dashboard/ChartsSection';
 import DistributionSection from '@/components/dashboard/DistributionSection';
 import { Activity, ShieldCheck, Globe, Info, BarChart3, Map as MapIcon, Zap, LayoutGrid } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import IntelligencePulse from '@/components/dashboard/IntelligencePulse';
+import CommunityImpact from '@/components/dashboard/CommunityImpact';
 
 const DiseaseMap = dynamic(() => import('@/components/DiseaseMap'), { ssr: false });
 
@@ -36,10 +39,10 @@ export default function DashboardPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight text-foreground uppercase flex items-center gap-3">
-                {t('dashboard', 'Intelligence Center')}
+                {t('dashboard', 'System Core')}
                 <span className="hidden md:inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full border border-emerald-500/20 text-[8px] uppercase tracking-widest font-bold">
                   <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Sync
+                  Real-time Synchronization Active
                 </span>
               </h1>
               <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">{user?.role?.replace('-', ' ')} Layer Access</p>
@@ -109,11 +112,6 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-import IntelligencePulse from '@/components/dashboard/IntelligencePulse';
-import CommunityImpact from '@/components/dashboard/CommunityImpact';
-
-export default function DashboardPage() {
-// ...
           {/* Stats Column - 4x4 Grid */}
           <div className="md:col-span-4 md:row-span-4 flex flex-col gap-6">
             <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl p-6 flex-1 shadow-lg shadow-black/5 overflow-hidden">

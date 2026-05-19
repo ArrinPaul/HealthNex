@@ -2,6 +2,7 @@
 
 import Navigation from './Navigation';
 import { usePathname } from 'next/navigation';
+import { Search } from 'lucide-react';
 
 import GlobalHUDAlert from './GlobalHUDAlert';
 
@@ -46,14 +47,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {/* Window Header */}
               <div className="h-14 border-b border-[var(--border-soft)] bg-[var(--surface-2)]/80 backdrop-blur flex items-center px-8 justify-between shrink-0 theme-transition">
                 <div className="flex gap-2.5">
-                  <div className="w-3.5 h-3.5 rounded-full bg-[#FF5F56] shadow-sm" />
-                  <div className="w-3.5 h-3.5 rounded-full bg-[#FFBD2E] shadow-sm" />
-                  <div className="w-3.5 h-3.5 rounded-full bg-[#27C93F] shadow-sm" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#FF5F56] shadow-sm hover:opacity-80 cursor-pointer transition-opacity" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#FFBD2E] shadow-sm hover:opacity-80 cursor-pointer transition-opacity" />
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#27C93F] shadow-sm hover:opacity-80 cursor-pointer transition-opacity" />
                 </div>
-                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
+                
+                <div className="flex items-center gap-3 bg-[var(--surface-1)] px-6 py-1.5 rounded-xl border border-[var(--border-soft)] shadow-sm theme-transition">
+                  <Search className="w-3 h-3 text-muted-foreground" />
+                  <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] min-w-[180px] text-center">
+                    portal.healthnex.io
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em] hidden md:block">
                   HealthNex Intelligence Session
                 </div>
-                <div className="w-16" />
+                <div className="w-16 md:hidden" />
               </div>
 
               {/* Window Content */}
