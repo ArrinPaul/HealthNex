@@ -1,81 +1,66 @@
 "use client";
 
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Activity, AlertTriangle, Droplet, TrendingUp } from 'lucide-react';
-import { useDiseaseData, useAlerts } from '@/services/healthDataService';
+import { useDashboardAggregates } from '@/services/healthDataService';
 
 export default function StatsGrid() {
   const { t } = useTranslation();
-  const diseaseData = useDiseaseData();
-  const alertsData = useAlerts();
-
-  // Calculate dynamic stats
-  const totalCases = Array.isArray(diseaseData) 
-    ? diseaseData.reduce((sum: number, item: any) => sum + (item.confirmedCases || item.cases || 0), 0)
-    : 0;
-  
-  const waterAlerts = Array.isArray(alertsData)
-    ? alertsData.filter((a: any) => a.type === 'water').length
-    : 0;
+  const aggregates = useDashboardAggregates();
 
   const stats = [
     {
       title: t('activeCases', 'Active Cases'),
-      value: totalCases.toString(),
-      change: '+12%',
+      value: aggregates?.stats.totalCases.toString() || '0',
       icon: Activity,
       color: 'text-primary',
-      bg: 'bg-primary/15'
+      bg: 'bg-primary/10'
     },
     {
-      title: t('aiPredictions', 'AI Predictions'),
-      value: 'N/A',
-      change: 'Pending',
-      icon: AlertTriangle,
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/15'
-    },
-    {
-      title: t('waterQualityAlerts', 'Water Quality Alerts'),
-      value: waterAlerts.toString(),
-      change: 'Live',
+      title: t('activeAlerts', 'Active Alerts'),
+      value: aggregates?.stats.activeAlerts.toString() || '0',
       icon: Droplet,
       color: 'text-sky-400',
-      bg: 'bg-sky-500/15'
+      bg: 'bg-sky-500/10'
     },
     {
-      title: t('aiInsights', 'AI Insights Today'),
-      value: 'N/A',
-      change: 'Live',
+      title: t('aiInsights', 'Anomalies'),
+      value: aggregates?.stats.aiInsightsCount.toString() || '0',
       icon: TrendingUp,
       color: 'text-emerald-400',
-      bg: 'bg-emerald-500/15'
+      bg: 'bg-emerald-500/10'
+    },
+    {
+      title: t('totalNodes', 'System Nodes'),
+      value: aggregates?.stats.totalNodes.toString() || '0',
+      icon: AlertTriangle,
+      color: 'text-amber-400',
+      bg: 'bg-amber-500/10'
     }
   ];
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
       {stats.map((stat, index) => (
-        <Card key={index} className="bg-card border border-[var(--border-soft)] shadow-md theme-transition group hover:border-primary/40">
+        <Card key={index} className="bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-sm theme-transition group hover:border-primary/40 rounded-3xl overflow-hidden">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-               <CardTitle className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest group-hover:text-primary transition-colors">
-                 {stat.title}
-               </CardTitle>
-               <div className={`w-10 h-10 flex items-center justify-center rounded-xl border border-[var(--border-soft)] ${stat.bg} shadow-inner`}>
-                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            <div className="flex items-center gap-4">
+               <div className={`w-12 h-12 flex items-center justify-center rounded-2xl ${stat.bg} border border-[var(--border-soft)] group-hover:scale-110 transition-transform`}>
+                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
                </div>
-            </div>
-            <div className="flex items-baseline justify-between">
-               <div className="text-3xl font-bold tracking-tight uppercase text-foreground">{stat.value}</div>
-               <div className={`px-2.5 py-1 text-[8px] font-bold uppercase rounded-lg border ${stat.change.startsWith('+') ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-[var(--surface-3)] text-muted-foreground border-[var(--border-soft)]'}`}>
-                 {stat.change}
+               <div>
+                  <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                    {stat.title}
+                  </div>
+                  <div className="text-2xl font-bold tracking-tight">
+                    {aggregates ? stat.value : '...'}
+                  </div>
                </div>
             </div>
           </CardContent>
         </Card>
       ))}
-    </div>
+    </>
   );
 }

@@ -20,6 +20,11 @@ export const useAlerts = () => {
   return data || [];
 };
 
+export const useDashboardAggregates = () => {
+  const data = useQuery(api.stats.getDashboardAggregates, {});
+  return data;
+};
+
 export const useAddHealthData = () => {
   const addData = useMutation(api.healthData.addHealthData);
   return addData;
