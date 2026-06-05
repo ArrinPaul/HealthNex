@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        verificationStatus: user.verificationStatus || 'none',
         location: 'Guwahati, Assam' // Placeholder or fetch from profile if stored
       },
       token: token

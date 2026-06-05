@@ -10,7 +10,7 @@ const convex = new ConvexHttpClient(isValidUrl ? convexUrl : 'https://placeholde
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name, role = 'community-user' } = await request.json();
+    const { email, password, name, role = 'community-user', location, verificationDoc } = await request.json();
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
         email,
         name,
         passwordHash: hashedPassword,
-        role,
+        role: role, // This is the requested role
+        verificationDocUrl: verificationDoc,
       });
     } catch (dbError: any) {
       return NextResponse.json(
@@ -39,8 +40,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // After creation, the user role in DB will be 'public' by default (until verified)
+    const assignedRole = 'public'; 
+    
     // Generate JWT token with the actual assigned role
-    const assignedRole = 'public';
     const token = JWTService.generateToken({
       userId,
       email,
@@ -49,7 +52,14 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      user: { id: userId, email, name, role: assignedRole }
+      user: { 
+        id: userId, 
+        email, 
+        name, 
+        role: assignedRole,
+        location: location || 'Unknown',
+        verificationStatus: (role === 'public') ? 'none' : 'pending'
+      }
     });
 
     response.cookies.set({

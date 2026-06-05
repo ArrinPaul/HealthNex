@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        verificationStatus: user.verificationStatus || 'none',
         location: 'Guwahati, Assam' // Default for now
       },
       token: token

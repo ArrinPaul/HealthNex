@@ -11,10 +11,11 @@ import { Upload, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { toast } from 'sonner';
 
 export default function HealthReportForm() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const addReport = useMutation(api.healthData.addHealthData);
@@ -60,12 +61,12 @@ export default function HealthReportForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert("Please login to submit a report");
+    if (!token) return toast.error("Authentication Required", { description: "Please login to submit a report" });
     
     setLoading(true);
     try {
       await addReport({
-        userId: user.id as any,
+        token,
         type: "symptom",
         data: {
           patientName: formData.patientName,
@@ -80,7 +81,7 @@ export default function HealthReportForm() {
         severity: 5,
         notes: formData.symptoms
       });
-      alert(t('reportSuccess', 'Health report submitted successfully!'));
+      toast.success(t('reportSuccess', 'Health report submitted successfully!'));
       setFormData({
         patientName: '',
         symptoms: '',
@@ -91,7 +92,7 @@ export default function HealthReportForm() {
       });
     } catch (err) {
       console.error(err);
-      alert(t('reportError', 'Failed to submit report.'));
+      toast.error(t('reportError', 'Failed to submit report.'));
     } finally {
       setLoading(false);
     }

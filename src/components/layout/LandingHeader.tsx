@@ -12,7 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function LandingHeader() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -31,8 +31,17 @@ export default function LandingHeader() {
           <ThemeToggle />
           <div className="hidden md:flex items-center gap-4">
             {isAuthenticated ? (
-              <Button onClick={() => router.push('/dashboard')} className="h-11 px-8 rounded-xl font-bold bg-primary text-primary-foreground hover:shadow-xl hover:shadow-primary/20 transition-all">
-                Dashboard
+              <Button 
+                onClick={() => {
+                  if (user?.role === 'public') {
+                    router.push('/education');
+                  } else {
+                    router.push('/dashboard');
+                  }
+                }} 
+                className="h-11 px-8 rounded-xl font-bold bg-primary text-primary-foreground hover:shadow-xl hover:shadow-primary/20 transition-all"
+              >
+                {user?.role === 'public' ? 'Education' : 'Dashboard'}
               </Button>
             ) : (
               <>
@@ -62,8 +71,18 @@ export default function LandingHeader() {
           </nav>
           <div className="flex flex-col gap-4">
             {isAuthenticated ? (
-              <Button onClick={() => { router.push('/dashboard'); setIsMenuOpen(false); }} className="w-full h-11 rounded-xl font-bold bg-primary text-primary-foreground">
-                Dashboard
+              <Button 
+                onClick={() => { 
+                  if (user?.role === 'public') {
+                    router.push('/education');
+                  } else {
+                    router.push('/dashboard');
+                  }
+                  setIsMenuOpen(false); 
+                }} 
+                className="w-full h-11 rounded-xl font-bold bg-primary text-primary-foreground"
+              >
+                {user?.role === 'public' ? 'Education' : 'Dashboard'}
               </Button>
             ) : (
               <>

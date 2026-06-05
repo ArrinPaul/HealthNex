@@ -13,7 +13,7 @@ export default function AdminPage() {
   const { t } = useTranslation();
 
   return (
-    <ProtectedRoute allowedRoles={['super-admin']}>
+    <ProtectedRoute allowedRoles={['super-admin', 'admin']}>
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>

@@ -12,25 +12,23 @@ import { useState } from "react";
 
 export default function VerificationQueue() {
   const { user: currentUser, token } = useAuth();
-  // Filter for pending users
-  const allUsers = useQuery(api.users.getAllUsers, token ? { token } : "skip");
-  const updateUserRole = useMutation(api.users.updateUserRole);
+  // Use specialized query for pending verifications
+  const pendingUsers = useQuery(api.users.getPendingVerifications, token ? { token } : "skip");
+  const verifyUser = useMutation(api.users.verifyUser);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  if (!allUsers) {
+  if (!pendingUsers) {
     return <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>;
   }
 
-  const pendingUsers = allUsers.filter((u: any) => u.role === 'public' && u.requestedRole && u.requestedRole !== 'public');
-
-  const handleApprove = async (userId: string, requestedRole: string) => {
+  const handleApprove = async (userId: string) => {
     if (!token) return;
     setLoadingId(userId);
     try {
-      await updateUserRole({
+      await verifyUser({
         token,
         targetUserId: userId as any,
-        newRole: requestedRole
+        status: "verified",
       });
       toast.success("Professional Verified", { description: "User has been promoted to their requested role." });
     } catch (error: any) {
@@ -44,9 +42,15 @@ export default function VerificationQueue() {
     if (!token) return;
     setLoadingId(userId);
     try {
-      // In a real system, we might set a 'rejected' status. 
-      // For now, we'll clear the requested role or keep them as public.
-      toast.info("Verification Dismissed", { description: "The request has been removed from the queue." });
+      await verifyUser({
+        token,
+        targetUserId: userId as any,
+        status: "rejected",
+        adminNotes: "Does not meet professional criteria"
+      });
+      toast.info("Verification Rejected", { description: "The request has been rejected." });
+    } catch (error: any) {
+      toast.error("Action Failed", { description: error.message });
     } finally {
       setLoadingId(null);
     }
@@ -87,7 +91,7 @@ export default function VerificationQueue() {
                       <X className="w-4 h-4" />
                       <span className="text-[10px] font-bold uppercase tracking-widest">Dismiss</span>
                    </Button>
-                   <Button className="h-12 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 rounded-xl shadow-lg shadow-emerald-500/20" onClick={() => handleApprove(u._id, u.requestedRole)}>
+                   <Button className="h-12 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 rounded-xl shadow-lg shadow-emerald-500/20" onClick={() => handleApprove(u._id)}>
                       <Check className="w-4 h-4" />
                       <span className="text-[10px] font-bold uppercase tracking-widest text-white">Approve Credentials</span>
                    </Button>

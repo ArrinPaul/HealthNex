@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Radio, Send, ShieldAlert, Zap, Globe, MapPin, Loader2 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
@@ -182,7 +183,7 @@ export default function AlertBroadcastPage() {
                          <div className="flex items-center justify-between pt-4 border-t border-[var(--border-soft)]">
                             <div className="flex items-center gap-2">
                                <MapPin className="w-3 h-3 text-muted-foreground" />
-                               <span className="text-[9px] font-bold text-muted-foreground uppercase">{alert.radius}km Range</span>
+                               <span className="text-[9px] font-bold text-muted-foreground uppercase">{alert.location?.radius || 0}km Range</span>
                             </div>
                             <Badge className="text-[8px] font-bold uppercase bg-[var(--surface-2)] text-foreground border-0">{alert.type.replace('_', ' ')}</Badge>
                          </div>

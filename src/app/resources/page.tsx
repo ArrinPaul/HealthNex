@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Heart, MapPin, Phone, Search, 
-  Hospital, Pill, ClipboardPulse, 
+  Hospital, Pill, ClipboardCheck, 
   ArrowRight, Globe, Star, Navigation, 
   Activity, ShieldCheck, Clock
 } from 'lucide-react';
@@ -177,7 +177,7 @@ export default function ResourcesPage() {
                  <p className="text-slate-400 max-w-lg mx-auto">Help the protocol grow by submitting new health nodes, pharmacies, or community help centers for institutional verification.</p>
               </div>
               <Button className="h-16 px-10 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 gap-3">
-                 <ClipboardPulse className="w-5 h-5" /> Submit Resource Node
+                 <ClipboardCheck className="w-5 h-5" /> Submit Resource Node
               </Button>
            </div>
         </motion.div>

@@ -17,7 +17,11 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     if (!isAuthenticated) {
       router.push('/login');
     } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-      router.push('/dashboard');
+      if (user.role === 'public') {
+        router.push('/education');
+      } else {
+        router.push('/dashboard');
+      }
     }
   }, [isAuthenticated, user, allowedRoles, router]);
 

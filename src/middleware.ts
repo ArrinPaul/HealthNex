@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/dashboard', '/health-data', '/community-reports', '/water-quality', '/settings', '/profile', '/alerts'];
+const PROTECTED_ROUTES = ['/dashboard', '/health-data', '/community-reports', '/water-quality', '/settings', '/profile', '/alerts', '/admin', '/user-management'];
 
 // API routes that require authentication
 const PROTECTED_API_PREFIX = '/api/';

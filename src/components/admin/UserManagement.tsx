@@ -44,16 +44,30 @@ export default function UserManagement() {
     }
   };
 
-  const getAvailableRoles = (targetRole: string) => {
-    if (targetRole === 'super-admin') return []; // Nobody can change a super-admin
+  const getAvailableRoles = (targetUser: any) => {
+    if (targetUser.role === 'super-admin') return []; // Nobody can change a super-admin
     
+    const roleLevels: Record<string, number> = {
+      'super-admin': 4,
+      'admin': 3,
+      'health-worker': 2,
+      'community-user': 1,
+      'public': 0,
+    };
+
+    const currentUserLevel = roleLevels[currentUser.role] || 0;
+    const targetUserLevel = roleLevels[targetUser.role] || 0;
+
+    // Super admin can change anyone except themselves (to avoid lockouts here)
     if (currentUser.role === 'super-admin') {
       return ['super-admin', 'admin', 'health-worker', 'community-user', 'public'];
-    } else if (currentUser.role === 'admin') {
-      return ['health-worker', 'community-user', 'public']; // Admin can only manage below admin
-    } else if (currentUser.role === 'health-worker') {
-      return ['community-user', 'public']; // Health worker manages community and public
     }
+
+    // Others can only change users with a lower level, and can only promote to a level lower than theirs
+    if (currentUserLevel > targetUserLevel) {
+      return Object.keys(roleLevels).filter(r => roleLevels[r] < currentUserLevel);
+    }
+
     return [];
   };
 
@@ -75,8 +89,8 @@ export default function UserManagement() {
       <CardContent>
         <div className="space-y-4">
           {users.map((u: any) => {
-            const availableRoles = getAvailableRoles(u.role);
-            const canEdit = availableRoles.length > 0 && u._id !== currentUser.id; // Usually shouldn't edit self, but can if needed. Let's prevent editing self here to avoid immediate lockouts.
+            const availableRoles = getAvailableRoles(u);
+            const canEdit = availableRoles.length > 0 && u._id !== currentUser.id;
 
             return (
               <div key={u._id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-soft)] hover:border-primary/40 transition-colors">

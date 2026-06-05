@@ -58,8 +58,8 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      await register(name, email, password, role, location);
-      router.push('/dashboard');
+      await register(name, email, password, role, location, verificationFile || undefined);
+      router.push('/education');
     } catch (error) {
       console.error('Registration failed:', error);
     } finally {

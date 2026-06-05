@@ -3,9 +3,10 @@
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Droplet, AlertCircle } from 'lucide-react';
+import { Droplet, AlertCircle, ChevronRight } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { useAuth } from '@/contexts/AuthContext';
 
 import Link from 'next/link';
 

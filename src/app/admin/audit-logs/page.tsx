@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "../../../../convex/_generated/api";
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,8 @@ import { format } from 'date-fns';
 import { Shield, Clock, Info, User, Activity, Globe, Loader2 } from 'lucide-react';
 
 export default function AuditLogPage() {
-  const logs = useQuery(api.users.getAuditLogs);
+  const { token } = useAuth();
+  const logs = useQuery(api.users.getAuditLogs, token ? { token } : "skip");
 
   if (!logs) {
     return (
@@ -29,7 +31,7 @@ export default function AuditLogPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['super-admin']}>
+    <ProtectedRoute allowedRoles={['super-admin', 'admin']}>
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold uppercase tracking-tight">System Audit Log</h1>

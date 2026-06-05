@@ -524,15 +524,21 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [mounted, setMounted] = useState(false);
   
   const statsData = useQuery(api.stats.getLandingPageStats);
   
   useEffect(() => {
     setMounted(true);
-    if (isAuthenticated) router.push('/dashboard');
-  }, [isAuthenticated, router]);
+    if (isAuthenticated) {
+      if (user?.role === 'public') {
+        router.push('/education');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [isAuthenticated, user, router]);
 
   if (!mounted) return <div className="min-h-screen bg-background" />;
 

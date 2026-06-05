@@ -23,8 +23,12 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
-      router.push('/dashboard');
+      const loggedInUser = await login(email, password);
+      if (loggedInUser.role === 'public') {
+        router.push('/education');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error) {
       console.error('Login failed:', error);
     } finally {

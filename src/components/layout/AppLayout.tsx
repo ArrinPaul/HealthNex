@@ -3,11 +3,13 @@
 import Navigation from './Navigation';
 import { usePathname } from 'next/navigation';
 import { Search } from 'lucide-react';
+import { useState } from 'react';
 
 import GlobalHUDAlert from './GlobalHUDAlert';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const publicRoutes = [
     '/',
     '/login',
@@ -37,9 +39,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="relative z-10 flex min-h-screen">
-        <Navigation />
+        <Navigation isCollapsed={isSidebarCollapsed} setIsCollapsed={setIsSidebarCollapsed} />
         
-        <main className="flex-1 lg:ml-72 transition-all duration-300">
+        <main className={`flex-1 transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'}`}>
           <div className="p-4 md:p-8 lg:p-12 max-w-7xl mx-auto pt-24 lg:pt-12">
             {/* Glassy control surface container */}
             <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[2rem] shadow-[0_40px_90px_-50px_rgba(0,0,0,0.7)] overflow-hidden flex flex-col min-h-[calc(100vh-100px)] theme-transition">
