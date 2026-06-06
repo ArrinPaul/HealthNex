@@ -67,9 +67,9 @@ export default function Navigation({
   );
 
   const NavContent = () => (
-    <div className={`flex flex-col h-full py-6 transition-all duration-300 ${isCollapsed ? 'items-center' : ''}`}>
-      <div className="flex flex-col gap-2 px-3 w-full">
-        {!isCollapsed && <div className="px-3 mb-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.3em]">General</div>}
+    <div className={`flex flex-col h-full py-6 transition-all duration-300`}>
+      <div className="flex flex-col gap-1.5 px-3 w-full">
+        {!isCollapsed && <div className="px-4 mb-3 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em] opacity-50">General_Protocols</div>}
         {filteredNavItems.map((item, i) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -79,33 +79,37 @@ export default function Navigation({
               href={item.href}
               onClick={() => setOpen(false)}
               title={isCollapsed ? item.label : ''}
-              className={`flex flex-col gap-1.5 px-4 py-3 rounded-xl border theme-transition group transition-all duration-300 ${
+              className={`relative flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-300 group ${
                 isActive
-                  ? 'bg-primary/15 text-foreground border-primary/30 shadow-[0_12px_30px_-20px_rgba(0,217,255,0.6)] font-semibold'
-                  : 'text-muted-foreground border-transparent hover:border-primary/20 hover:text-foreground'
-              } ${isCollapsed ? 'items-center px-0' : ''}`}
+                  ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_10px_25px_-15px_rgba(var(--primary-rgb),0.4)]'
+                  : 'text-muted-foreground border-transparent hover:bg-[var(--surface-2)] hover:text-foreground'
+              } ${isCollapsed ? 'justify-center px-0 mx-2' : ''}`}
             >
-              <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
-                <Icon className="w-4 h-4 shrink-0" />
-                {!isCollapsed && <span className="text-xs uppercase font-semibold tracking-widest truncate">{item.label}</span>}
-              </div>
-              {!isCollapsed && (
-                <div className="w-full h-[2px] bg-current opacity-[0.08] rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: isActive ? '100%' : `${20 + (i * 7) % 50}%` }}
-                    animate={isActive ? { width: '100%' } : { width: [`${20 + (i * 7) % 50}%`, `${30 + (i * 3) % 40}%`, `${20 + (i * 7) % 50}%`] }}
-                    transition={isActive ? { duration: 0.5 } : { duration: 3 + (i % 3), repeat: Infinity, ease: "linear" }}
-                    className={`h-full ${isActive ? 'bg-primary' : 'bg-current opacity-40'}`} 
-                  />
-                </div>
+              {isActive && (
+                <motion.div 
+                  layoutId="active-nav-indicator"
+                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" 
+                />
+              )}
+              <Icon className={`w-[18px] h-[18px] shrink-0 transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-3'}`} />
+              {!isCollapsed && <span className={`text-[11px] font-bold uppercase tracking-[0.15em] transition-all ${isActive ? 'text-primary' : ''}`}>{item.label}</span>}
+              
+              {!isCollapsed && isActive && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="ml-auto"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                </motion.div>
               )}
             </Link>
           );
         })}
       </div>
 
-      <div className="mt-auto flex flex-col gap-2 px-3 pt-6 border-t border-[var(--border-soft)] w-full">
-        {!isCollapsed && <div className="px-3 mb-4 text-[10px] font-semibold text-muted-foreground uppercase tracking-[0.3em]">Account</div>}
+      <div className="mt-auto flex flex-col gap-1.5 px-3 pt-6 border-t border-[var(--border-soft)] w-full">
+        {!isCollapsed && <div className="px-4 mb-3 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em] opacity-50">Account_Sync</div>}
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -115,27 +119,29 @@ export default function Navigation({
               href={item.href}
               onClick={() => setOpen(false)}
               title={isCollapsed ? item.label : ''}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border theme-transition transition-all duration-300 ${
+              className={`relative flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-300 group ${
                 isActive
-                  ? 'bg-primary/15 text-foreground border-primary/30 shadow-[0_12px_30px_-20px_rgba(0,217,255,0.6)] font-semibold'
-                  : 'text-muted-foreground border-transparent hover:border-primary/20 hover:text-foreground'
-              } ${isCollapsed ? 'justify-center px-0' : ''}`}
+                  ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_10px_25px_-15px_rgba(var(--primary-rgb),0.4)]'
+                  : 'text-muted-foreground border-transparent hover:bg-[var(--surface-2)] hover:text-foreground'
+              } ${isCollapsed ? 'justify-center px-0 mx-2' : ''}`}
             >
-              <Icon className="w-4 h-4 shrink-0" />
-              {!isCollapsed && <span className="text-xs uppercase font-semibold tracking-widest truncate">{item.label}</span>}
+              {isActive && (
+                <motion.div 
+                  layoutId="active-nav-indicator-bottom"
+                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" 
+                />
+              )}
+              <Icon className={`w-[18px] h-[18px] shrink-0 transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+              {!isCollapsed && <span className={`text-[11px] font-bold uppercase tracking-[0.15em] transition-all ${isActive ? 'text-primary' : ''}`}>{item.label}</span>}
             </Link>
           );
         })}
         
         {!isCollapsed ? (
-          <div className="mt-4 p-6 bg-[var(--surface-2)] border border-[var(--border-soft)] rounded-2xl theme-transition relative overflow-hidden group/ad">
-            <Sparkles className="w-10 h-10 text-primary/10 absolute -right-2 -top-2 group-hover/ad:text-primary/20 transition-colors" />
-            <div className="relative z-10">
-              <div className="h-2 w-20 bg-primary/30 rounded-full mb-3" />
-              <div className="h-1.5 w-full bg-primary/10 rounded-full mb-2" />
-              <div className="h-1.5 w-3/4 bg-primary/10 rounded-full mb-6" />
-              
-              <div className="flex items-center justify-between mb-6">
+          <div className="mt-6 p-6 bg-[var(--surface-2)]/50 border border-[var(--border-soft)] rounded-[2rem] theme-transition relative overflow-hidden group/ad">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_70%)] opacity-5" />
+            <div className="relative z-10 space-y-6">
+              <div className="flex items-center justify-between">
                 <ThemeToggle />
                 <LanguageSelector />
               </div>
@@ -145,22 +151,22 @@ export default function Navigation({
                   setOpen(false);
                 }}
                 variant="outline"
-                className="w-full justify-center gap-2 h-10 border border-[var(--border-strong)] bg-transparent text-foreground font-semibold uppercase text-[10px] tracking-widest hover:bg-primary/10 hover:border-primary/40 theme-transition"
+                className="w-full justify-center gap-3 h-12 border-rose-500/20 bg-rose-500/5 text-rose-500 font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all duration-500 rounded-xl"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
+                <span>Terminate Session</span>
               </Button>
             </div>
           </div>
         ) : (
-          <div className="mt-4 flex flex-col items-center gap-4">
+          <div className="mt-6 flex flex-col items-center gap-4">
              <Button
                 onClick={() => logout()}
                 variant="ghost"
                 size="icon"
-                className="w-10 h-10 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded-xl"
+                className="w-12 h-12 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded-2xl border border-transparent hover:border-rose-500/20 transition-all duration-500"
              >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-5 h-5" />
              </Button>
           </div>
         )}
