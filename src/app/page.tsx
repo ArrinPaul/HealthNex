@@ -12,7 +12,7 @@ import {
   FileText, Database as SqlIcon, Mail, Map as MapIcon, 
   Layers, Cpu, Radio, ChevronRight, Smartphone, Wifi, 
   ShieldCheck, Terminal, LineChart, Target, HeartPulse,
-  Microscope, Stethoscope, Waves, DownloadCloud
+  Microscope, Stethoscope, Waves, DownloadCloud, Radar
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence, useInView, useMotionValue, useMotionTemplate } from 'framer-motion';
@@ -22,44 +22,6 @@ import Logo from '@/components/layout/Logo';
 import LandingLayout from '@/components/layout/LandingLayout';
 
 // --- Sub-components ---
-
-const Counter = ({ value, duration = 2 }: { value: string, duration?: number }) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  
-  const numericMatch = value.match(/\d+/);
-  const numericValue = numericMatch ? parseInt(numericMatch[0]) : 0;
-  const suffix = value.replace(/[0-9]/g, '');
-
-  useEffect(() => {
-    if (isInView && numericValue > 0) {
-      let start = 0;
-      const end = numericValue;
-      const stepTime = Math.abs(Math.floor(duration * 1000 / end));
-      const timer = setInterval(() => {
-        start += Math.ceil(end / 50);
-        if (start >= end) {
-          setCount(end);
-          clearInterval(timer);
-        } else {
-          setCount(start);
-        }
-      }, stepTime || 20);
-      return () => clearInterval(timer);
-    }
-  }, [isInView, numericValue, duration]);
-
-  if (!numericValue || isNaN(numericValue)) {
-    return <span>{value}</span>;
-  }
-
-  return (
-    <span ref={ref}>
-      {count > 0 ? count.toLocaleString() : '0'}{suffix}
-    </span>
-  );
-};
 
 const PipelineStage = ({ icon: Icon, title, desc, delay, children }: any) => (
   <motion.div 
@@ -137,6 +99,8 @@ const FeatureCard = ({ title, desc, icon: Icon, color, delay }: any) => {
 };
 
 const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
+  const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 40 }}
@@ -160,49 +124,33 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
         <div className="w-12" />
       </div>
 
-      <div className="flex flex-col md:flex-row min-h-[750px] md:h-[800px]">
-        <div className="hidden md:flex flex-col w-72 border-r border-[var(--border-soft)] bg-[var(--surface-2)]/50 p-8 gap-10">
-           <Logo size="sm" />
-           <div className="space-y-6">
-              {[LineChart, Globe2, Brain, Waves, Bell].map((Icon, i) => (
-                 <div key={i} className={`flex items-center gap-4 p-3 rounded-2xl transition-all ${i === 0 ? 'bg-[var(--surface-1)] shadow-sm border border-[var(--border-soft)] text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-                   <Icon className="w-5 h-5" />
-                   <div className={`h-2 rounded-full bg-current opacity-20 ${i === 0 ? 'w-28' : 'w-20'}`} />
-                </div>
-              ))}
-           </div>
-              <div className="mt-auto p-6 rounded-[2rem] bg-primary/10 border border-primary/20 relative overflow-hidden group/ad">
-              <Sparkles className="w-10 h-10 text-primary/30 absolute -right-2 -top-2" />
-              <div className="h-2 w-20 bg-primary/40 rounded-full mb-3" />
-              <div className="h-1.5 w-full bg-primary/20 rounded-full mb-2" />
-              <div className="h-1.5 w-3/4 bg-primary/20 rounded-full" />
-           </div>
-        </div>
-
-            <div className="flex-1 p-10 bg-[var(--surface-1)] overflow-hidden">
+      <div className="p-8 lg:p-12 bg-[var(--surface-1)]">
            <div className="flex justify-between items-center mb-12">
               <div className="space-y-1">
-                 <h4 className="text-2xl font-bold tracking-tight">System Core</h4>
-                 <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Real-time Synchronization Active
-                 </div>
+                  <h4 className="text-2xl font-bold tracking-tight">System Core Dashboard</h4>
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      Live Feed Active
+                  </div>
               </div>
               <div className="flex gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center text-muted-foreground hover:text-primary transition-colors cursor-pointer shadow-sm">
+                  <motion.div whileHover={{ rotate: 90 }} className="w-12 h-12 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center text-muted-foreground hover:text-primary transition-colors cursor-pointer shadow-sm">
                     <Settings className="w-5 h-5" />
-                 </div>
-                  <div className="w-12 h-12 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center relative text-muted-foreground hover:text-primary transition-colors cursor-pointer shadow-sm">
+                 </motion.div>
+                  <motion.div whileHover={{ scale: 1.1 }} className="w-12 h-12 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-center relative text-muted-foreground hover:text-primary transition-colors cursor-pointer shadow-sm">
                     <Bell className="w-5 h-5" />
                     <div className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-rose-500 border-2 border-[var(--surface-1)]" />
-                 </div>
+                 </motion.div>
               </div>
            </div>
 
-           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <motion.div whileHover={{ y: -8 }} className="p-8 rounded-[2rem] bg-[var(--surface-2)] border border-[var(--border-soft)] shadow-sm group/widget theme-transition">
+           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+              <motion.div 
+                whileHover={{ y: -8, scale: 1.02 }} 
+                className="p-8 rounded-[2rem] bg-[var(--surface-2)] border border-[var(--border-soft)] shadow-sm group/widget cursor-default"
+              >
                  <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover/widget:bg-primary group-hover/widget:text-primary-foreground transition-colors duration-500">
                        <Users className="w-6 h-6" />
                     </div>
                     <div className="text-right">
@@ -212,71 +160,101 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
                  </div>
                  <div className="h-16 flex items-end gap-1.5 px-1">
                     {[40, 60, 45, 80, 50, 95, 70, 85].map((h, i) => (
-                      <motion.div key={i} animate={{ height: `${h}%` }} className="flex-1 bg-primary/20 rounded-t-lg group-hover/widget:bg-primary/40 transition-colors" />
+                      <motion.div 
+                        key={i} 
+                        initial={{ height: 0 }}
+                        animate={{ height: stats ? `${h}%` : '10%' }}
+                        whileHover={{ backgroundColor: 'var(--primary)' }}
+                        className="flex-1 bg-primary/20 rounded-t-lg transition-colors" 
+                      />
                     ))}
                  </div>
               </motion.div>
 
-              <motion.div whileHover={{ y: -8 }} className="p-8 rounded-[2rem] bg-primary text-primary-foreground shadow-xl shadow-primary/20 group/widget overflow-hidden relative">
-                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent)]" />
-                 <Shield className="w-24 h-24 absolute -right-4 -bottom-4 text-white/10" />
+              <motion.div 
+                whileHover={{ y: -8, scale: 1.02 }} 
+                className="p-8 rounded-[2rem] bg-primary text-primary-foreground shadow-xl shadow-primary/20 group/widget overflow-hidden relative cursor-default"
+              >
+                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent)] opacity-50" />
+                 <Shield className="w-24 h-24 absolute -right-4 -bottom-4 text-white/10 group-hover/widget:rotate-12 transition-transform duration-700" />
                  <div className="flex items-center justify-between mb-8 relative z-10">
                     <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
                        <ShieldCheck className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Verified</span>
                  </div>
-                 <h5 className="text-2xl font-bold tracking-tight relative z-10">Core Integrity</h5>
-                 <p className="text-[10px] font-bold uppercase tracking-widest mt-1 relative z-10">100% Operational</p>
+                 <h5 className="text-2xl font-bold tracking-tight relative z-10">Security Core</h5>
+                 <p className="text-[10px] font-bold uppercase tracking-widest mt-1 relative z-10">100% End-to-End</p>
               </motion.div>
 
-              <motion.div whileHover={{ y: -8 }} className="p-8 rounded-[2rem] bg-[var(--surface-2)] border border-[var(--border-soft)] shadow-sm group/widget theme-transition">
+              <motion.div 
+                whileHover={{ y: -8, scale: 1.02 }} 
+                className="p-8 rounded-[2rem] bg-[var(--surface-2)] border border-[var(--border-soft)] shadow-sm group/widget cursor-default"
+              >
                  <div className="flex items-center gap-5 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center group-hover/widget:bg-violet-500 group-hover/widget:text-white transition-colors duration-500">
                        <Brain className="w-6 h-6" />
                     </div>
                     <div>
                        <div className="text-xl font-bold">{stats?.dataNodes?.toLocaleString() ?? '0'}</div>
-                       <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Health Nodes</div>
+                       <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Neural Nodes</div>
                     </div>
                  </div>
                  <div className="space-y-4">
-                    {[1, 2].map(i => (
+                    {[0.7, 0.4].map((p, i) => (
                       <div key={i} className="flex items-center gap-4">
                          <div className="w-8 h-8 rounded-full bg-[var(--surface-1)] border border-[var(--border-soft)]" />
                          <div className="flex-1 h-2 bg-[var(--surface-3)] rounded-full overflow-hidden">
-                            <motion.div animate={{ width: i === 1 ? '70%' : '40%' }} className="h-full bg-violet-500/40" />
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: stats ? `${p * 100}%` : '0%' }} 
+                              className="h-full bg-violet-500/40" 
+                            />
                          </div>
                       </div>
                     ))}
                  </div>
               </motion.div>
+           </div>
 
-                  <div className="lg:col-span-3 p-10 rounded-[2.5rem] bg-[var(--surface-2)] border border-[var(--border-soft)] relative overflow-hidden group/chart theme-transition">
+           <div className="p-10 rounded-[2.5rem] bg-[var(--surface-2)] border border-[var(--border-soft)] relative overflow-hidden group/chart cursor-crosshair shadow-inner">
                  <div className="flex justify-between items-start mb-12 relative z-10">
                     <div>
-                       <h5 className="text-xl font-bold tracking-tight">Regional Trend Analysis</h5>
-                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Live Synchronization Analysis</p>
+                       <h5 className="text-xl font-bold tracking-tight">Intelligence Stream</h5>
+                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Live Telemetry Analysis</p>
                     </div>
                     <div className="flex gap-3">
-                        <div className="px-4 py-1.5 rounded-full bg-[var(--surface-1)] border border-[var(--border-soft)] text-[10px] font-bold uppercase shadow-sm">Weekly</div>
-                       <div className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase shadow-md shadow-primary/20">Real-time</div>
+                       <button className="px-4 py-1.5 rounded-full bg-[var(--surface-1)] border border-[var(--border-soft)] text-[10px] font-bold uppercase shadow-sm hover:border-primary/50 transition-colors">Weekly</button>
+                       <button className="px-4 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold uppercase shadow-md shadow-primary/20">Real-time</button>
                     </div>
                  </div>
-                 <div className="h-40 flex items-end gap-3 px-2 relative z-10">
-                    {Array.from({ length: 24 }).map((_, i) => (
+                 <div className="h-48 flex items-end gap-2.5 px-2 relative z-10">
+                    {Array.from({ length: 30 }).map((_, i) => (
                       <motion.div 
                         key={i} 
-                        animate={{ height: `${20 + Math.random() * 80}%` }}
-                        transition={{ duration: 2, repeat: Infinity, repeatType: 'mirror', delay: i * 0.05 }}
-                        className="flex-1 bg-gradient-to-t from-primary/10 via-primary/50 to-primary rounded-t-lg shadow-[0_0_10px_rgba(2,132,199,0.1)]"
-                      />
+                        onMouseEnter={() => setHoveredBar(i)}
+                        onMouseLeave={() => setHoveredBar(null)}
+                        animate={{ 
+                          height: hoveredBar === i ? '100%' : `${30 + Math.sin(i * 0.4) * 40 + 30}%`,
+                          backgroundColor: hoveredBar === i ? 'var(--primary)' : 'rgba(var(--primary-rgb), 0.35)',
+                          boxShadow: hoveredBar === i ? '0 0 15px var(--primary)' : 'none'
+                        }}
+                        className="flex-1 rounded-t-lg transition-all relative"
+                      >
+                         {hoveredBar === i && (
+                           <motion.div 
+                             initial={{ opacity: 0, y: 10 }}
+                             animate={{ opacity: 1, y: -10 }}
+                             className="absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1.5 rounded-lg bg-foreground text-background text-[9px] font-bold shadow-xl border border-border/50"
+                           >
+                             {Math.floor(40 + Math.random() * 60)}%
+                           </motion.div>
+                         )}
+                      </motion.div>
                     ))}
                  </div>
-                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:30px_30px]" />
-              </div>
+                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px]" />
            </div>
-        </div>
       </div>
     </motion.div>
   );
@@ -559,13 +537,13 @@ export default function Home() {
         </div>
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-12">
-              <Zap className="w-3.5 h-3.5" />
-              <span>Next Generation Intelligence Protocol</span>
+            <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-16">
+               <Zap className="w-3.5 h-3.5" />
+               <span>Next Generation Intelligence Protocol</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-12 text-foreground leading-[0.8]">
-              Predict. Protect. <br />
-              <span className="text-primary">Redefine.</span>
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-12 text-foreground leading-[1.1]">
+               Predict. Protect. <br />
+               <span className="text-primary">Redefine.</span>
             </h1>
             <p className="text-base md:text-xl text-muted-foreground mb-16 max-w-3xl mx-auto leading-relaxed font-medium text-balance">
               Distributed surveillance and predictive intelligence built for the future of public health. Safeguard communities with real-time analysis and neural foresight.

@@ -49,6 +49,7 @@
   --popover-foreground: #000000;
 
   --primary: #00b7d9;
+  --primary-rgb: 0, 183, 217;
   --primary-foreground: #ffffff;
 
   --secondary: #f5f5f5;
@@ -94,6 +95,7 @@
   --popover-foreground: #ffffff;
 
   --primary: #00d9ff;
+  --primary-rgb: 0, 217, 255;
   --primary-foreground: #000000;
 
   --secondary: #121212;

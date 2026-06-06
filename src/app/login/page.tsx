@@ -38,53 +38,82 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background overflow-hidden relative">
-      {/* Immersive Background Side (Hidden on Mobile) */}
-      <div className="hidden md:flex flex-1 relative items-center justify-center p-20 overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_70%)] opacity-10" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]" />
+      {/* Immersive Technical Background (Hidden on Mobile) */}
+      <div className="hidden md:flex flex-1 relative items-center justify-center p-20 overflow-hidden bg-[#050505]">
+        {/* Deep Field Grid */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.05)_0%,transparent_70%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(circle_at_center,black,transparent_80%)]" />
         
-        {/* Decorative elements */}
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 100, repeat: Infinity, ease: "linear" }}
-          className="absolute w-[600px] h-[600px] border border-primary/20 rounded-full flex items-center justify-center"
-        >
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent absolute" />
-          <div className="w-px h-full bg-gradient-to-b from-transparent via-primary/30 to-transparent absolute" />
-        </motion.div>
+        {/* Technical Nested Rings */}
+        <div className="absolute flex items-center justify-center pointer-events-none">
+          {/* Outer Orbit */}
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            className="absolute w-[800px] h-[800px] border border-primary/5 rounded-full border-dashed"
+          />
+          {/* Primary Scope Ring */}
+          <motion.div 
+            animate={{ rotate: -360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+            className="absolute w-[600px] h-[600px] border border-primary/10 rounded-full"
+          >
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-8 bg-primary/40 shadow-[0_0_15px_var(--primary)]" />
+             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-8 bg-primary/40 shadow-[0_0_15px_var(--primary)]" />
+          </motion.div>
+          {/* Scanning Sweep */}
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            className="absolute w-[500px] h-[500px] rounded-full bg-[conic-gradient(from_0deg,transparent_70%,rgba(var(--primary-rgb),0.15)_100%)]"
+          />
+          {/* Inner Data Ring */}
+          <motion.div 
+            animate={{ rotate: 180 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute w-[400px] h-[400px] border border-primary/20 rounded-full border-t-transparent border-b-transparent"
+          />
+        </div>
 
-        <div className="relative z-10 space-y-12 max-w-lg">
-           <Logo size="xl" className="dark:text-white" />
-           <div className="space-y-6">
-              <h2 className="text-4xl lg:text-6xl font-bold tracking-tighter text-white uppercase leading-none">
+        <div className="relative z-10 space-y-16 max-w-lg text-left">
+           <div className="space-y-4">
+              <Logo size="xl" className="text-white" />
+              <div className="h-1 w-20 bg-primary/30 rounded-full" />
+           </div>
+
+           <div className="space-y-8">
+              <h2 className="text-5xl lg:text-7xl font-black tracking-tighter text-white uppercase leading-[0.9] italic">
                 Unified <br />
-                <span className="text-primary">Intelligence</span>
+                <span className="text-primary not-italic">Intelligence</span>
               </h2>
-              <p className="text-slate-400 text-lg leading-relaxed font-medium">
+              <p className="text-slate-400 text-lg leading-relaxed font-medium max-w-md">
                 Establishing the global standard for regional health visibility and proactive response coordination.
               </p>
            </div>
            
-           <div className="grid grid-cols-2 gap-8">
+           <div className="grid grid-cols-2 gap-12 pt-10 border-t border-white/5">
               {[
-                { label: 'Latency', value: '<1s', icon: Activity },
-                { label: 'Availability', value: '99.9%', icon: Globe }
+                { label: 'Network_Latency', value: '<1s', icon: Activity },
+                { label: 'Core_Availability', value: '99.9%', icon: Globe }
               ].map((item, i) => (
-                <div key={i} className="space-y-2">
-                   <div className="flex items-center gap-3 text-primary">
-                      <item.icon className="w-5 h-5" />
-                      <span className="text-[10px] font-bold uppercase tracking-[0.3em]">{item.label}</span>
+                <div key={i} className="space-y-3">
+                   <div className="flex items-center gap-3 text-primary/60">
+                      <item.icon className="w-4 h-4" />
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-[0.4em]">{item.label}</span>
                    </div>
-                   <div className="text-3xl font-bold text-white font-mono">{item.value}</div>
+                   <div className="text-4xl font-bold text-white font-mono tracking-tighter">{item.value}</div>
                 </div>
               ))}
            </div>
         </div>
 
-        {/* Floating status blip */}
-        <div className="absolute bottom-12 left-12 flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_var(--emerald-500)]" />
-           <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Protocol Status: Optimal</span>
+        {/* Floating status block */}
+        <div className="absolute bottom-12 left-12 flex flex-col gap-1 font-mono">
+           <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_var(--emerald-500)]" />
+              <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">System_Status: Optimal</span>
+           </div>
+           <div className="px-4 text-[8px] text-white/20 uppercase tracking-[0.2em]">Regional_Uplink_Node: 0x44C</div>
         </div>
       </div>
 

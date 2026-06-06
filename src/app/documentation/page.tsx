@@ -117,9 +117,9 @@ const ProtocolExplorer = () => {
                 <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">{layers[activeTab as keyof typeof layers].desc}</p>
              </div>
              
-             <div className="grid md:grid-cols-2 gap-6">
+             <div className="flex flex-col gap-4">
                 {layers[activeTab as keyof typeof layers].features.map((f, i) => (
-                  <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)]">
+                  <div key={i} className="flex items-center gap-4 p-5 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] hover:border-primary/30 transition-colors">
                      <CheckCircle2 className={`w-5 h-5 ${layers[activeTab as keyof typeof layers].color}`} />
                      <span className="font-bold text-sm tracking-tight">{f}</span>
                   </div>
