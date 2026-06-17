@@ -23,18 +23,21 @@ export const createUser = mutation({
     }
 
     const requestedRole = args.role || ROLES.PUBLIC;
-    const needsVerification = requestedRole === ROLES.ADMIN || 
+    const isSuperAdmin = requestedRole === ROLES.SUPER_ADMIN;
+    
+    const needsVerification = !isSuperAdmin && (
+                             requestedRole === ROLES.ADMIN || 
                              requestedRole === ROLES.HEALTH_WORKER || 
-                             requestedRole === ROLES.COMMUNITY_USER;
+                             requestedRole === ROLES.COMMUNITY_USER);
 
     const userId = await ctx.db.insert("users", {
       email: args.email,
       name: args.name,
       passwordHash: args.passwordHash,
-      role: ROLES.PUBLIC, // Default to public until verified
+      role: isSuperAdmin ? ROLES.SUPER_ADMIN : ROLES.PUBLIC, 
       requestedRole: requestedRole,
       verificationDocUrl: args.verificationDocUrl,
-      verificationStatus: needsVerification ? VERIFICATION_STATUS.PENDING : VERIFICATION_STATUS.NONE,
+      verificationStatus: isSuperAdmin ? VERIFICATION_STATUS.VERIFIED : (needsVerification ? VERIFICATION_STATUS.PENDING : VERIFICATION_STATUS.NONE),
       createdAt: Date.now(),
       isActive: true,
     });
@@ -69,7 +72,7 @@ export const getPendingVerifications = queryWithAuth({
 
     return await ctx.db
       .query("users")
-      .withIndex("by_verification_status", (q) => q.eq("verificationStatus", VERIFICATION_STATUS.PENDING))
+      .withIndex("by_verification_status", (q: any) => q.eq("verificationStatus", VERIFICATION_STATUS.PENDING))
       .collect();
   },
 });

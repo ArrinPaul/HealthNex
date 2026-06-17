@@ -26,11 +26,14 @@ export async function POST(request: NextRequest) {
     // Save user to Convex
     let userId;
     try {
+      // Auto-promote specific email to super-admin for initial setup
+      const finalRole = email === 'admin@healthnex.com' ? 'super-admin' : role;
+      
       userId = await convex.mutation(api.users.createUser, {
         email,
         name,
         passwordHash: hashedPassword,
-        role: role, // This is the requested role
+        role: finalRole, // This is the requested role
         verificationDocUrl: verificationDoc,
       });
     } catch (dbError: any) {
