@@ -3,11 +3,9 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ShieldCheck, FileText, Check, X, Loader2, User } from "lucide-react";
+import { Check, X, Loader2, User } from "lucide-react";
 import { useState } from "react";
 
 export default function VerificationQueue() {

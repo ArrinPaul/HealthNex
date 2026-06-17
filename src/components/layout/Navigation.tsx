@@ -16,12 +16,8 @@ import {
   HelpCircle,
   LogOut,
   Menu,
-  X,
-  Activity,
   Lock,
   Heart,
-  LayoutGrid,
-  Sparkles,
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -202,7 +198,7 @@ export default function Navigation({
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            onClick={() => setIsCollapsed(!isCollapsed)}
             className={`absolute -right-3 top-16 bg-background border border-border w-6 h-6 rounded-full shadow-sm z-50 hover:bg-primary hover:text-primary-foreground transition-all ${isCollapsed ? 'rotate-180' : ''}`}
           >
             <ChevronRight className="w-3 h-3" />

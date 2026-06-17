@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ArrowRight, Lock, Mail, Users, Stethoscope, MapPin, CheckCircle2, Upload, FileText, Globe } from 'lucide-react';
+import { Users, Stethoscope, MapPin, CheckCircle2, Upload, FileText, Globe } from 'lucide-react';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import Logo from '@/components/layout/Logo';
 import { PasswordInput } from '@/components/ui/PasswordInput';

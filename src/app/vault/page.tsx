@@ -3,96 +3,89 @@
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Shield, Activity, Droplet, Heart, 
-  Plus, History, TrendingUp, Lock, 
+  Activity, Droplet, Heart, 
+  Plus, TrendingUp, Lock, 
   FileText, Calendar, ChevronRight, Zap
 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 const MetricCard = ({ label, value, unit, icon: Icon, color, trend }: any) => (
-  <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] hover:border-primary/30 transition-all group">
-    <CardContent className="p-6">
-       <div className="flex items-start justify-between mb-4">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color} bg-opacity-10`}>
-             <Icon className={`w-5 h-5 ${color}`} />
+  <Card className="bg-card border border-border hover:border-primary/30 transition-all">
+    <CardContent className="p-4">
+       <div className="flex items-start justify-between mb-3">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${color} bg-opacity-10`}>
+             <Icon className={`w-4 h-4 ${color}`} />
           </div>
-          <div className="flex items-center gap-1 text-emerald-500 font-bold text-[10px] uppercase">
+          <div className="flex items-center gap-1 text-emerald-500 text-xs font-medium">
              <TrendingUp className="w-3 h-3" /> {trend}
           </div>
        </div>
-       <div className="space-y-1">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</p>
-          <h3 className="text-3xl font-bold tracking-tight">{value} <span className="text-sm font-medium opacity-40">{unit}</span></h3>
+       <div className="space-y-0.5">
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <h3 className="text-xl font-bold">{value} <span className="text-xs font-normal opacity-40">{unit}</span></h3>
        </div>
     </CardContent>
   </Card>
 );
 
 export default function HealthVaultPage() {
-  const [activeTab, setActiveTab] = useState('metrics');
-
   return (
     <ProtectedRoute>
-      <div className="space-y-8 pb-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="space-y-6 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold uppercase tracking-tight">Personal Health Vault</h1>
-            <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest mt-1">Encrypted personal health records and vitals tracking</p>
+            <h1 className="text-2xl font-bold tracking-tight">Health Vault</h1>
+            <p className="text-muted-foreground text-sm mt-1">Your personal health records and vitals.</p>
           </div>
-          <div className="flex gap-4">
-             <Button className="h-12 px-6 rounded-xl font-bold uppercase text-[10px] tracking-widest gap-2 bg-primary text-primary-foreground">
-                <Plus className="w-4 h-4" /> Log Vital Sign
+          <div className="flex gap-2">
+             <Button size="sm" className="gap-2" onClick={() => toast.info('Feature coming soon')}>
+                <Plus className="w-4 h-4" /> Log Vitals
              </Button>
-             <Button variant="outline" className="h-12 px-6 rounded-xl font-bold uppercase text-[10px] tracking-widest gap-2 border-[var(--border-soft)]">
-                <FileText className="w-4 h-4" /> Upload Document
+             <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.info('Feature coming soon')}>
+                <FileText className="w-4 h-4" /> Upload
              </Button>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-           <MetricCard label="Average BP" value="120/80" unit="mmHg" icon={Activity} color="text-rose-500" trend="+2%" />
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+           <MetricCard label="Blood Pressure" value="120/80" unit="mmHg" icon={Activity} color="text-rose-500" trend="+2%" />
            <MetricCard label="Heart Rate" value="72" unit="BPM" icon={Heart} color="text-rose-400" trend="-1%" />
            <MetricCard label="Blood Sugar" value="98" unit="mg/dL" icon={Zap} color="text-amber-500" trend="Stable" />
-           <MetricCard label="Hydration" value="2.4" unit="Liters" icon={Droplet} color="text-sky-400" trend="+12%" />
+           <MetricCard label="Hydration" value="2.4" unit="L" icon={Droplet} color="text-sky-400" trend="+12%" />
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-8">
-           {/* Timeline */}
+        <div className="grid lg:grid-cols-12 gap-6">
            <div className="lg:col-span-8">
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] shadow-xl overflow-hidden">
-                <CardHeader className="border-b border-[var(--border-soft)]">
+              <Card className="bg-card border border-border">
+                <CardHeader className="border-b border-border py-3">
                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg font-bold uppercase tracking-tight">Protocol History</CardTitle>
-                      <Button variant="ghost" size="sm" className="text-[10px] font-bold uppercase tracking-widest">View All</Button>
+                      <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+                      <Button variant="ghost" size="sm" className="text-xs h-7">View All</Button>
                    </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                   <div className="divide-y divide-[var(--border-soft)]">
+                   <div className="divide-y divide-border">
                       {[
-                        { event: 'Symptom Analysis', date: 'May 18, 2026', status: 'Verified', color: 'text-emerald-500' },
-                        { event: 'Blood Test Result', date: 'May 14, 2026', status: 'Analyzed', color: 'text-primary' },
-                        { event: 'Vital Signs Log', date: 'May 12, 2026', status: 'Stable', color: 'text-sky-400' },
-                        { event: 'Registration', date: 'May 10, 2026', status: 'Initialized', color: 'text-muted-foreground' }
+                        { event: 'Symptom Report', date: 'May 18, 2026', status: 'Verified', color: 'text-emerald-500' },
+                        { event: 'Blood Test', date: 'May 14, 2026', status: 'Analyzed', color: 'text-primary' },
+                        { event: 'Vitals Check', date: 'May 12, 2026', status: 'Normal', color: 'text-sky-400' },
+                        { event: 'Account Created', date: 'May 10, 2026', status: 'Complete', color: 'text-muted-foreground' }
                       ].map((item, i) => (
-                        <div key={i} className="p-6 flex items-center justify-between group hover:bg-white/5 transition-colors">
-                           <div className="flex items-center gap-6">
-                              <div className="w-12 h-12 rounded-xl bg-[var(--surface-2)] flex items-center justify-center border border-[var(--border-soft)]">
-                                 <Calendar className="w-5 h-5 text-muted-foreground" />
+                        <div key={i} className="p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors">
+                           <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center">
+                                 <Calendar className="w-4 h-4 text-muted-foreground" />
                               </div>
                               <div>
-                                 <h4 className="font-bold text-sm uppercase tracking-tight">{item.event}</h4>
+                                 <h4 className="font-medium text-sm">{item.event}</h4>
                                  <p className="text-xs text-muted-foreground">{item.date}</p>
                               </div>
                            </div>
-                           <div className="flex items-center gap-4">
-                              <Badge variant="outline" className={`rounded-lg uppercase text-[8px] font-bold ${item.color} border-current bg-transparent`}>
-                                 {item.status}
-                              </Badge>
-                              <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                           <div className="flex items-center gap-2">
+                              <span className={`text-xs font-medium ${item.color}`}>{item.status}</span>
+                              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                            </div>
                         </div>
                       ))}
@@ -101,33 +94,33 @@ export default function HealthVaultPage() {
               </Card>
            </div>
 
-           {/* Security Status */}
-           <div className="lg:col-span-4 space-y-6">
-              <Card className="bg-slate-950 border border-white/5 shadow-2xl overflow-hidden relative">
-                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_70%)] opacity-10" />
-                 <CardContent className="p-8 space-y-6 relative z-10">
-                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                       <Lock className="w-8 h-8" />
+           <div className="lg:col-span-4 space-y-4">
+              <Card className="bg-card border border-border">
+                 <CardContent className="p-5 space-y-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                       <Lock className="w-5 h-5" />
                     </div>
-                    <div className="space-y-2">
-                       <h4 className="text-xl font-bold uppercase tracking-tight text-white">Vault Security</h4>
-                       <p className="text-xs text-slate-400 leading-relaxed">Your personal health data is end-to-end encrypted. HealthNex leads cannot access your private records without your explicit cryptographic key.</p>
+                    <div className="space-y-1">
+                       <h4 className="font-semibold text-sm">Data Security</h4>
+                       <p className="text-xs text-muted-foreground leading-relaxed">Your health data is encrypted and only accessible by you.</p>
                     </div>
-                    <ul className="space-y-3">
-                       {['AES-256 Encryption', 'Biometric Lock Active', 'Zero-Trust Protocol'].map(check => (
-                         <li key={check} className="flex items-center gap-3 text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
-                            <Shield className="w-3 h-3" /> {check}
+                    <ul className="space-y-2">
+                       {['Encrypted storage', 'Private by default', 'You control sharing'].map(item => (
+                         <li key={item} className="flex items-center gap-2 text-xs text-emerald-500 font-medium">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {item}
                          </li>
                        ))}
                     </ul>
                  </CardContent>
               </Card>
 
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)]">
-                <CardContent className="p-8 text-center space-y-4">
-                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Authorized Sharing</p>
-                   <p className="text-sm">Quickly share your health history with a verified professional during emergencies.</p>
-                   <Button variant="outline" className="w-full h-12 rounded-xl font-bold uppercase text-[10px] tracking-widest">Generate Access QR</Button>
+              <Card className="bg-card border border-border">
+                <CardContent className="p-5 text-center space-y-3">
+                   <p className="text-xs text-muted-foreground font-medium">Share with a Doctor</p>
+                   <p className="text-xs text-muted-foreground">Generate a temporary link to share your health history.</p>
+                   <Button variant="outline" size="sm" className="w-full" onClick={() => toast.info('Feature coming soon')}>
+                      Generate Link
+                   </Button>
                 </CardContent>
               </Card>
            </div>

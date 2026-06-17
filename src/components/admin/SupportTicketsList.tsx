@@ -2,10 +2,8 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Mail, MessageSquare, Clock, AlertTriangle } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
 export default function SupportTicketsList() {
   const tickets = useQuery(api.support.getTickets);
@@ -16,11 +14,9 @@ export default function SupportTicketsList() {
 
   if (tickets.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-10 text-center text-muted-foreground">
-          No support tickets found in the protocol.
-        </CardContent>
-      </Card>
+      <div className="py-10 text-center text-muted-foreground text-sm">
+        No support tickets found.
+      </div>
     );
   }
 

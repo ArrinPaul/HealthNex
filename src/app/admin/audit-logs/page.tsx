@@ -4,11 +4,9 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import { Shield, Clock, Info, User, Activity, Globe, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function AuditLogPage() {
   const { token } = useAuth();

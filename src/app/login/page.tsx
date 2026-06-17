@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ArrowRight, Lock, Mail, Zap, Activity, Globe } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Lock, Mail } from 'lucide-react';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import Logo from '@/components/layout/Logo';
 
