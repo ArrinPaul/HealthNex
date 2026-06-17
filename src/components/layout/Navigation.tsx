@@ -69,7 +69,7 @@ export default function Navigation({
   const NavContent = () => (
     <div className={`flex flex-col h-full py-6 transition-all duration-300`}>
       <div className="flex flex-col gap-1.5 px-3 w-full">
-        {!isCollapsed && <div className="px-4 mb-3 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em] opacity-50">General_Protocols</div>}
+        {!isCollapsed && <div className="px-4 mb-2 text-xs font-semibold text-muted-foreground">Menu</div>}
         {filteredNavItems.map((item, i) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -79,10 +79,10 @@ export default function Navigation({
               href={item.href}
               onClick={() => setOpen(false)}
               title={isCollapsed ? item.label : ''}
-              className={`relative flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-300 group ${
+              className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-200 group ${
                 isActive
-                  ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_10px_25px_-15px_rgba(var(--primary-rgb),0.4)]'
-                  : 'text-muted-foreground border-transparent hover:bg-[var(--surface-2)] hover:text-foreground'
+                  ? 'bg-primary/10 text-primary border-primary/20'
+                  : 'text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground'
               } ${isCollapsed ? 'justify-center px-0 mx-2' : ''}`}
             >
               {isActive && (
@@ -91,8 +91,8 @@ export default function Navigation({
                   className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" 
                 />
               )}
-              <Icon className={`w-[18px] h-[18px] shrink-0 transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:rotate-3'}`} />
-              {!isCollapsed && <span className={`text-[11px] font-bold uppercase tracking-[0.15em] transition-all ${isActive ? 'text-primary' : ''}`}>{item.label}</span>}
+              <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+              {!isCollapsed && <span className={`text-sm font-medium transition-all ${isActive ? 'text-primary' : ''}`}>{item.label}</span>}
               
               {!isCollapsed && isActive && (
                 <motion.div 
@@ -109,7 +109,7 @@ export default function Navigation({
       </div>
 
       <div className="mt-auto flex flex-col gap-1.5 px-3 pt-6 border-t border-[var(--border-soft)] w-full">
-        {!isCollapsed && <div className="px-4 mb-3 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.4em] opacity-50">Account_Sync</div>}
+        {!isCollapsed && <div className="px-4 mb-2 text-xs font-semibold text-muted-foreground">Account</div>}
         {bottomNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -119,10 +119,10 @@ export default function Navigation({
               href={item.href}
               onClick={() => setOpen(false)}
               title={isCollapsed ? item.label : ''}
-              className={`relative flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-300 group ${
+              className={`relative flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all duration-200 group ${
                 isActive
-                  ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_10px_25px_-15px_rgba(var(--primary-rgb),0.4)]'
-                  : 'text-muted-foreground border-transparent hover:bg-[var(--surface-2)] hover:text-foreground'
+                  ? 'bg-primary/10 text-primary border-primary/20'
+                  : 'text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground'
               } ${isCollapsed ? 'justify-center px-0 mx-2' : ''}`}
             >
               {isActive && (
@@ -131,16 +131,15 @@ export default function Navigation({
                   className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" 
                 />
               )}
-              <Icon className={`w-[18px] h-[18px] shrink-0 transition-transform duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-              {!isCollapsed && <span className={`text-[11px] font-bold uppercase tracking-[0.15em] transition-all ${isActive ? 'text-primary' : ''}`}>{item.label}</span>}
+              <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+              {!isCollapsed && <span className={`text-sm font-medium transition-all ${isActive ? 'text-primary' : ''}`}>{item.label}</span>}
             </Link>
           );
         })}
         
         {!isCollapsed ? (
-          <div className="mt-6 p-6 bg-[var(--surface-2)]/50 border border-[var(--border-soft)] rounded-[2rem] theme-transition relative overflow-hidden group/ad">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_70%)] opacity-5" />
-            <div className="relative z-10 space-y-6">
+          <div className="mt-6 p-4 bg-secondary/50 border border-border rounded-xl relative overflow-hidden">
+            <div className="relative z-10 space-y-4">
               <div className="flex items-center justify-between">
                 <ThemeToggle />
                 <LanguageSelector />
@@ -151,10 +150,10 @@ export default function Navigation({
                   setOpen(false);
                 }}
                 variant="outline"
-                className="w-full justify-center gap-3 h-12 border-rose-500/20 bg-rose-500/5 text-rose-500 font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all duration-500 rounded-xl"
+                className="w-full justify-center gap-2 h-10 border-rose-500/20 bg-rose-500/5 text-rose-500 text-xs font-medium hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all rounded-lg"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Terminate Session</span>
+                <span>Sign Out</span>
               </Button>
             </div>
           </div>
@@ -164,9 +163,9 @@ export default function Navigation({
                 onClick={() => logout()}
                 variant="ghost"
                 size="icon"
-                className="w-12 h-12 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded-2xl border border-transparent hover:border-rose-500/20 transition-all duration-500"
+                className="w-10 h-10 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"
              >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4" />
              </Button>
           </div>
         )}
@@ -177,17 +176,17 @@ export default function Navigation({
   return (
     <>
       {/* Mobile Navigation Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-[var(--surface-1)]/90 backdrop-blur border-b border-[var(--border-soft)] px-4 h-16 flex items-center justify-between theme-transition">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur border-b border-border px-4 h-14 flex items-center justify-between">
         <Logo size="sm" />
         
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-10 w-10 border border-[var(--border-soft)]">
-              <Menu className="w-6 h-6" />
+            <Button variant="ghost" size="icon" className="h-9 w-9 border border-border">
+              <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-72 flex flex-col p-0 bg-[var(--surface-1)] border-r border-[var(--border-soft)] theme-transition">
-            <div className="p-8 border-b border-[var(--border-soft)]">
+          <SheetContent side="left" className="w-64 flex flex-col p-0 bg-card border-r border-border">
+            <div className="p-5 border-b border-border">
               <Logo size="md" />
             </div>
             <NavContent />
@@ -196,37 +195,37 @@ export default function Navigation({
       </div>
 
       {/* Desktop Fixed Sidebar */}
-      <aside className={`hidden lg:flex fixed left-0 top-0 bottom-0 bg-[var(--surface-1)] border-r border-[var(--border-soft)] flex-col z-40 theme-transition transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-72'}`}>
-        <div className={`p-8 border-b border-[var(--border-soft)] flex items-center ${isCollapsed ? 'justify-center px-0' : 'justify-between'}`}>
+      <aside className={`hidden lg:flex fixed left-0 top-0 bottom-0 bg-card border-r border-border flex-col z-40 transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
+        <div className={`p-5 border-b border-border flex items-center ${isCollapsed ? 'justify-center px-0' : 'justify-between'}`}>
           {!isCollapsed ? <Logo size="md" /> : <Logo size="sm" />}
           
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`absolute -right-3 top-20 bg-background border border-[var(--border-soft)] w-6 h-6 rounded-full shadow-lg z-50 hover:bg-primary hover:text-primary-foreground transition-all ${isCollapsed ? 'rotate-180' : ''}`}
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className={`absolute -right-3 top-16 bg-background border border-border w-6 h-6 rounded-full shadow-sm z-50 hover:bg-primary hover:text-primary-foreground transition-all ${isCollapsed ? 'rotate-180' : ''}`}
           >
             <ChevronRight className="w-3 h-3" />
           </Button>
         </div>
 
         {user && !isCollapsed && (
-          <div className="p-6 border-b border-[var(--border-soft)] bg-[var(--surface-2)] theme-transition">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-primary text-primary-foreground flex items-center justify-center rounded-lg font-semibold shadow-[0_0_18px_rgba(0,217,255,0.25)]">
+          <div className="p-4 border-b border-border bg-secondary/50">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-primary text-primary-foreground flex items-center justify-center rounded-lg font-semibold text-sm">
                 {user.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate uppercase">{user.name}</p>
-                <p className="text-[10px] font-semibold text-muted-foreground truncate uppercase tracking-widest">{user.role.replace('-', ' ')}</p>
+                <p className="text-sm font-semibold truncate">{user.name}</p>
+                <p className="text-xs text-muted-foreground truncate capitalize">{user.role.replace('-', ' ')}</p>
               </div>
             </div>
           </div>
         )}
 
         {user && isCollapsed && (
-          <div className="py-6 border-b border-[var(--border-soft)] bg-[var(--surface-2)] flex justify-center theme-transition">
-             <div className="w-10 h-10 bg-primary text-primary-foreground flex items-center justify-center rounded-lg font-semibold">
+          <div className="py-4 border-b border-border bg-secondary/50 flex justify-center">
+             <div className="w-9 h-9 bg-primary text-primary-foreground flex items-center justify-center rounded-lg font-semibold text-sm">
                 {user.name.charAt(0)}
              </div>
           </div>

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Shield, User, Activity, Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { ROLE_HIERARCHY } from "../../../convex/roles";
 
 export default function UserManagement() {
   const { user: currentUser, token } = useAuth();
@@ -45,27 +46,19 @@ export default function UserManagement() {
   };
 
   const getAvailableRoles = (targetUser: any) => {
-    if (targetUser.role === 'super-admin') return []; // Nobody can change a super-admin
+    if (targetUser.role === 'super-admin') return [];
     
-    const roleLevels: Record<string, number> = {
-      'super-admin': 4,
-      'admin': 3,
-      'health-worker': 2,
-      'community-user': 1,
-      'public': 0,
-    };
+    const currentUserLevel = ROLE_HIERARCHY[currentUser.role as keyof typeof ROLE_HIERARCHY] || 0;
+    const targetUserLevel = ROLE_HIERARCHY[targetUser.role as keyof typeof ROLE_HIERARCHY] || 0;
 
-    const currentUserLevel = roleLevels[currentUser.role] || 0;
-    const targetUserLevel = roleLevels[targetUser.role] || 0;
-
-    // Super admin can change anyone except themselves (to avoid lockouts here)
     if (currentUser.role === 'super-admin') {
-      return ['super-admin', 'admin', 'health-worker', 'community-user', 'public'];
+      return Object.keys(ROLE_HIERARCHY);
     }
 
-    // Others can only change users with a lower level, and can only promote to a level lower than theirs
     if (currentUserLevel > targetUserLevel) {
-      return Object.keys(roleLevels).filter(r => roleLevels[r] < currentUserLevel);
+      return Object.entries(ROLE_HIERARCHY)
+        .filter(([, level]) => level < currentUserLevel)
+        .map(([role]) => role);
     }
 
     return [];
@@ -82,27 +75,27 @@ export default function UserManagement() {
   };
 
   return (
-    <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] shadow-xl">
+    <Card className="bg-card border border-border shadow-sm">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold uppercase tracking-tight">Network Personnel</CardTitle>
+        <CardTitle className="text-lg font-bold">Users</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {users.map((u: any) => {
             const availableRoles = getAvailableRoles(u);
             const canEdit = availableRoles.length > 0 && u._id !== currentUser.id;
 
             return (
-              <div key={u._id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-soft)] hover:border-primary/40 transition-colors">
+              <div key={u._id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl bg-secondary border border-border hover:border-primary/40 transition-colors">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--surface-2)] flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0">
                     {getRoleIcon(u.role)}
                   </div>
                   <div>
-                    <h4 className="font-bold tracking-tight text-lg">{u.name}</h4>
-                    <p className="text-sm text-muted-foreground">{u.email}</p>
+                    <h4 className="font-semibold text-sm">{u.name}</h4>
+                    <p className="text-xs text-muted-foreground">{u.email}</p>
                     {u.requestedRole && u.requestedRole !== u.role && (
-                      <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mt-1">
+                      <p className="text-xs text-amber-500 mt-1">
                         Requested: {u.requestedRole.replace('-', ' ')}
                       </p>
                     )}
@@ -111,7 +104,7 @@ export default function UserManagement() {
 
                 <div className="flex items-center gap-4">
                   <div className="text-right hidden md:block mr-4">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Joined</p>
+                    <p className="text-xs text-muted-foreground">Joined</p>
                     <p className="text-sm font-medium">{format(u.createdAt, 'MMM d, yyyy')}</p>
                   </div>
                   
@@ -121,19 +114,19 @@ export default function UserManagement() {
                       value={u.role} 
                       onValueChange={(val) => handleRoleChange(u._id, val)}
                     >
-                      <SelectTrigger className="w-40 rounded-xl bg-[var(--surface-2)] border-[var(--border-soft)]">
+                      <SelectTrigger className="w-36 rounded-xl bg-secondary border-border">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {availableRoles.map(r => (
-                          <SelectItem key={r} value={r} className="uppercase tracking-widest text-[10px] font-bold">
+                          <SelectItem key={r} value={r} className="text-sm capitalize">
                             {r.replace('-', ' ')}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Badge variant="outline" className="px-4 py-2 rounded-xl uppercase tracking-widest text-[10px] font-bold bg-[var(--surface-2)]">
+                    <Badge variant="outline" className="px-3 py-1.5 rounded-xl text-xs capitalize bg-secondary">
                       {u.role.replace('-', ' ')}
                     </Badge>
                   )}

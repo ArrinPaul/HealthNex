@@ -59,46 +59,39 @@ export default function VerificationQueue() {
   if (pendingUsers.length === 0) return null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3 px-2">
-         <ShieldCheck className="w-5 h-5 text-amber-500" />
-         <h2 className="text-xl font-bold uppercase tracking-tight">Institutional Onboarding Queue</h2>
-         <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/20">{pendingUsers.length} Pending</Badge>
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+         <h2 className="text-lg font-semibold">Pending Verifications</h2>
+         <span className="text-xs bg-amber-500/10 text-amber-600 px-2 py-0.5 rounded-full font-medium">{pendingUsers.length}</span>
       </div>
 
       <div className="grid gap-4">
         {pendingUsers.map((u: any) => (
-          <Card key={u._id} className="backdrop-blur-xl bg-amber-500/5 border-amber-500/20 shadow-lg overflow-hidden group">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-                    <User className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg">{u.name}</h4>
-                    <p className="text-sm text-muted-foreground">{u.email}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                       <Badge variant="outline" className="text-[9px] uppercase font-bold border-amber-500/30 text-amber-600">
-                          Requesting: {u.requestedRole.replace('-', ' ')}
-                       </Badge>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                   <Button variant="ghost" className="h-12 gap-2 text-muted-foreground hover:text-rose-500" onClick={() => handleReject(u._id)}>
-                      <X className="w-4 h-4" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Dismiss</span>
-                   </Button>
-                   <Button className="h-12 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 rounded-xl shadow-lg shadow-emerald-500/20" onClick={() => handleApprove(u._id)}>
-                      <Check className="w-4 h-4" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-white">Approve Credentials</span>
-                   </Button>
-                </div>
+          <div key={u._id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-xl bg-card border border-border hover:border-primary/40 transition-colors">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                <User className="w-6 h-6" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <h4 className="font-semibold">{u.name}</h4>
+                <p className="text-sm text-muted-foreground">{u.email}</p>
+                <span className="text-xs text-amber-600 mt-1 inline-block">
+                  Requesting: {u.requestedRole.replace('-', ' ')}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-rose-500" onClick={() => handleReject(u._id)}>
+                  <X className="w-4 h-4 mr-1" />
+                  Reject
+               </Button>
+               <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white px-4" onClick={() => handleApprove(u._id)}>
+                  <Check className="w-4 h-4 mr-1" />
+                  Approve
+               </Button>
+            </div>
+          </div>
         ))}
       </div>
     </div>

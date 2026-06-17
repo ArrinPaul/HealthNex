@@ -9,25 +9,25 @@ export default function UsageStats() {
   const stats = useQuery(api.usage.getUsageStats, { days: 30 });
 
   if (!stats) {
-    return <div className="text-muted-foreground">Loading usage statistics...</div>;
+    return <div className="text-muted-foreground text-sm">Loading usage data...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        <Card className="bg-card border border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total API Calls (30d)</CardTitle>
+            <CardTitle className="text-sm font-medium">API Calls (30d)</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalCalls}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-card border border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-            <CheckCircle className="h-4 w-4 text-emerald-400" />
+            <CheckCircle className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -37,10 +37,10 @@ export default function UsageStats() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-card border border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Errors</CardTitle>
-            <XCircle className="h-4 w-4 text-rose-400" />
+            <XCircle className="h-4 w-4 text-rose-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.errorCount}</div>
@@ -48,16 +48,16 @@ export default function UsageStats() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="bg-card border border-border">
         <CardHeader>
-          <CardTitle>Usage by Feature</CardTitle>
+          <CardTitle className="text-sm font-medium">Usage by Feature</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             {Object.entries(stats.byFeature).map(([feature, count]) => (
               <div key={feature} className="flex items-center justify-between">
-                <span className="capitalize">{feature.replace(/_/g, ' ')}</span>
-                <span className="font-mono font-medium">{count}</span>
+                <span className="text-sm capitalize">{feature.replace(/_/g, ' ')}</span>
+                <span className="text-sm font-mono font-medium">{count}</span>
               </div>
             ))}
           </div>

@@ -25,65 +25,58 @@ export default function SupportTicketsList() {
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold tracking-tight mt-10">High-Priority Tickets</h2>
-      <div className="grid gap-6">
+    <div className="space-y-4">
+      <h2 className="text-lg font-semibold">Support Tickets</h2>
+
+      <div className="grid gap-4">
         {tickets.map((ticket) => (
-          <Card key={ticket._id} className="overflow-hidden hover:border-primary/40 transition-colors shadow-lg">
-            <CardHeader className="bg-[var(--surface-2)]/50 border-b border-[var(--border-soft)] py-4">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <MessageSquare className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">{ticket.subject}</CardTitle>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1">
-                      Protocol ID: {ticket._id.slice(-8).toUpperCase()}
-                    </p>
-                  </div>
+          <div key={ticket._id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-colors">
+            <div className="p-5 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                  <MessageSquare className="w-4 h-4" />
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant={ticket.status === 'open' ? 'default' : 'secondary'} className="uppercase tracking-widest text-[9px] font-bold">
-                    {ticket.status}
-                  </Badge>
-                  <Badge variant="destructive" className="uppercase tracking-widest text-[9px] font-bold">
-                    {ticket.priority} Priority
-                  </Badge>
+                <div>
+                  <h4 className="font-semibold text-sm">{ticket.subject}</h4>
+                  <p className="text-xs text-muted-foreground">ID: {ticket._id.slice(-8).toUpperCase()}</p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="p-8">
-              <div className="grid md:grid-cols-4 gap-8">
-                <div className="md:col-span-1 space-y-4">
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sender</p>
-                      <p className="font-bold">{ticket.name}</p>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Contact</p>
-                      <div className="flex items-center gap-2 text-primary font-medium text-sm">
-                         <Mail className="w-3 h-3" />
-                         {ticket.email}
-                      </div>
-                   </div>
-                   <div className="space-y-1">
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Transmitted</p>
-                      <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                         <Clock className="w-3 h-3" />
-                         {format(ticket.createdAt, 'MMM d, p')}
-                      </div>
-                   </div>
-                </div>
-                <div className="md:col-span-3">
-                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Transmission Payload</p>
-                   <div className="p-6 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] text-sm leading-relaxed whitespace-pre-wrap">
-                      {ticket.message}
-                   </div>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  ticket.status === 'open' ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted-foreground'
+                }`}>
+                  {ticket.status}
+                </span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  ticket.priority === 'high' ? 'bg-rose-500/10 text-rose-500' : 'bg-secondary text-muted-foreground'
+                }`}>
+                  {ticket.priority}
+                </span>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="p-5 grid md:grid-cols-4 gap-4">
+              <div className="md:col-span-1 space-y-3 text-sm">
+                 <div>
+                    <p className="text-xs text-muted-foreground mb-1">From</p>
+                    <p className="font-medium">{ticket.name}</p>
+                 </div>
+                 <div>
+                    <p className="text-xs text-muted-foreground mb-1">Email</p>
+                    <p className="text-primary text-sm">{ticket.email}</p>
+                 </div>
+                 <div>
+                    <p className="text-xs text-muted-foreground mb-1">Date</p>
+                    <p className="text-sm">{format(ticket.createdAt, 'MMM d, yyyy')}</p>
+                 </div>
+              </div>
+              <div className="md:col-span-3">
+                 <p className="text-xs text-muted-foreground mb-2">Message</p>
+                 <div className="p-4 rounded-xl bg-secondary border border-border text-sm leading-relaxed whitespace-pre-wrap">
+                    {ticket.message}
+                 </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>

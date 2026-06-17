@@ -20,11 +20,11 @@ export default function LandingHeader() {
       <div className="container mx-auto px-6 h-20 flex items-center justify-between">
         <Logo size="md" />
 
-        <nav className="hidden lg:flex items-center gap-12 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
-          <Link href="/#how-it-works" className="hover:text-primary transition-colors">Protocol</Link>
-          <Link href="/#modules" className="hover:text-primary transition-colors">Showcase</Link>
-          <Link href="/#performance" className="hover:text-primary transition-colors">Performance</Link>
-          <Link href="/#faq" className="hover:text-primary transition-colors">Support</Link>
+        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+          <Link href="/#how-it-works" className="hover:text-primary transition-colors">How It Works</Link>
+          <Link href="/#modules" className="hover:text-primary transition-colors">Features</Link>
+          <Link href="/#performance" className="hover:text-primary transition-colors">Why HealthNex</Link>
+          <Link href="/#faq" className="hover:text-primary transition-colors">FAQ</Link>
         </nav>
 
         <div className="flex items-center gap-6">
@@ -45,11 +45,11 @@ export default function LandingHeader() {
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" className="text-[10px] font-bold uppercase tracking-widest">
+                <Button asChild variant="ghost" className="text-sm font-medium">
                   <Link href="/login">Sign In</Link>
                 </Button>
-                <Button onClick={() => router.push('/register')} className="h-11 px-8 rounded-xl font-bold bg-primary text-primary-foreground hover:shadow-xl hover:shadow-primary/20 transition-all">
-                  Initialize
+                <Button onClick={() => router.push('/register')} className="h-10 px-6 rounded-xl font-medium bg-primary text-primary-foreground hover:shadow-lg hover:shadow-primary/20 transition-all">
+                  Get Started
                 </Button>
               </>
             )}
@@ -63,11 +63,11 @@ export default function LandingHeader() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="lg:hidden absolute top-20 left-0 right-0 bg-background border-b border-border p-6 flex flex-col gap-6 animate-in slide-in-from-top duration-300">
-          <nav className="flex flex-col gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.3em]">
-            <Link href="/#how-it-works" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">Protocol</Link>
-            <Link href="/#modules" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">Showcase</Link>
-            <Link href="/#performance" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">Performance</Link>
-            <Link href="/#faq" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">Support</Link>
+          <nav className="flex flex-col gap-4 text-sm font-medium text-muted-foreground">
+            <Link href="/#how-it-works" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">How It Works</Link>
+            <Link href="/#modules" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">Features</Link>
+            <Link href="/#performance" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">Why HealthNex</Link>
+            <Link href="/#faq" onClick={() => setIsMenuOpen(false)} className="hover:text-primary transition-colors">FAQ</Link>
           </nav>
           <div className="flex flex-col gap-4">
             {isAuthenticated ? (
@@ -86,11 +86,11 @@ export default function LandingHeader() {
               </Button>
             ) : (
               <>
-                <Button asChild variant="ghost" className="w-full text-[10px] font-bold uppercase tracking-widest">
+                <Button asChild variant="ghost" className="w-full text-sm font-medium">
                   <Link href="/login">Sign In</Link>
                 </Button>
-                <Button onClick={() => { router.push('/register'); setIsMenuOpen(false); }} className="w-full h-11 rounded-xl font-bold bg-primary text-primary-foreground">
-                  Initialize
+                <Button onClick={() => { router.push('/register'); setIsMenuOpen(false); }} className="w-full h-10 rounded-xl font-medium bg-primary text-primary-foreground">
+                  Get Started
                 </Button>
               </>
             )}
