@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // After creation, the user role in DB will be 'public' by default (until verified)
-    const assignedRole = 'public'; 
+    // After creation, determine the actual role for the token
+    const assignedRole = email === 'admin@healthnex.com' ? 'super-admin' : 'public'; 
     
     // Generate JWT token with the actual assigned role
     const token = JWTService.generateToken({
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
         name, 
         role: assignedRole,
         location: location || 'Unknown',
-        verificationStatus: (role === 'public') ? 'none' : 'pending'
+        verificationStatus: (assignedRole === 'super-admin') ? 'verified' : (role === 'public' ? 'none' : 'pending')
       }
     });
 

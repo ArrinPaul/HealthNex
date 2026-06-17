@@ -42,6 +42,8 @@ export const createUser = mutation({
       isActive: true,
     });
 
+    console.log(`User created: ${args.email} with role ${isSuperAdmin ? ROLES.SUPER_ADMIN : ROLES.PUBLIC} (Requested: ${requestedRole})`);
+
     return userId;
   },
 });

@@ -28,16 +28,16 @@ function base64UrlDecodeToBytes(value: string): Uint8Array {
 
 async function verifyToken(token: string): Promise<boolean> {
   try {
-    const [headerPart, payloadPart, signaturePart] = token.split('.');
-    if (!headerPart || !payloadPart || !signaturePart) return false;
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
 
-    const header = JSON.parse(base64UrlDecodeToString(headerPart)) as {
-      alg?: string;
-      typ?: string;
-    };
-
+    const [headerPart, payloadPart, signaturePart] = parts;
+    
+    // Quick check on header algorithm
+    const header = JSON.parse(base64UrlDecodeToString(headerPart));
     if (header.alg !== 'HS256') return false;
 
+    // Verify signature
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
       'raw',
@@ -49,24 +49,24 @@ async function verifyToken(token: string): Promise<boolean> {
 
     const data = encoder.encode(`${headerPart}.${payloadPart}`);
     const signature = base64UrlDecodeToBytes(signaturePart);
-    const dataBuffer = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-    const signatureBuffer = signature.buffer.slice(
-      signature.byteOffset,
-      signature.byteOffset + signature.byteLength
-    );
+    
     const isValidSignature = await crypto.subtle.verify(
       'HMAC',
       key,
-      signatureBuffer as BufferSource,
-      dataBuffer as BufferSource
+      signature,
+      data
     );
+    
     if (!isValidSignature) return false;
 
-    const payload = JSON.parse(base64UrlDecodeToString(payloadPart)) as { exp?: number };
-    if (payload.exp && Date.now() >= payload.exp * 1000) return false;
+    // Check expiration
+    const payload = JSON.parse(base64UrlDecodeToString(payloadPart));
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.exp && payload.exp < now) return false;
 
     return true;
-  } catch {
+  } catch (error) {
+    console.error('Middleware token verification error:', error);
     return false;
   }
 }
@@ -74,6 +74,8 @@ async function verifyToken(token: string): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('auth-token')?.value;
+
+  console.log(`Middleware: Processing ${pathname} (Token present: ${!!token})`);
 
   // CSRF Protection: Verify Origin/Referer for state-changing API requests
   if (pathname.startsWith('/api/') && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
@@ -106,6 +108,7 @@ export async function middleware(request: NextRequest) {
   // 1. Handle Protected Frontend Routes
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
     const isValidToken = token ? await verifyToken(token) : false;
+    console.log(`Middleware: ${pathname} is protected. Token valid: ${isValidToken}`);
     if (!isValidToken) {
       const url = new URL('/login', request.url);
       url.searchParams.set('callbackUrl', pathname);

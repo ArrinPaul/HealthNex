@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     const user = await convex.query(api.users.getUserByEmail, { email });
     
     if (!user) {
+      console.log(`Login failed: User not found for email ${email}`);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
@@ -33,11 +34,14 @@ export async function POST(request: NextRequest) {
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
     
     if (!isValidPassword) {
+      console.log(`Login failed: Invalid password for email ${email}`);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
     }
+
+    console.log(`Login success: ${email} (Role: ${user.role})`);
 
     // Update last login
     await convex.mutation(api.users.updateLastLogin, { userId: user._id });
