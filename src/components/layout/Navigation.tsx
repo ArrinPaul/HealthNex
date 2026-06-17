@@ -88,7 +88,7 @@ export default function Navigation({
               {isActive && (
                 <motion.div 
                   layoutId="active-nav-indicator"
-                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" 
+                  className="absolute left-0 w-1 h-5 bg-primary rounded-r-full" 
                 />
               )}
               <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
@@ -128,7 +128,7 @@ export default function Navigation({
               {isActive && (
                 <motion.div 
                   layoutId="active-nav-indicator-bottom"
-                  className="absolute left-0 w-1 h-6 bg-primary rounded-r-full shadow-[0_0_10px_var(--primary)]" 
+                  className="absolute left-0 w-1 h-5 bg-primary rounded-r-full" 
                 />
               )}
               <Icon className={`w-5 h-5 shrink-0 transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />

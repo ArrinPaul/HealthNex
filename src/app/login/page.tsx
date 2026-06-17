@@ -38,82 +38,40 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background overflow-hidden relative">
-      {/* Immersive Technical Background (Hidden on Mobile) */}
-      <div className="hidden md:flex flex-1 relative items-center justify-center p-20 overflow-hidden bg-[#050505]">
-        {/* Deep Field Grid */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.05)_0%,transparent_70%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(circle_at_center,black,transparent_80%)]" />
+      {/* Visual Side */}
+      <div className="hidden md:flex flex-1 relative items-center justify-center p-16 overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_70%)] opacity-10" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]" />
         
-        {/* Technical Nested Rings */}
-        <div className="absolute flex items-center justify-center pointer-events-none">
-          {/* Outer Orbit */}
-          <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute w-[800px] h-[800px] border border-primary/5 rounded-full border-dashed"
-          />
-          {/* Primary Scope Ring */}
-          <motion.div 
-            animate={{ rotate: -360 }}
-            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-            className="absolute w-[600px] h-[600px] border border-primary/10 rounded-full"
-          >
-             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-8 bg-primary/40 shadow-[0_0_15px_var(--primary)]" />
-             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-8 bg-primary/40 shadow-[0_0_15px_var(--primary)]" />
-          </motion.div>
-          {/* Scanning Sweep */}
-          <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            className="absolute w-[500px] h-[500px] rounded-full bg-[conic-gradient(from_0deg,transparent_70%,rgba(var(--primary-rgb),0.15)_100%)]"
-          />
-          {/* Inner Data Ring */}
-          <motion.div 
-            animate={{ rotate: 180 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute w-[400px] h-[400px] border border-primary/20 rounded-full border-t-transparent border-b-transparent"
-          />
-        </div>
+        <div className="relative z-10 space-y-10 max-w-md">
+           <Logo size="xl" className="text-white" />
 
-        <div className="relative z-10 space-y-16 max-w-lg text-left">
            <div className="space-y-4">
-              <Logo size="xl" className="text-white" />
-              <div className="h-1 w-20 bg-primary/30 rounded-full" />
-           </div>
-
-           <div className="space-y-8">
-              <h2 className="text-5xl lg:text-7xl font-black tracking-tighter text-white uppercase leading-[0.9] italic">
-                Unified <br />
-                <span className="text-primary not-italic">Intelligence</span>
+              <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+                Better health data,<br />
+                <span className="text-primary">better outcomes.</span>
               </h2>
-              <p className="text-slate-400 text-lg leading-relaxed font-medium max-w-md">
-                Establishing the global standard for regional health visibility and proactive response coordination.
+              <p className="text-slate-400 text-base leading-relaxed">
+                Track, report, and respond to health issues in your community.
               </p>
            </div>
            
-           <div className="grid grid-cols-2 gap-12 pt-10 border-t border-white/5">
+           <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/5">
               {[
-                { label: 'Network_Latency', value: '<1s', icon: Activity },
-                { label: 'Core_Availability', value: '99.9%', icon: Globe }
+                { label: 'Response Time', value: '< 1s' },
+                { label: 'Uptime', value: '99.9%' }
               ].map((item, i) => (
-                <div key={i} className="space-y-3">
-                   <div className="flex items-center gap-3 text-primary/60">
-                      <item.icon className="w-4 h-4" />
-                      <span className="text-[9px] font-mono font-bold uppercase tracking-[0.4em]">{item.label}</span>
-                   </div>
-                   <div className="text-4xl font-bold text-white font-mono tracking-tighter">{item.value}</div>
+                <div key={i} className="space-y-2">
+                   <span className="text-xs text-white/40">{item.label}</span>
+                   <div className="text-2xl font-bold text-white font-mono">{item.value}</div>
                 </div>
               ))}
            </div>
         </div>
 
-        {/* Floating status block */}
-        <div className="absolute bottom-12 left-12 flex flex-col gap-1 font-mono">
-           <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_var(--emerald-500)]" />
-              <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">System_Status: Optimal</span>
-           </div>
-           <div className="px-4 text-[8px] text-white/20 uppercase tracking-[0.2em]">Regional_Uplink_Node: 0x44C</div>
+        <div className="absolute bottom-8 left-8 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm">
+           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+           <span className="text-xs font-medium text-emerald-400">System Online</span>
         </div>
       </div>
 
@@ -129,42 +87,38 @@ export default function LoginPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md space-y-12"
+          className="w-full max-w-md space-y-8"
         >
-          <div className="space-y-4">
-             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
-                <Shield className="w-3 h-3" />
-                Identity Verification
-             </div>
-             <h1 className="text-4xl font-bold tracking-tight uppercase leading-none">Initialize <br /><span className="text-primary">Session.</span></h1>
-             <p className="text-muted-foreground font-medium">Access your regional intelligence dashboard.</p>
+          <div className="space-y-2">
+             <h1 className="text-3xl font-bold tracking-tight">Sign In</h1>
+             <p className="text-muted-foreground">Access your health monitoring dashboard.</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Protocol ID (Email)</Label>
-                <div className="relative group">
-                  <Mail className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="id@healthnex.io"
-                    className="h-16 pl-14 pr-8 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] focus:ring-primary/20 focus:border-primary transition-all text-lg font-medium"
+                    placeholder="you@example.com"
+                    className="h-11 pl-10 rounded-xl"
                   />
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex justify-between items-center px-4">
-                   <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Access Key</Label>
-                   <Link href="#" className="text-[10px] font-bold uppercase tracking-widest text-primary hover:opacity-80">Recover</Link>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                   <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                   <Link href="#" className="text-xs text-primary hover:underline">Forgot password?</Link>
                 </div>
-                <div className="relative group">
-                  <Lock className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type="password"
@@ -172,7 +126,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     placeholder="••••••••"
-                    className="h-16 pl-14 pr-8 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] focus:ring-primary/20 focus:border-primary transition-all text-lg font-medium"
+                    className="h-11 pl-10 rounded-xl"
                   />
                 </div>
               </div>
@@ -180,24 +134,17 @@ export default function LoginPage() {
 
             <Button 
               type="submit" 
-              className="w-full h-20 rounded-[1.5rem] text-xl font-bold bg-primary text-primary-foreground shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all group" 
+              className="w-full h-11 rounded-xl font-medium" 
               disabled={loading}
             >
-              {loading ? (
-                <span className="flex items-center gap-3">Authenticating...</span>
-              ) : (
-                <span className="flex items-center gap-3">
-                  Establish Connection <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                </span>
-              )}
+              {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
 
-          <div className="pt-8 border-t border-[var(--border-soft)] flex flex-col sm:flex-row items-center justify-between gap-6">
-             <div className="text-sm font-bold uppercase tracking-widest text-muted-foreground">New to Protocol?</div>
-             <Button asChild variant="outline" className="h-14 px-8 rounded-2xl font-bold uppercase tracking-widest border-2 hover:bg-primary/5 hover:text-primary hover:border-primary/40 transition-all">
-                <Link href="/register">Request Access</Link>
-             </Button>
+          <div className="pt-4 border-t border-border text-center">
+             <p className="text-sm text-muted-foreground">
+               Don't have an account? <Link href="/register" className="text-primary font-medium hover:underline">Sign up</Link>
+             </p>
           </div>
         </motion.div>
       </div>

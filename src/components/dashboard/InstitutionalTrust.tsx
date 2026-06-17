@@ -23,46 +23,38 @@ export default function InstitutionalTrust() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-         <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-               <Award className="w-5 h-5" />
-            </div>
-            <div>
-               <h4 className="text-[10px] font-bold uppercase tracking-widest">Institutional Trust Layer</h4>
-               <p className="text-[8px] text-muted-foreground uppercase font-bold tracking-tight">Source: {globalData.source}</p>
-            </div>
+         <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-primary" />
+            <h4 className="text-sm font-medium">Global Data</h4>
          </div>
-         <div className="text-right">
-            <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">Last Verified</div>
-            <div className="text-[10px] font-bold text-foreground font-mono">{formatDistanceToNow(globalData.lastUpdated)} ago</div>
-         </div>
+         <span className="text-xs text-muted-foreground">{formatDistanceToNow(globalData.lastUpdated)} ago</span>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="space-y-3">
          {stats.map((stat, i) => (
            <motion.div 
              key={i}
              initial={{ opacity: 0, x: -10 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ delay: i * 0.1 }}
-             className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] flex items-center justify-between group hover:border-primary/40 transition-colors"
+             className="p-3 rounded-xl bg-secondary border border-border flex items-center justify-between hover:border-primary/40 transition-colors"
            >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                 <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-tight">{stat.label}</span>
+                 <span className="text-xs text-muted-foreground">{stat.label}</span>
               </div>
-              <span className="text-sm font-bold font-mono">{stat.value}</span>
+              <span className="text-sm font-semibold font-mono">{stat.value}</span>
            </motion.div>
          ))}
       </div>
 
-      <div className="pt-4 border-t border-[var(--border-soft)]">
-         <div className="flex items-center gap-3 text-emerald-500 bg-emerald-500/5 p-4 rounded-2xl border border-emerald-500/10">
-            <Globe className="w-4 h-4 animate-pulse" />
-            <p className="text-[9px] font-bold uppercase leading-relaxed tracking-tight">
-               Local HealthNex reports are being cross-referenced with global institutional metrics for optimal reliability.
+      <div className="pt-3 border-t border-border">
+         <div className="flex items-center gap-2 text-emerald-500 bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10">
+            <Globe className="w-3.5 h-3.5" />
+            <p className="text-xs">
+               Local data is cross-referenced with global health metrics.
             </p>
          </div>
       </div>

@@ -28,57 +28,55 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker', 'community-user']}>
-      <div className="h-full flex flex-col gap-8 p-2 md:p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col gap-6 animate-in fade-in duration-500">
         
-        {/* Simple Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0 px-2">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-500">System Live</span>
+              <span className="text-xs text-emerald-500 font-medium">System Live</span>
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-foreground uppercase">
-              {t('dashboard', 'Core Command')}
+            <h1 className="text-2xl font-bold tracking-tight">
+              {t('dashboard', 'Dashboard')}
             </h1>
           </div>
           
-          <div className="flex items-center gap-6 text-muted-foreground">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
              <div className="text-right">
-                <div className="text-[8px] font-bold uppercase tracking-widest">Global Nodes</div>
-                <div className="text-sm font-bold text-foreground">{aggregates?.stats.totalNodes || '...'}</div>
+                <div className="text-xs">Nodes</div>
+                <div className="font-semibold">{aggregates?.stats.totalNodes || '...'}</div>
              </div>
-             <div className="w-[1px] h-8 bg-[var(--border-soft)]" />
+             <div className="w-px h-6 bg-border" />
              <div className="text-right">
-                <div className="text-[8px] font-bold uppercase tracking-widest">Active Access</div>
-                <div className="text-sm font-bold text-primary uppercase">{user?.role?.replace('-', ' ')}</div>
+                <div className="text-xs">Role</div>
+                <div className="font-semibold text-primary capitalize">{user?.role?.replace('-', ' ')}</div>
              </div>
           </div>
         </div>
 
-        {/* Simplified 2-Column Layout */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-0">
+        {/* Main Layout */}
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
           
-          {/* Main Workspace (Left Column) */}
-          <div className="lg:col-span-8 flex flex-col gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-8 flex flex-col gap-6">
             
-            {/* Primary Metrics Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                <StatsGrid />
             </div>
 
-            {/* Main Visualizer (Map) */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex-1 min-h-[400px] bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[2.5rem] overflow-hidden flex flex-col shadow-xl relative group"
+              className="flex-1 min-h-[400px] bg-card border border-border rounded-2xl overflow-hidden flex flex-col relative"
             >
-              <div className="p-6 border-b border-[var(--border-soft)] flex items-center justify-between shrink-0 bg-[var(--surface-2)]/30">
-                <div className="flex items-center gap-3">
+              <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2">
                   <MapIcon className="w-4 h-4 text-primary" />
-                  <h3 className="text-[10px] font-bold uppercase tracking-widest">Regional Intelligence Map</h3>
+                  <h3 className="text-sm font-medium">Regional Map</h3>
                 </div>
-                <div className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest bg-[var(--surface-2)] px-3 py-1 rounded-full border border-[var(--border-soft)]">
-                  Live Telemetry
+                <div className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                  Live
                 </div>
               </div>
               
@@ -93,42 +91,37 @@ export default function DashboardPage() {
                     })) : []} 
                   />
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center font-bold uppercase opacity-30 text-[10px] tracking-[0.4em]">Initializing Map...</div>
+                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">Loading map...</div>
                 )}
               </div>
             </motion.div>
           </div>
 
-          {/* Intelligence Sidebar (Right Column) */}
-          <div className="lg:col-span-4 flex flex-col gap-8">
+          {/* Right Column */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
             
-            {/* Institutional Trust Layer */}
-            <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[2.5rem] p-8 shadow-lg flex-1 min-h-[300px] overflow-hidden">
+            <div className="bg-card border border-border rounded-2xl p-6 flex-1 min-h-[250px] overflow-hidden">
                <InstitutionalTrust />
             </div>
 
-            {/* Simplified Data Insights */}
-            <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[2.5rem] p-8 h-[350px] shadow-lg overflow-hidden flex flex-col">
-               <div className="flex items-center gap-3 mb-6">
-                 <div className="w-8 h-8 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center border border-violet-500/20">
-                   <Activity className="w-4 h-4" />
-                 </div>
-                 <h3 className="text-[10px] font-bold uppercase tracking-widest">Outbreak Distribution</h3>
+            <div className="bg-card border border-border rounded-2xl p-6 h-[300px] overflow-hidden flex flex-col">
+               <div className="flex items-center gap-2 mb-4">
+                 <Activity className="w-4 h-4 text-violet-500" />
+                 <h3 className="text-sm font-medium">Outbreak Distribution</h3>
                </div>
                <div className="flex-1 min-h-0">
                   <DistributionSection compact />
                </div>
             </div>
 
-            {/* Quick Actions / Status */}
-            <div className="bg-primary/5 border border-primary/20 rounded-3xl p-6 flex items-center justify-between group hover:bg-primary/10 transition-colors cursor-pointer">
-               <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 text-primary flex items-center justify-center">
-                    <Zap className="w-5 h-5" />
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-center justify-between hover:bg-primary/10 transition-colors cursor-pointer">
+               <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                    <Zap className="w-4 h-4" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-primary">Protocol Status</div>
-                    <div className="text-xs font-bold">Optimal Integrity</div>
+                    <div className="text-xs font-medium text-primary">System Status</div>
+                    <div className="text-sm font-semibold">Operational</div>
                   </div>
                </div>
                <Bell className="w-4 h-4 text-primary animate-pulse" />
@@ -137,8 +130,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Trends Row - Simplified at bottom */}
-        <div className="grid grid-cols-1 gap-8 px-2 pb-4">
+        {/* Charts */}
+        <div className="grid grid-cols-1 gap-6 pb-4">
            <ChartsSection />
         </div>
 

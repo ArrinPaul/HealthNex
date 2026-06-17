@@ -89,27 +89,25 @@ export default function ChartsSection({ compact }: { compact?: boolean }) {
   if (compact) return ChartContent;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
-      <Card className="bg-card border border-[var(--border-soft)] shadow-md theme-transition">
-        <CardHeader className="border-b border-[var(--border-soft)] mb-6">
-          <CardTitle className="uppercase tracking-tight">{t('casesTrend', 'Protocol Intelligence Trends')}</CardTitle>
+    <div className="grid gap-6 lg:grid-cols-2">
+      <Card className="bg-card border border-border">
+        <CardHeader className="border-b border-border">
+          <CardTitle className="text-sm font-medium">{t('casesTrend', 'Case Trends')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[300px]">
           {ChartContent}
         </CardContent>
       </Card>
 
-      <Card className="bg-card border border-[var(--border-soft)] shadow-md theme-transition">
-        <CardHeader className="border-b border-[var(--border-soft)] mb-6">
-          <CardTitle className="uppercase tracking-tight">{t('waterQualityTrend', 'Regional Coverage')}</CardTitle>
+      <Card className="bg-card border border-border">
+        <CardHeader className="border-b border-border">
+          <CardTitle className="text-sm font-medium">{t('waterQualityTrend', 'Regional Coverage')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[300px]">
-           <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-[var(--surface-2)] border border-dashed border-[var(--border-soft)] rounded-2xl p-8 text-center space-y-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <Activity className="w-6 h-6" />
-              </div>
-              <p className="font-semibold uppercase tracking-widest text-[10px]">Synchronizing regional coverage data from {aggregates.stats.totalNodes} nodes...</p>
-            </div>
+           <div className="h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary border border-dashed border-border rounded-xl p-8 text-center space-y-3">
+              <Activity className="w-8 h-8" />
+              <p className="text-sm">Loading regional data from {aggregates.stats.totalNodes} nodes...</p>
+           </div>
         </CardContent>
       </Card>
     </div>

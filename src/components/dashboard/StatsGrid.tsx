@@ -43,17 +43,17 @@ export default function StatsGrid() {
   return (
     <>
       {stats.map((stat, index) => (
-        <Card key={index} className="bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-sm theme-transition group hover:border-primary/40 rounded-3xl overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-               <div className={`w-12 h-12 flex items-center justify-center rounded-2xl ${stat.bg} border border-[var(--border-soft)] group-hover:scale-110 transition-transform`}>
-                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
+        <Card key={index} className="bg-card border border-border hover:border-primary/40 transition-all rounded-xl overflow-hidden">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+               <div className={`w-10 h-10 flex items-center justify-center rounded-xl ${stat.bg}`}>
+                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
                </div>
                <div>
-                  <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                  <div className="text-xs text-muted-foreground mb-0.5">
                     {stat.title}
                   </div>
-                  <div className="text-2xl font-bold tracking-tight">
+                  <div className="text-lg font-bold">
                     {aggregates ? stat.value : '...'}
                   </div>
                </div>

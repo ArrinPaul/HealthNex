@@ -61,13 +61,13 @@ export default function DistributionSection({ compact }: { compact?: boolean }) 
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4">
+      <div className="mt-4 grid grid-cols-2 gap-3">
          {aggregates.distribution.map((d: any, index: number) => (
-           <div key={d.name} className="flex items-center gap-3 bg-[var(--surface-2)] p-3 rounded-2xl border border-[var(--border-soft)]">
-              <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentcolor]" style={{ backgroundColor: COLORS[index % COLORS.length], color: COLORS[index % COLORS.length] }} />
+           <div key={d.name} className="flex items-center gap-2 bg-secondary p-2.5 rounded-lg border border-border">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
               <div className="flex-1 min-w-0">
-                <div className="text-[8px] font-bold uppercase text-muted-foreground truncate tracking-widest">{d.name}</div>
-                <div className="text-xs font-bold">{d.value}</div>
+                <div className="text-xs text-muted-foreground truncate">{d.name}</div>
+                <div className="text-sm font-semibold">{d.value}</div>
               </div>
            </div>
          ))}

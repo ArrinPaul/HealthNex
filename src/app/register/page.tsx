@@ -76,28 +76,26 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background overflow-hidden relative">
       {/* Visual Side */}
-      <div className="hidden md:flex flex-1 relative items-center justify-center p-20 overflow-hidden bg-slate-950">
+      <div className="hidden md:flex flex-1 relative items-center justify-center p-16 overflow-hidden bg-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_70%)] opacity-10" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px]" />
         
-        <div className="relative z-10 space-y-12 max-w-lg">
+        <div className="relative z-10 space-y-10 max-w-lg">
            <Logo size="xl" className="dark:text-white" />
-           <div className="space-y-6">
-              <h2 className="text-4xl lg:text-6xl font-bold tracking-tighter text-white uppercase leading-none">
+           <div className="space-y-4">
+              <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
                 Join the <br />
-                <span className="text-primary">Network.</span>
+                <span className="text-primary">community.</span>
               </h2>
-              <p className="text-slate-400 text-lg leading-relaxed font-medium">
-                Become a part of the distributed intelligence protocol designed to protect and inform regional health ecosystems.
+              <p className="text-slate-400 text-base leading-relaxed">
+                Help protect and inform your community through collaborative health monitoring.
               </p>
            </div>
 
-           <div className="space-y-6">
-              {['End-to-End Encrypted', 'Real-time Synchronization', 'AI-Powered Insights'].map((text, i) => (
-                <div key={i} className="flex items-center gap-4 text-white font-bold uppercase tracking-widest text-xs">
-                   <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                      <CheckCircle2 className="w-4 h-4" />
-                   </div>
+           <div className="space-y-3">
+              {['Encrypted data', 'Real-time sync', 'AI-powered insights'].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 text-white text-sm">
+                   <CheckCircle2 className="w-4 h-4 text-primary" />
                    {text}
                 </div>
               ))}
@@ -117,18 +115,17 @@ export default function RegisterPage() {
         <motion.div 
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-full max-w-md space-y-12 py-12"
+          className="w-full max-w-md space-y-8 py-12"
         >
-          <div className="space-y-4">
-             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
-                Step {step} of {role === 'health-worker' ? 3 : 2}
+          <div className="space-y-2">
+             <div className="text-xs text-muted-foreground mb-2">
+               Step {step} of {role === 'health-worker' ? 3 : 2}
              </div>
-             <h1 className="text-4xl font-bold tracking-tight uppercase leading-none">
-               {step === 1 ? 'Personal' : step === 2 ? 'Protocol' : 'Verification'} <br />
-               <span className="text-primary">{step === 1 ? 'Identity.' : step === 2 ? 'Selection.' : 'Credentials.'}</span>
+             <h1 className="text-3xl font-bold tracking-tight">
+               {step === 1 ? 'Create Account' : step === 2 ? 'Set Up Profile' : 'Verify Identity'}
              </h1>
-             <p className="text-muted-foreground font-medium">
-               {step === 1 ? 'Enter your professional details.' : step === 2 ? 'Choose your role within the network.' : 'Provide medical license or institutional ID.'}
+             <p className="text-muted-foreground text-sm">
+               {step === 1 ? 'Enter your details to get started.' : step === 2 ? 'Choose your role and set a password.' : 'Upload your professional credentials.'}
              </p>
           </div>
 
@@ -142,32 +139,32 @@ export default function RegisterPage() {
                   exit={{ opacity: 0, x: 20 }}
                   className="space-y-6"
                 >
-                  <div className="space-y-3">
-                    <Label htmlFor="name" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Full Name</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
                     <Input
                       id="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
                       placeholder="John Doe"
-                      className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                      className="h-11 rounded-xl"
                     />
                   </div>
-                  <div className="space-y-3">
-                    <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Protocol ID (Email)</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                     <Input
                       id="email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      placeholder="id@healthnex.io"
-                      className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                      placeholder="you@example.com"
+                      className="h-11 rounded-xl"
                     />
                   </div>
-                  <div className="space-y-3 text-right">
-                     <Button type="button" onClick={handleNext} className="h-14 px-8 rounded-2xl font-bold uppercase tracking-widest">
-                        Continue <ArrowRight className="ml-3 w-4 h-4" />
+                  <div className="text-right pt-2">
+                     <Button type="button" onClick={handleNext} className="h-10 px-6 rounded-xl font-medium">
+                        Continue
                      </Button>
                   </div>
                 </motion.div>
@@ -181,20 +178,20 @@ export default function RegisterPage() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-8"
                 >
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                      <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Create Access Key</Label>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                       <PasswordInput
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                        className="h-11 rounded-xl"
                       />
                       <PasswordStrengthIndicator password={password} />
                     </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="confirm" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Confirm Access Key</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm" className="text-sm font-medium">Confirm Password</Label>
                       <Input
                         id="confirm"
                         type="password"
@@ -202,72 +199,68 @@ export default function RegisterPage() {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
                         placeholder="••••••••"
-                        className="h-16 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                        className="h-11 rounded-xl"
                       />
                     </div>
-                    <div className="space-y-4">
-                      <Label className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Network Role</Label>
-                      <div className="grid gap-3">
-                         <div className="p-4 mb-2 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-bold leading-relaxed">
-                            Note: All new accounts are initialized with 'Public' access by default. Your requested role below will be reviewed and assigned by a network administrator.
-                         </div>
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Role</Label>
+                      <div className="text-xs bg-amber-500/10 border border-amber-500/20 text-amber-600 p-3 rounded-lg">
+                        All accounts start with Public access. Your requested role will be reviewed by an admin.
+                      </div>
+                      <div className="grid gap-2">
                          {roles.map((r) => (
                            <button
                              key={r.value}
                              type="button"
                              onClick={() => setRole(r.value as UserRole)}
-                             className={`flex items-center gap-4 p-4 rounded-2xl border text-left transition-all ${
+                             className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
                                role === r.value 
-                                 ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' 
-                                 : 'bg-[var(--surface-2)] border-[var(--border-soft)] hover:border-primary/40'
+                                 ? 'bg-primary/10 border-primary shadow-sm' 
+                                 : 'bg-secondary border-border hover:border-primary/40'
                              }`}
                            >
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${role === r.value ? 'bg-primary text-primary-foreground' : 'bg-[var(--surface-3)] text-muted-foreground'}`}>
-                                 <r.icon className="w-5 h-5" />
+                              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${role === r.value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                                 <r.icon className="w-4 h-4" />
                               </div>
                               <div>
-                                 <div className="font-bold text-xs uppercase tracking-tight">{r.label}</div>
-                                 <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{r.desc}</p>
+                                 <div className="font-medium text-sm">{r.label}</div>
+                                 <p className="text-xs text-muted-foreground">{r.desc}</p>
                               </div>
                            </button>
                          ))}
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      <Label htmlFor="location" className="text-[10px] font-bold uppercase tracking-widest ml-4 text-muted-foreground">Deployment Zone (City, State)</Label>
-                      <div className="relative group">
-                        <MapPin className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <div className="space-y-2">
+                      <Label htmlFor="location" className="text-sm font-medium">Location</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           id="location"
                           value={location}
                           onChange={(e) => setLocation(e.target.value)}
                           required
-                          placeholder="San Francisco, CA"
-                          className="h-16 pl-14 rounded-[1.5rem] bg-[var(--surface-2)] border-[var(--border-soft)] text-lg font-medium"
+                          placeholder="City, State"
+                          className="h-11 pl-10 rounded-xl"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between gap-6 pt-4">
-                    <button type="button" onClick={handleBack} className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                  <div className="flex items-center justify-between gap-4 pt-2">
+                    <button type="button" onClick={handleBack} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                       Back
                     </button>
                     {role === 'health-worker' ? (
-                       <Button type="button" onClick={handleNext} className="h-16 px-10 rounded-2xl text-lg font-bold bg-primary text-primary-foreground">
-                          Verify Identity <ArrowRight className="ml-3 w-5 h-5" />
+                       <Button type="button" onClick={handleNext} className="h-10 px-6 rounded-xl font-medium">
+                          Continue
                        </Button>
                     ) : (
                       <Button 
                         type="submit" 
-                        className="h-16 px-10 rounded-2xl text-lg font-bold bg-primary text-primary-foreground shadow-xl shadow-primary/20 transition-all group" 
+                        className="h-10 px-6 rounded-xl font-medium" 
                         disabled={loading}
                       >
-                        {loading ? 'Processing...' : (
-                          <span className="flex items-center gap-3">
-                            Request Access <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                          </span>
-                        )}
+                        {loading ? 'Creating account...' : 'Create Account'}
                       </Button>
                     )}
                   </div>
@@ -280,53 +273,43 @@ export default function RegisterPage() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-8"
+                  className="space-y-6"
                 >
-                   <div className="space-y-6">
-                      <div className="p-8 rounded-[2.5rem] border-2 border-dashed border-[var(--border-soft)] bg-[var(--surface-2)] text-center space-y-4 hover:border-primary transition-colors cursor-pointer relative group">
+                   <div className="space-y-4">
+                      <div className="p-8 rounded-xl border-2 border-dashed border-border bg-secondary text-center space-y-3 hover:border-primary transition-colors cursor-pointer relative group">
                          <input 
                            type="file" 
                            className="absolute inset-0 opacity-0 cursor-pointer" 
                            onChange={(e) => setVerificationFile(e.target.files?.[0]?.name || 'license.pdf')}
                          />
-                         <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-                            <Upload className="w-10 h-10 text-primary" />
-                         </div>
-                         <div className="space-y-1">
-                            <h4 className="font-bold uppercase tracking-tight">Institutional Credentials</h4>
-                            <p className="text-xs text-muted-foreground">Upload Medical License, Gov ID, or NGO Authorization (PDF/JPG)</p>
+                         <Upload className="w-8 h-8 text-primary mx-auto" />
+                         <div>
+                            <h4 className="font-medium">Upload Credentials</h4>
+                            <p className="text-xs text-muted-foreground">Medical License, Gov ID, or NGO Authorization (PDF/JPG)</p>
                          </div>
                          {verificationFile && (
-                           <div className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-500">
-                              <FileText className="w-5 h-5" />
-                              <span className="text-xs font-bold font-mono truncate">{verificationFile}</span>
+                           <div className="flex items-center justify-center gap-2 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-emerald-600 text-xs">
+                              <FileText className="w-4 h-4" />
+                              <span className="truncate">{verificationFile}</span>
                            </div>
                          )}
                       </div>
                       
-                      <div className="p-6 rounded-2xl bg-[var(--surface-3)] border border-[var(--border-soft)] space-y-3">
-                         <div className="flex items-center gap-3">
-                            <Shield className="w-4 h-4 text-primary" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Verification Policy</span>
-                         </div>
-                         <p className="text-[10px] text-muted-foreground leading-relaxed">Your credentials will be manually reviewed by a HealthNex Intelligence Lead. Verification typically completes within 12-24 hours.</p>
+                      <div className="p-4 rounded-xl bg-secondary border border-border text-xs text-muted-foreground">
+                         Your credentials will be reviewed within 12-24 hours.
                       </div>
                    </div>
 
-                   <div className="flex items-center justify-between gap-6 pt-4">
-                    <button type="button" onClick={handleBack} className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors">
+                   <div className="flex items-center justify-between gap-4 pt-2">
+                    <button type="button" onClick={handleBack} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                       Back
                     </button>
                     <Button 
                       type="submit" 
-                      className="h-16 px-10 rounded-2xl text-lg font-bold bg-primary text-primary-foreground shadow-xl shadow-primary/20 transition-all group" 
+                      className="h-10 px-6 rounded-xl font-medium" 
                       disabled={loading}
                     >
-                      {loading ? 'Transmitting...' : (
-                        <span className="flex items-center gap-3">
-                          Establish Connection <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
-                        </span>
-                      )}
+                      {loading ? 'Submitting...' : 'Submit for Review'}
                     </Button>
                   </div>
                 </motion.div>
@@ -334,9 +317,9 @@ export default function RegisterPage() {
             </AnimatePresence>
           </form>
 
-          <div className="pt-8 border-t border-[var(--border-soft)] text-center">
-             <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-               Already Verified? <Link href="/login" className="text-primary ml-2 hover:opacity-80">Initialize Session</Link>
+          <div className="pt-4 border-t border-border text-center">
+             <p className="text-sm text-muted-foreground">
+               Already have an account? <Link href="/login" className="text-primary font-medium hover:underline">Sign in</Link>
              </p>
           </div>
         </motion.div>

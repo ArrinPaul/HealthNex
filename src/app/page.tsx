@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { 
   Activity, Users, ArrowRight, CheckCircle2, 
-  Brain, Zap, ChevronDown, ShieldCheck, 
+  Brain, Zap, ChevronDown, ChevronRight, ShieldCheck, 
   Waves, BarChart3, Globe2
 } from 'lucide-react';
 import Link from 'next/link';
