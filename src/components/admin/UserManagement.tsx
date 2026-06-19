@@ -19,17 +19,26 @@ export default function UserManagement() {
   const updateUserRole = useMutation(api.users.updateUserRole);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  if (!users || !currentUser) {
+  if (!currentUser) return null;
+
+  if (users === undefined) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
+        <p className="text-sm text-muted-foreground">Synchronizing with protocol...</p>
       </div>
     );
   }
 
   const handleRoleChange = async (targetUserId: string, newRole: string) => {
-    if (!token) return;
+    if (!token) {
+      toast.error("Auth Error", { description: "Your session token is missing. Please re-login." });
+      return;
+    }
+
+    console.log(`Attempting role change for ${targetUserId} to ${newRole}`);
     setLoadingId(targetUserId);
+    
     try {
       await updateUserRole({
         token,
@@ -37,8 +46,8 @@ export default function UserManagement() {
         newRole
       });
       toast.success("Role Updated", { description: "User permissions have been updated in the protocol." });
-      // Note: If the user changed their own role to a lower tier, they will lose access on next session refresh.
     } catch (error: any) {
+      console.error("Role update failed:", error);
       toast.error("Update Failed", { description: error.message || "Failed to update user role." });
     } finally {
       setLoadingId(null);

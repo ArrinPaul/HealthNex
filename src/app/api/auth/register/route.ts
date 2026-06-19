@@ -44,7 +44,10 @@ export async function POST(request: NextRequest) {
     }
 
     // After creation, determine the actual role for the token
-    const assignedRole = email === 'admin@healthnex.com' ? 'super-admin' : 'public'; 
+    // If they requested community-user, they get it immediately.
+    // Otherwise, they stay as 'public' until verified.
+    const assignedRole = email === 'admin@healthnex.com' ? 'super-admin' : 
+                         (role === 'community-user' ? 'community-user' : 'public'); 
     
     // Generate JWT token with the actual assigned role
     const token = JWTService.generateToken({
@@ -61,7 +64,8 @@ export async function POST(request: NextRequest) {
         name, 
         role: assignedRole,
         location: location || 'Unknown',
-        verificationStatus: (assignedRole === 'super-admin') ? 'verified' : (role === 'public' ? 'none' : 'pending')
+        verificationStatus: (assignedRole === 'super-admin') ? 'verified' : 
+                            (assignedRole === 'community-user' ? 'none' : 'pending')
       }
     });
 

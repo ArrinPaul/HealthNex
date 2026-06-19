@@ -27,14 +27,13 @@ export const createUser = mutation({
     
     const needsVerification = !isSuperAdmin && (
                              requestedRole === ROLES.ADMIN || 
-                             requestedRole === ROLES.HEALTH_WORKER || 
-                             requestedRole === ROLES.COMMUNITY_USER);
+                             requestedRole === ROLES.HEALTH_WORKER);
 
     const userId = await ctx.db.insert("users", {
       email: args.email,
       name: args.name,
       passwordHash: args.passwordHash,
-      role: isSuperAdmin ? ROLES.SUPER_ADMIN : ROLES.PUBLIC, 
+      role: isSuperAdmin ? ROLES.SUPER_ADMIN : (needsVerification ? ROLES.PUBLIC : requestedRole), 
       requestedRole: requestedRole,
       verificationDocUrl: args.verificationDocUrl,
       verificationStatus: isSuperAdmin ? VERIFICATION_STATUS.VERIFIED : (needsVerification ? VERIFICATION_STATUS.PENDING : VERIFICATION_STATUS.NONE),

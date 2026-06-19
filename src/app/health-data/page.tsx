@@ -10,7 +10,7 @@ export default function HealthDataPage() {
   const { t } = useTranslation();
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">{t('healthData')}</h1>

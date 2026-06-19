@@ -11,6 +11,7 @@ import {
   Bell, 
   BookOpen, 
   MessageSquare,
+  Activity,
   User,
   Settings,
   HelpCircle,
@@ -193,7 +194,7 @@ export default function Navigation({
       {/* Desktop Fixed Sidebar */}
       <aside className={`hidden lg:flex fixed left-0 top-0 bottom-0 bg-card border-r border-border flex-col z-40 transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
         <div className={`p-5 border-b border-border flex items-center ${isCollapsed ? 'justify-center px-0' : 'justify-between'}`}>
-          {!isCollapsed ? <Logo size="md" /> : <Logo size="sm" />}
+          {!isCollapsed ? <Logo size="md" /> : <Logo size="sm" iconOnly />}
           
           <Button 
             variant="ghost" 

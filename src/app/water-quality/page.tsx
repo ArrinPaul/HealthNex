@@ -13,7 +13,7 @@ export default function WaterQualityPage() {
   const [results, setResults] = useState<any>(null);
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">{t('waterQuality')}</h1>

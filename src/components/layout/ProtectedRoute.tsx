@@ -15,7 +15,9 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      const url = new URL('/login', window.location.origin);
+      url.searchParams.set('callbackUrl', window.location.pathname);
+      router.push(url.pathname + url.search);
     } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
       if (user.role === 'public') {
         router.push('/education');

@@ -2,7 +2,22 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ['/dashboard', '/health-data', '/community-reports', '/water-quality', '/settings', '/profile', '/alerts', '/admin', '/user-management'];
+const PROTECTED_ROUTES = [
+  '/dashboard', 
+  '/health-data', 
+  '/community-reports', 
+  '/water-quality', 
+  '/settings', 
+  '/profile', 
+  '/alerts', 
+  '/admin', 
+  '/user-management',
+  '/ai-features',
+  '/education',
+  '/vault',
+  '/resources',
+  '/language-settings'
+];
 
 // API routes that require authentication
 const PROTECTED_API_PREFIX = '/api/';

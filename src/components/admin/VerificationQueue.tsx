@@ -15,12 +15,21 @@ export default function VerificationQueue() {
   const verifyUser = useMutation(api.users.verifyUser);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  if (!pendingUsers) {
-    return <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>;
+  if (!currentUser) return null;
+
+  if (pendingUsers === undefined) {
+    return <div className="p-12 text-center flex flex-col items-center">
+      <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary mb-2" />
+      <p className="text-sm text-muted-foreground">Fetching pending requests...</p>
+    </div>;
   }
 
   const handleApprove = async (userId: string) => {
-    if (!token) return;
+    if (!token) {
+      toast.error("Auth Error", { description: "Session token missing." });
+      return;
+    }
+    console.log(`Approving user ${userId}`);
     setLoadingId(userId);
     try {
       await verifyUser({
@@ -30,6 +39,7 @@ export default function VerificationQueue() {
       });
       toast.success("Professional Verified", { description: "User has been promoted to their requested role." });
     } catch (error: any) {
+      console.error("Verification failed:", error);
       toast.error("Verification Failed", { description: error.message });
     } finally {
       setLoadingId(null);
@@ -37,7 +47,11 @@ export default function VerificationQueue() {
   };
 
   const handleReject = async (userId: string) => {
-    if (!token) return;
+    if (!token) {
+      toast.error("Auth Error", { description: "Session token missing." });
+      return;
+    }
+    console.log(`Rejecting user ${userId}`);
     setLoadingId(userId);
     try {
       await verifyUser({
@@ -48,13 +62,24 @@ export default function VerificationQueue() {
       });
       toast.info("Verification Rejected", { description: "The request has been rejected." });
     } catch (error: any) {
+      console.error("Rejection failed:", error);
       toast.error("Action Failed", { description: error.message });
     } finally {
       setLoadingId(null);
     }
   };
 
-  if (pendingUsers.length === 0) return null;
+  if (pendingUsers.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 bg-secondary/30 border border-dashed border-border rounded-2xl">
+         <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">
+            <Check className="w-6 h-6 text-muted-foreground" />
+         </div>
+         <h3 className="text-sm font-semibold">Queue Clear</h3>
+         <p className="text-xs text-muted-foreground mt-1">No pending verification requests at this time.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
