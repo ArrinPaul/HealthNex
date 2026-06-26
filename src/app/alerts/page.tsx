@@ -20,7 +20,8 @@ import {
   Droplet, 
   CloudRain, 
   Check, 
-  X 
+  X,
+  Pencil
 } from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -33,9 +34,16 @@ export default function AlertBroadcastPage() {
   const { token } = useAuth();
   const broadcastAlert = useMutation(api.alerts.broadcastAlert);
   const deactivateAlert = useMutation(api.alerts.deactivateAlert);
+  const updateAlert = useMutation(api.alerts.updateAlert);
   const activeAlerts = useQuery(api.alerts.getActiveAlerts);
+  const allAlerts = useQuery(api.alerts.getAllAlerts);
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
+  const [editingAlertId, setEditingAlertId] = useState<string | null>(null);
+
+  const alertsToDisplay = showAllAlerts ? allAlerts : activeAlerts;
+
 
   const [formData, setFormData] = useState({
     title: '',
@@ -61,18 +69,32 @@ export default function AlertBroadcastPage() {
     
     setLoading(true);
     try {
-      await (broadcastAlert as any)({
-        token,
-        title: formData.title,
-        message: formData.message,
-        type: formData.type,
-        severity: formData.severity,
-        radius: formData.radius
-      });
-      toast.success("Protocol Alert Broadcasted", { description: "Notification has been successfully transmitted to all regional nodes." });
+      if (editingAlertId) {
+        await (updateAlert as any)({
+          token,
+          alertId: editingAlertId,
+          title: formData.title,
+          message: formData.message,
+          type: formData.type,
+          severity: formData.severity,
+          radius: formData.radius
+        });
+        toast.success("Protocol Alert Updated", { description: "The existing broadcast payload has been successfully updated." });
+        setEditingAlertId(null);
+      } else {
+        await (broadcastAlert as any)({
+          token,
+          title: formData.title,
+          message: formData.message,
+          type: formData.type,
+          severity: formData.severity,
+          radius: formData.radius
+        });
+        toast.success("Protocol Alert Broadcasted", { description: "Notification has been successfully transmitted to all regional nodes." });
+      }
       setFormData({ title: '', message: '', type: 'health_alert', severity: 'medium', radius: 10 });
     } catch (error: any) {
-      toast.error("Broadcast Failed", { description: error.message || "An unexpected database validation occurred." });
+      toast.error("Broadcast Action Failed", { description: error.message || "An unexpected database validation occurred." });
     } finally {
       setLoading(false);
     }
@@ -235,10 +257,26 @@ export default function AlertBroadcastPage() {
                   </div>
 
                   {/* Submit Button */}
-                  <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/10 transition-all hover:scale-[1.005] flex items-center justify-center gap-2">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                    Broadcast Alert Payload
-                  </Button>
+                  <div className="flex gap-3">
+                    {editingAlertId && (
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => {
+                          setEditingAlertId(null);
+                          setFormData({ title: '', message: '', type: 'health_alert', severity: 'medium', radius: 10 });
+                          toast.info("Edit cancelled");
+                        }}
+                        className="h-12 rounded-xl text-xs font-bold border-border"
+                      >
+                        Cancel
+                      </Button>
+                    )}
+                    <Button type="submit" disabled={loading} className="flex-1 h-12 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/10 transition-all hover:scale-[1.005] flex items-center justify-center gap-2">
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                      {editingAlertId ? "Update Alert Broadcast" : "Broadcast Alert Payload"}
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>
@@ -246,14 +284,42 @@ export default function AlertBroadcastPage() {
 
           {/* Right Column (5 Cols): Active Streams */}
           <div className="lg:col-span-5 space-y-4">
-            <div className="flex items-center justify-between px-2">
-              <h3 className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">Active Broadcasters Stream</h3>
-              <Badge variant="outline" className="text-[8px] font-bold uppercase tracking-widest border-emerald-500/30 text-emerald-500 animate-pulse-subtle bg-emerald-500/5">LIVE TELEMETRY</Badge>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2">
+              <div className="flex flex-col">
+                <h3 className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">Broadcasters Stream</h3>
+                <span className="text-[8px] font-semibold text-muted-foreground/60 tracking-wider">
+                  {showAllAlerts ? "DISPLAYING ENTIRE HISTORY" : "LIVE ACTIVE TELEMETRY"}
+                </span>
+              </div>
+              <div className="flex bg-secondary/40 p-0.5 rounded-lg border border-border/60 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowAllAlerts(false)}
+                  className={`px-2 py-1 text-[9px] font-extrabold uppercase tracking-wide rounded-md transition-all ${
+                    !showAllAlerts
+                      ? 'bg-rose-600 text-white shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Active Only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAllAlerts(true)}
+                  className={`px-2 py-1 text-[9px] font-extrabold uppercase tracking-wide rounded-md transition-all ${
+                    showAllAlerts
+                      ? 'bg-rose-600 text-white shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  All History
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3.5 max-h-[600px] overflow-y-auto pr-1 scrollbar-thin">
               <AnimatePresence mode="popLayout">
-                {activeAlerts?.map((alert) => (
+                {alertsToDisplay?.map((alert) => (
                   <motion.div 
                     key={alert._id}
                     layout
@@ -261,13 +327,16 @@ export default function AlertBroadcastPage() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     className={`p-4 rounded-xl border text-left cursor-default transition-all relative overflow-hidden group ${
-                      alert.severity === 'critical' ? 'bg-rose-500/5 border-rose-500/40 shadow-sm animate-pulse-subtle' :
-                      alert.severity === 'high' ? 'bg-orange-500/5 border-orange-500/40 shadow-sm' :
-                      alert.severity === 'medium' ? 'bg-amber-500/5 border-amber-500/30' : 'bg-secondary/20 border-border/75'
+                      !alert.isActive
+                        ? 'bg-secondary/15 border-border/40 opacity-70'
+                        : alert.severity === 'critical' ? 'bg-rose-500/5 border-rose-500/40 shadow-sm animate-pulse-subtle' :
+                        alert.severity === 'high' ? 'bg-orange-500/5 border-orange-500/40 shadow-sm' :
+                        alert.severity === 'medium' ? 'bg-amber-500/5 border-amber-500/30' : 'bg-secondary/20 border-border/75'
                     }`}
                   >
                     {/* Left Accent Color bar */}
                     <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                      !alert.isActive ? 'bg-muted-foreground/30' :
                       alert.severity === 'critical' ? 'bg-rose-500' :
                       alert.severity === 'high' ? 'bg-orange-500' :
                       alert.severity === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
@@ -276,6 +345,7 @@ export default function AlertBroadcastPage() {
                     <div className="flex items-start justify-between gap-4 mb-2 pl-1.5">
                       <div className="flex items-center gap-2">
                         <span className={`text-[8px] font-extrabold px-1.5 py-0.25 rounded uppercase leading-normal ${
+                          !alert.isActive ? 'bg-secondary text-muted-foreground' :
                           alert.severity === 'critical' ? 'bg-rose-500/15 text-rose-500' :
                           alert.severity === 'high' ? 'bg-orange-500/15 text-orange-500' :
                           alert.severity === 'medium' ? 'bg-amber-500/15 text-amber-500' :
@@ -283,22 +353,50 @@ export default function AlertBroadcastPage() {
                         }`}>
                           {alert.severity}
                         </span>
+                        {!alert.isActive && (
+                          <span className="text-[8px] font-extrabold px-1.5 py-0.25 rounded uppercase bg-emerald-500/10 text-emerald-400">
+                            RESOLVED
+                          </span>
+                        )}
                         <h4 className="font-bold text-xs text-foreground tracking-tight">{alert.title}</h4>
                       </div>
                       
-                      {/* Action buttons (Dismiss / Resolve Alert) */}
-                      <button
-                        onClick={() => handleDeactivate(alert._id)}
-                        disabled={deactivatingId === alert._id}
-                        className="text-muted-foreground hover:text-rose-500 p-1 rounded-lg hover:bg-secondary border border-transparent hover:border-border/60 transition-all shrink-0"
-                        title="Dismiss / Resolve Alert"
-                      >
-                        {deactivatingId === alert._id ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        ) : (
-                          <Check className="w-3.5 h-3.5" />
+                      {/* Action buttons (Edit / Resolve Alert) */}
+                      <div className="flex gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingAlertId(alert._id);
+                            setFormData({
+                              title: alert.title,
+                              message: alert.message,
+                              type: alert.type as any,
+                              severity: alert.severity as any,
+                              radius: alert.location?.radius || 10
+                            });
+                            toast.info(`Editing alert: ${alert.title}`);
+                          }}
+                          className="text-muted-foreground hover:text-primary p-1 rounded-lg hover:bg-secondary border border-transparent hover:border-border/60 transition-all"
+                          title="Edit Broadcast"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        {alert.isActive && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeactivate(alert._id)}
+                            disabled={deactivatingId === alert._id}
+                            className="text-muted-foreground hover:text-rose-500 p-1 rounded-lg hover:bg-secondary border border-transparent hover:border-border/60 transition-all"
+                            title="Dismiss / Resolve Alert"
+                          >
+                            {deactivatingId === alert._id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Check className="w-3.5 h-3.5" />
+                            )}
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </div>
 
                     <p className="text-xs text-muted-foreground leading-relaxed mb-3.5 pl-1.5 font-medium">{alert.message}</p>
@@ -317,10 +415,12 @@ export default function AlertBroadcastPage() {
                 ))}
               </AnimatePresence>
               
-              {activeAlerts?.length === 0 && (
+              {alertsToDisplay?.length === 0 && (
                 <div className="text-center py-16 border-2 border-dashed border-border/60 rounded-2xl opacity-40 bg-secondary/10 flex flex-col items-center justify-center">
                   <Globe className="w-8 h-8 mx-auto mb-3 text-muted-foreground/50 animate-pulse" />
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">No active network broadcasts</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {showAllAlerts ? "No broadcasts found" : "No active network broadcasts"}
+                  </p>
                 </div>
               )}
             </div>
@@ -328,5 +428,6 @@ export default function AlertBroadcastPage() {
         </div>
       </div>
     </ProtectedRoute>
+
   );
 }

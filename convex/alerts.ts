@@ -81,3 +81,61 @@ export const deactivateAlert = mutationWithAuth({
     return { success: true };
   },
 });
+
+// Update an existing alert
+export const updateAlert = mutationWithAuth({
+  args: {
+    alertId: v.id("alerts"),
+    title: v.string(),
+    message: v.string(),
+    type: v.union(v.literal("health_alert"), v.literal("weather_warning"), v.literal("water_quality"), v.literal("outbreak")),
+    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
+    radius: v.optional(v.number()),
+  },
+  handler: async (ctx: any, args: any) => {
+    const { userId, alertId, title, message, type, severity, radius } = args;
+    
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
+      throw new Error("Unauthorized to edit alerts");
+    }
+
+    const existingAlert = await ctx.db.get(alertId);
+    if (!existingAlert) {
+      throw new Error("Alert not found");
+    }
+
+    await ctx.db.patch(alertId, {
+      title,
+      message,
+      type,
+      severity,
+      location: radius ? {
+        latitude: 20.5937,
+        longitude: 78.9629,
+        radius: radius
+      } : undefined
+    });
+
+    // AUDIT LOG
+    await ctx.db.insert("auditLogs", {
+      userId,
+      targetId: alertId,
+      action: "ALERT_UPDATE",
+      details: `${user.name} updated alert: ${title} (${severity})`,
+      timestamp: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+export const getAllAlerts = query({
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("alerts")
+      .order("desc")
+      .collect();
+  },
+});
+

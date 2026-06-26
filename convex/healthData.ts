@@ -84,3 +84,96 @@ export const getRecentHealthData = queryWithAuth({
       .take(100);
   },
 });
+
+// Update an existing health data record
+export const updateHealthData = mutationWithAuth({
+  args: {
+    id: v.id("healthData"),
+    type: v.optional(v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test"))),
+    data: v.any(),
+    severity: v.optional(v.number()),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx: any, args: any) => {
+    const { userId, id, type, data, severity, notes } = args;
+    
+    const record = await ctx.db.get(id);
+    if (!record) {
+      throw new Error("Record not found");
+    }
+
+    const currentUser = await ctx.db.get(userId);
+    const isAdmin = currentUser && (currentUser.role === ROLES.SUPER_ADMIN || currentUser.role === ROLES.ADMIN);
+    
+    if (record.userId !== userId && !isAdmin) {
+      throw new Error("Unauthorized: You cannot edit another user's health records");
+    }
+
+    const updates: any = {};
+    if (type !== undefined) updates.type = type;
+    if (data !== undefined) updates.data = data;
+    if (severity !== undefined) updates.severity = severity;
+    if (notes !== undefined) updates.notes = notes;
+    updates.timestamp = Date.now();
+
+    await ctx.db.patch(id, updates);
+
+    // AUDIT LOG
+    await ctx.db.insert("auditLogs", {
+      userId,
+      targetId: id,
+      action: "HEALTH_RECORD_UPDATE",
+      details: `${currentUser?.name || "User"} (${currentUser?.role || "unknown"}) updated health record of type ${record.type}`,
+      timestamp: Date.now(),
+    });
+
+    return id;
+  },
+});
+
+// Get all health data (for admins) or user's own health data (for standard users)
+export const getAllHealthData = queryWithAuth({
+  args: {
+    type: v.optional(v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test"))),
+  },
+  handler: async (ctx: any, args: any) => {
+    const { userId } = args;
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser) {
+      throw new Error("User not found");
+    }
+
+    const isAdmin = currentUser.role === ROLES.SUPER_ADMIN || currentUser.role === ROLES.ADMIN;
+    
+    let query;
+    if (isAdmin) {
+      // Admins get all records
+      query = ctx.db.query("healthData");
+    } else {
+      // Regular users get only their own
+      query = ctx.db.query("healthData")
+        .withIndex("by_user", (q: any) => q.eq("userId", userId));
+    }
+
+    if (args.type) {
+      query = query.filter((q: any) => q.eq(q.field("type"), args.type));
+    }
+
+    const records = await query.order("desc").collect();
+    
+    // Resolve user details
+    const recordsWithUser = [];
+    for (const record of records) {
+      const userDoc = await ctx.db.get(record.userId);
+      recordsWithUser.push({
+        ...record,
+        userName: userDoc ? userDoc.name : "Unknown User",
+        userEmail: userDoc ? userDoc.email : "",
+      });
+    }
+    
+    return recordsWithUser;
+  },
+});
+
+
