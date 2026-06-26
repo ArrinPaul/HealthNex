@@ -26,14 +26,33 @@ export default function HistoricalTrends() {
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={historicalData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="pH" stroke="#3b82f6" strokeWidth={2} name="pH Level" />
-              <Line type="monotone" dataKey="turbidity" stroke="#f59e0b" strokeWidth={2} name="Turbidity (NTU)" />
-              <Line type="monotone" dataKey="temp" stroke="#10b981" strokeWidth={2} name="Temperature (°C)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#475569" strokeOpacity={0.2} />
+              <XAxis 
+                dataKey="month" 
+                tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <YAxis 
+                tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+                  borderColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '0.75rem',
+                  fontSize: '10px',
+                  fontWeight: 'bold',
+                  textTransform: 'uppercase',
+                  color: '#fff'
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', color: '#94a3b8' }} />
+              <Line type="monotone" dataKey="pH" stroke="#3b82f6" strokeWidth={2} name="pH Level" dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="turbidity" stroke="#f59e0b" strokeWidth={2} name="Turbidity (NTU)" dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="temp" stroke="#10b981" strokeWidth={2} name="Temperature (°C)" dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

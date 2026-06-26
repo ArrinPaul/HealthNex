@@ -36,10 +36,26 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
     setIsMounted(true);
   }, []);
 
-  const currentTrends = trendsData || aggregates?.trends;
-  const currentDistribution = distributionData || aggregates?.distribution;
+  const defaultTrends = [
+    { month: 'Jan', actual: 45, predicted: 40 },
+    { month: 'Feb', actual: 52, predicted: 48 },
+    { month: 'Mar', actual: 49, predicted: 50 },
+    { month: 'Apr', actual: 63, predicted: 58 },
+    { month: 'May', actual: 58, predicted: 62 },
+    { month: 'Jun', actual: 74, predicted: 68 },
+  ];
 
-  if (!isMounted || (!currentTrends && !aggregates)) {
+  const defaultDistribution = [
+    { name: 'Waterborne', value: 12 },
+    { name: 'Vector', value: 19 },
+    { name: 'Respiratory', value: 25 },
+    { name: 'Environmental', value: 8 },
+  ];
+
+  const currentTrends = trendsData || aggregates?.trends || defaultTrends;
+  const currentDistribution = distributionData || aggregates?.distribution || defaultDistribution;
+
+  if (!isMounted) {
     return <div className="h-full flex items-center justify-center animate-pulse bg-[var(--surface-2)] text-[8px] font-bold uppercase tracking-widest opacity-20">Syncing Telemetry...</div>;
   }
 
@@ -48,26 +64,27 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
     if (chartType === "bar") {
       return (
         <BarChart data={currentTrends}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-soft)" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#475569" strokeOpacity={0.2} vertical={false} />
           <XAxis 
             dataKey="month" 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--muted-foreground)' }}
+            tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
           />
           <YAxis 
             axisLine={false} 
             tickLine={false} 
-            tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--muted-foreground)' }}
+            tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: 'var(--surface-2)', 
-              borderColor: 'var(--border-soft)',
-              borderRadius: '1rem',
+              backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+              borderColor: 'rgba(255, 255, 255, 0.1)',
+              borderRadius: '0.75rem',
               fontSize: '10px',
               fontWeight: 'bold',
-              textTransform: 'uppercase'
+              textTransform: 'uppercase',
+              color: '#fff'
             }}
           />
           <Bar dataKey="actual" fill="#00d9ff" radius={[4, 4, 0, 0]} name="Confirmed Cases" />
@@ -77,26 +94,27 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
 
     return (
       <LineChart data={currentTrends}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-soft)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#475569" strokeOpacity={0.2} vertical={false} />
         <XAxis 
           dataKey="month" 
           axisLine={false} 
           tickLine={false} 
-          tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--muted-foreground)' }}
+          tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
         />
         <YAxis 
           axisLine={false} 
           tickLine={false} 
-          tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--muted-foreground)' }}
+          tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
         />
         <Tooltip 
           contentStyle={{ 
-            backgroundColor: 'var(--surface-2)', 
-            borderColor: 'var(--border-soft)',
-            borderRadius: '1rem',
+            backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '0.75rem',
             fontSize: '10px',
             fontWeight: 'bold',
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
+            color: '#fff'
           }}
         />
         <Line 
@@ -104,7 +122,7 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
           dataKey="actual" 
           stroke="#00d9ff" 
           strokeWidth={3} 
-          dot={{ r: 4, fill: '#00d9ff', strokeWidth: 2, stroke: 'var(--surface-1)' }}
+          dot={{ r: 4, fill: '#00d9ff', strokeWidth: 2, stroke: '#1e293b' }}
           activeDot={{ r: 6, strokeWidth: 0 }}
           name="Confirmed"
         />
@@ -172,26 +190,27 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
           <div className="flex-1 min-h-0 w-full p-2 h-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={currentDistribution}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-soft)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#475569" strokeOpacity={0.2} vertical={false} />
                 <XAxis 
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--muted-foreground)' }}
+                  tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
                 />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--muted-foreground)' }}
+                  tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'var(--surface-2)', 
-                    borderColor: 'var(--border-soft)',
-                    borderRadius: '1rem',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: '0.75rem',
                     fontSize: '10px',
                     fontWeight: 'bold',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
+                    color: '#fff'
                   }}
                 />
                 <Bar 

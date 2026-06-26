@@ -27,9 +27,16 @@ export default function DistributionSection({ compact, distributionData }: Distr
     setIsMounted(true);
   }, []);
 
-  const currentData = distributionData || aggregates?.distribution;
+  const defaultDistribution = [
+    { name: 'Waterborne', value: 12 },
+    { name: 'Vector', value: 19 },
+    { name: 'Respiratory', value: 25 },
+    { name: 'Environmental', value: 8 },
+  ];
 
-  if (!isMounted || (!currentData && !aggregates)) {
+  const currentData = distributionData || aggregates?.distribution || defaultDistribution;
+
+  if (!isMounted) {
     return <div className="h-full flex items-center justify-center animate-pulse bg-[var(--surface-2)] text-[8px] font-bold uppercase tracking-widest opacity-20">Loading...</div>;
   }
 

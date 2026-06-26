@@ -28,8 +28,8 @@ export const getDashboardAggregates = queryWithAuth({
     const { userId } = args;
 
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
-      throw new Error("Unauthorized: Only admins and health workers can view dashboard aggregates");
+    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.COMMUNITY_USER)) {
+      throw new Error("Unauthorized: Only admins, health workers and community users can view dashboard aggregates");
     }
 
     const outbreaks = await ctx.db.query("diseaseOutbreaks").take(500);

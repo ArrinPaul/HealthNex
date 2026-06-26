@@ -180,7 +180,7 @@ const supportedLanguages: Language[] = [
   }
 ];
 
-const LanguageSelector: React.FC = () => {
+const LanguageSelector: React.FC<{ compact?: boolean }> = ({ compact }) => {
   // const { i18n, t } = useTranslation(); // Removed for SSR compatibility
   const t = (key: string) => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   
@@ -313,18 +313,29 @@ const LanguageSelector: React.FC = () => {
     <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-2 min-w-[120px]"
-          >
-            <Globe className="w-4 h-4" />
-            <span className="text-lg">{currentLang.flag}</span>
-            <span className="text-sm font-medium">{currentLang.code.toUpperCase()}</span>
-            {voiceSettings.enabled && getVoiceSupport(currentLanguage) && (
-              <Volume2 className="w-3 h-3 text-emerald-400" />
-            )}
-          </Button>
+          {compact ? (
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-secondary/50 border border-border/80 hover:bg-secondary hover:text-foreground transition-all"
+              title={currentLang.name}
+            >
+              <span className="text-base">{currentLang.flag}</span>
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-2 min-w-[120px]"
+            >
+              <Globe className="w-4 h-4" />
+              <span className="text-lg">{currentLang.flag}</span>
+              <span className="text-sm font-medium">{currentLang.code.toUpperCase()}</span>
+              {voiceSettings.enabled && getVoiceSupport(currentLanguage) && (
+                <Volume2 className="w-3 h-3 text-emerald-400" />
+              )}
+            </Button>
+          )}
         </DropdownMenuTrigger>
         
         <DropdownMenuContent className="w-80 max-h-96 overflow-y-auto">
