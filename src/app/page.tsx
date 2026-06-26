@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { 
   Activity, Users, ArrowRight, CheckCircle2, 
   Brain, Zap, ChevronDown, ChevronRight, ShieldCheck, 
-  Waves, BarChart3, Globe2
+  Waves, BarChart3, Globe2, LayoutGrid, Lock, Droplet,
+  TrendingUp, AlertTriangle, Map as MapIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -46,88 +47,246 @@ const FeatureCard = ({ title, desc, icon: Icon, color, delay }: any) => (
   </motion.div>
 );
 
-const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6 }}
-    className="mt-16 md:mt-24 max-w-5xl mx-auto bg-card rounded-3xl shadow-2xl border border-border overflow-hidden"
-  >
-    <div className="bg-secondary/80 h-12 border-b border-border flex items-center px-6 justify-between shrink-0">
-      <div className="flex gap-2">
-        <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
-        <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-        <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
+const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
+  const [mockOutbreaks, setMockOutbreaks] = useState([
+    { id: "mock-1", location: "Guwahati", disease: "Cholera", cases: 45, severity: "critical", x: 100, y: 110 },
+    { id: "mock-2", location: "Jorhat", disease: "Dengue", cases: 23, severity: "medium", x: 260, y: 95 },
+    { id: "mock-3", location: "Dibrugarh", disease: "COVID", cases: 12, severity: "low", x: 350, y: 80 },
+    { id: "mock-4", location: "Shillong", disease: "Flu", cases: 34, severity: "high", x: 120, y: 180 },
+    { id: "mock-5", location: "Tezpur", disease: "Malaria", cases: 18, severity: "medium", x: 190, y: 100 }
+  ]);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const handleResolve = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMockOutbreaks(prev => prev.filter(o => o.id !== id));
+    if (selectedId === id) setSelectedId(null);
+  };
+
+  // Calculate dynamic stats for mockup
+  const totalCases = mockOutbreaks.reduce((sum, o) => sum + o.cases, 0);
+  const activeAlerts = mockOutbreaks.filter(o => o.severity === "critical" || o.severity === "high").length;
+  const anomalies = mockOutbreaks.filter(o => o.severity === "critical").length;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      className="mt-16 md:mt-24 max-w-6xl mx-auto bg-card border border-border rounded-3xl shadow-2xl overflow-hidden relative text-left flex flex-col h-[520px]"
+    >
+      {/* Top Header Mockup */}
+      <div className="bg-secondary/90 h-12 border-b border-border flex items-center px-6 justify-between shrink-0">
+        <div className="flex gap-2">
+          <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
+          <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+          <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
+        </div>
+        <div className="text-xs font-mono text-muted-foreground flex items-center gap-1.5">
+          <Lock className="w-3.5 h-3.5 text-muted-foreground/60" /> healthnex.io/dashboard
+        </div>
+        <div className="w-10" />
       </div>
-      <div className="text-xs font-mono text-muted-foreground">healthnex.io/dashboard</div>
-      <div className="w-10" />
-    </div>
 
-    <div className="p-8 lg:p-10">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h4 className="text-xl font-bold tracking-tight">Dashboard</h4>
-          <div className="flex items-center gap-2 text-xs text-emerald-500 font-medium mt-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live
+      {/* Main Mockup Body (Sidebar + Content Pane) */}
+      <div className="flex-1 flex min-h-0">
+        {/* Mock Sidebar */}
+        <aside className="w-14 md:w-52 border-r border-border/80 bg-secondary/20 flex flex-col justify-between p-3 shrink-0">
+          <div className="space-y-6">
+            <div className="px-2 pt-2 flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shrink-0">H</div>
+              <span className="font-extrabold text-xs tracking-tight hidden md:inline-block">HEALTHNEX</span>
+            </div>
+            
+            <nav className="space-y-1.5 text-xs font-semibold">
+              <div className="flex items-center gap-3 p-2 bg-primary/10 text-primary rounded-xl border border-primary/15 cursor-pointer">
+                <LayoutGrid className="w-4 h-4 shrink-0" />
+                <span className="hidden md:inline-block">Dashboard</span>
+              </div>
+              <div className="flex items-center gap-3 p-2 text-muted-foreground hover:bg-secondary/60 rounded-xl cursor-pointer">
+                <Activity className="w-4 h-4 shrink-0" />
+                <span className="hidden md:inline-block">Surveillance</span>
+              </div>
+              <div className="flex items-center gap-3 p-2 text-muted-foreground hover:bg-secondary/60 rounded-xl cursor-pointer">
+                <Brain className="w-4 h-4 shrink-0" />
+                <span className="hidden md:inline-block">Neural Insights</span>
+              </div>
+              <div className="flex items-center gap-3 p-2 text-muted-foreground hover:bg-secondary/60 rounded-xl cursor-pointer">
+                <Globe2 className="w-4 h-4 shrink-0" />
+                <span className="hidden md:inline-block">Global Trust</span>
+              </div>
+            </nav>
           </div>
-        </div>
-      </div>
 
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
-        <div className="p-6 rounded-2xl bg-secondary border border-border">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-              <Users className="w-5 h-5" />
-            </div>
-            <div className="text-right">
-              <div className="text-xl font-bold">{stats?.activeUsers?.toLocaleString() ?? '1,247'}</div>
-              <div className="text-xs text-muted-foreground">Active Users</div>
+          <div className="p-1 border-t border-border/55 pt-3 flex items-center gap-2">
+            <div className="w-6 h-6 rounded-md bg-violet-500/25 text-violet-500 flex items-center justify-center text-xs font-bold shrink-0">A</div>
+            <div className="hidden md:block truncate">
+              <p className="text-[10px] font-bold leading-tight">Admin Demo</p>
+              <p className="text-[8px] text-muted-foreground leading-tight uppercase font-extrabold">Public Scope</p>
             </div>
           </div>
-          <div className="h-12 flex items-end gap-1">
-            {[40, 60, 45, 80, 50, 95, 70, 85].map((h, i) => (
-              <div key={i} className="flex-1 bg-primary/20 rounded-t" style={{ height: `${h}%` }} />
-            ))}
-          </div>
-        </div>
+        </aside>
 
-        <div className="p-6 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <span className="text-xs font-medium opacity-80">Verified</span>
-          </div>
-          <h5 className="text-xl font-bold">Secure & Private</h5>
-          <p className="text-xs opacity-80 mt-1">End-to-end encryption</p>
-        </div>
-
-        <div className="p-6 rounded-2xl bg-secondary border border-border">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
-              <Brain className="w-5 h-5" />
-            </div>
+        {/* Mock Content Area */}
+        <div className="flex-1 flex flex-col p-5 md:p-6 overflow-y-auto space-y-5">
+          {/* Dashboard Header Mock */}
+          <div className="flex justify-between items-end border-b border-border/45 pb-3 shrink-0">
             <div>
-              <div className="text-lg font-bold">{stats?.dataNodes?.toLocaleString() ?? '312'}</div>
-              <div className="text-xs text-muted-foreground">Data Nodes</div>
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-[9px] text-emerald-500 font-extrabold tracking-wider uppercase">Live Feed</span>
+              </div>
+              <h4 className="text-lg font-black text-foreground">Health Surveillance Cockpit</h4>
+            </div>
+            
+            <div className="text-[9px] font-mono text-muted-foreground px-2 py-0.5 border border-border/60 bg-secondary/40 rounded-lg">
+              SYSTEM_SCOPE://PUBLIC
             </div>
           </div>
-          <div className="space-y-3">
-            {[0.7, 0.4].map((p, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-violet-500/60 rounded-full" style={{ width: `${p * 100}%` }} />
+
+          {/* Stats Cards (Grid 4) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0 text-xs">
+            {[
+              { label: "Active Cases", val: totalCases, icon: Activity, color: "text-cyan-400" },
+              { label: "Active Alerts", val: activeAlerts, icon: Droplet, color: "text-amber-400" },
+              { label: "Anomalies", val: anomalies, icon: TrendingUp, color: "text-violet-400" },
+              { label: "System Nodes", val: mockOutbreaks.length + 12, icon: AlertTriangle, color: "text-emerald-400" }
+            ].map((card, i) => (
+              <div key={i} className="p-3 bg-secondary/35 border border-border/70 rounded-xl flex items-center justify-between shadow-sm">
+                <div>
+                  <div className="text-[9px] font-semibold text-muted-foreground uppercase">{card.label}</div>
+                  <div className="text-base font-black text-foreground mt-0.5">{card.val}</div>
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-secondary border border-border/40 flex items-center justify-center shrink-0">
+                  <card.icon className={`w-4 h-4 ${card.color}`} />
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Map & List Grid (Layout 8:4) */}
+          <div className="grid md:grid-cols-12 gap-4 flex-1 min-h-[220px]">
+            {/* Mock Map panel */}
+            <div className="md:col-span-8 bg-card border border-border rounded-2xl overflow-hidden flex flex-col shadow-sm relative h-full">
+              <div className="p-3 border-b border-border/60 flex items-center justify-between shrink-0 bg-secondary/30 text-[10px] font-bold text-foreground">
+                <span className="flex items-center gap-1.5"><MapIcon className="w-3.5 h-3.5 text-primary" /> Spatial Hazard Map</span>
+                <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider">Assam / Shillong Region</span>
+              </div>
+              <div className="flex-1 relative bg-secondary/10 overflow-hidden">
+                {/* SVG mock map */}
+                <svg className="w-full h-full min-h-[170px]" viewBox="0 0 400 220">
+                  {/* Brahmaputra river pathway */}
+                  <path d="M 0,90 Q 110,110 200,80 T 400,100" fill="none" stroke="#00d9ff" strokeWidth="4" opacity="0.25" />
+                  {/* Road network grids */}
+                  <path d="M 80,0 L 90,220 M 230,0 L 210,220 M 0,50 L 400,65 M 0,160 L 400,130" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.06" />
+                  
+                  {/* Render pulsing nodes */}
+                  {mockOutbreaks.map((hotspot) => {
+                    const color = hotspot.severity === 'critical' ? '#ef4444' : hotspot.severity === 'high' ? '#f59e0b' : '#10b981';
+                    const isSelected = selectedId === hotspot.id;
+
+                    return (
+                      <g 
+                        key={hotspot.id} 
+                        className="cursor-pointer" 
+                        onClick={() => setSelectedId(hotspot.id)}
+                      >
+                        <circle 
+                          cx={hotspot.x} 
+                          cy={hotspot.y} 
+                          r={8 + hotspot.cases / 8} 
+                          fill={color} 
+                          opacity={isSelected ? "0.25" : "0.12"} 
+                          className="animate-ping" 
+                          style={{ transformOrigin: `${hotspot.x}px ${hotspot.y}px`, animationDuration: isSelected ? '1.5s' : '3s' }} 
+                        />
+                        <circle 
+                          cx={hotspot.x} 
+                          cy={hotspot.y} 
+                          r={4 + hotspot.cases / 14} 
+                          fill={color} 
+                          stroke={isSelected ? "#ffffff" : "transparent"} 
+                          strokeWidth="2" 
+                          className="transition-all duration-300"
+                        />
+                        <text 
+                          x={hotspot.x} 
+                          y={hotspot.y - 12} 
+                          fontSize="8" 
+                          fontWeight="bold" 
+                          textAnchor="middle" 
+                          fill="currentColor" 
+                          opacity={isSelected ? 1 : 0.75}
+                        >
+                          {hotspot.location}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+              </div>
+            </div>
+
+            {/* Mock Incident Directory List */}
+            <div className="md:col-span-4 bg-card border border-border rounded-2xl p-4 flex flex-col shadow-sm h-full max-h-[240px]">
+              <div className="text-[10px] font-bold text-foreground uppercase border-b border-border/40 pb-2 mb-2 flex justify-between items-center">
+                <span>Incident Directory</span>
+                <span className="text-[8px] font-mono text-muted-foreground">{mockOutbreaks.length} active</span>
+              </div>
+              
+              <div className="space-y-2 overflow-y-auto flex-1 pr-1 text-[11px] scrollbar-thin">
+                {mockOutbreaks.length === 0 ? (
+                  <div className="text-center text-muted-foreground/60 italic py-6">All outbreaks resolved!</div>
+                ) : (
+                  mockOutbreaks.map((hotspot) => {
+                    const isSelected = selectedId === hotspot.id;
+
+                    return (
+                      <div 
+                        key={hotspot.id}
+                        onClick={() => setSelectedId(hotspot.id)}
+                        className={`p-2 rounded-lg border text-left cursor-pointer transition-all ${
+                          isSelected 
+                            ? "border-primary bg-primary/5" 
+                            : "border-border/50 bg-secondary/10 hover:bg-secondary/40"
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-bold text-foreground leading-none">{hotspot.location}</span>
+                          <span className={`text-[7.5px] font-extrabold px-1.5 py-0.5 rounded uppercase leading-none ${
+                            hotspot.severity === 'critical' ? 'bg-red-500/15 text-red-500' :
+                            hotspot.severity === 'high' ? 'bg-amber-500/15 text-amber-500' :
+                            'bg-emerald-500/15 text-emerald-500'
+                          }`}>
+                            {hotspot.severity}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                          <span>{hotspot.disease} ({hotspot.cases} cases)</span>
+                          <button
+                            onClick={(e) => handleResolve(hotspot.id, e)}
+                            className="px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500 text-emerald-500 hover:text-white font-extrabold transition-all border border-emerald-500/20 text-[8px]"
+                          >
+                            Resolve
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 const ModuleShowcase = () => {
   const [active, setActive] = useState(0);

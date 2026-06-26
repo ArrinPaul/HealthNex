@@ -11,7 +11,8 @@ import DistributionSection from '@/components/dashboard/DistributionSection';
 import { 
   Globe, Map as MapIcon, Zap, LayoutGrid, Bell, 
   Activity, ArrowRight, ShieldCheck, Download, Plus, Filter,
-  RefreshCw, Radio, FileText, CheckCircle2, AlertOctagon, Terminal as TerminalIcon, Send, Eye, X, Check, ShieldAlert
+  RefreshCw, Radio, FileText, CheckCircle2, AlertOctagon, Terminal as TerminalIcon, Send, Eye, X, Check, ShieldAlert,
+  Mic, Volume2, Sliders, CheckSquare, Trash2, Flame, Play, Square, Settings, MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,21 +27,28 @@ export default function DashboardPage() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   
-  // Interactive States
-  const [selectedDiseaseFilter, setSelectedDiseaseFilter] = useState("all");
-  const [selectedHotspot, setSelectedHotspot] = useState<{ lat: number; lng: number } | null>(null);
-  
   // State for all active outbreaks (merged Convex + static default + custom overrides)
   const [outbreaks, setOutbreaks] = useState<any[]>([]);
   const [escalatedList, setEscalatedList] = useState<string[]>([]);
   
-  const [terminalInput, setTerminalInput] = useState("");
-  const [terminalLogs, setTerminalLogs] = useState<string[]>([
-    "HEALTHNEX COGNITIVE THREAT ENGINE v1.1.2",
-    "Type 'help' to see active directives.",
-    "Ready for telemetry directives..."
-  ]);
+  // Interactive Panel States
+  const [selectedDiseaseFilter, setSelectedDiseaseFilter] = useState("all");
+  const [selectedSeverityFilter, setSelectedSeverityFilter] = useState("all");
+  const [selectedHotspot, setSelectedHotspot] = useState<{ lat: number; lng: number } | null>(null);
+  const [inspectedNodeId, setInspectedNodeId] = useState<string | null>(null);
+  const [nodeLogs, setNodeLogs] = useState<Record<string, string[]>>({});
+  const [nodeLogInput, setNodeLogInput] = useState("");
+  
+  // HUD controls
+  const [acousticScanner, setAcousticScanner] = useState(true);
+  const [ocrScanner, setOcrScanner] = useState(true);
+  const [heatmapInterpolation, setHeatmapInterpolation] = useState(false);
+  
+  // Simulation and UI states
   const [isSimulateOpen, setIsSimulateOpen] = useState(false);
+  const [isMitigatingAll, setIsMitigatingAll] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  
   const [mockForm, setMockForm] = useState({
     disease: "Cholera",
     cases: 35,
@@ -49,6 +57,14 @@ export default function DashboardPage() {
     longitude: 91.5694,
     severity: "high"
   });
+
+  // Terminal Logs
+  const [terminalInput, setTerminalInput] = useState("");
+  const [terminalLogs, setTerminalLogs] = useState<string[]>([
+    "HEALTHNEX COGNITIVE SURVEILLANCE v1.2.0",
+    "Type 'help' to review console triggers.",
+    "Ready for telemetry directives..."
+  ]);
 
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const diseaseData = useDiseaseData();
@@ -92,8 +108,14 @@ export default function DashboardPage() {
 
   // Filters calculation
   const getFilteredOutbreaks = () => {
-    if (selectedDiseaseFilter === "all") return outbreaks;
-    return outbreaks.filter(h => h.disease.toLowerCase().includes(selectedDiseaseFilter.toLowerCase()));
+    let result = outbreaks;
+    if (selectedDiseaseFilter !== "all") {
+      result = result.filter(h => h.disease.toLowerCase().includes(selectedDiseaseFilter.toLowerCase()));
+    }
+    if (selectedSeverityFilter !== "all") {
+      result = result.filter(h => h.severity === selectedSeverityFilter);
+    }
+    return result;
   };
 
   const activeHotspots = getFilteredOutbreaks();
@@ -103,13 +125,18 @@ export default function DashboardPage() {
     const totalCases = outbreaks.reduce((sum, h) => sum + h.cases, 0);
     const activeAlerts = outbreaks.filter(h => h.severity === "critical" || h.severity === "high").length;
     const aiInsightsCount = outbreaks.filter(h => h.severity === "critical").length;
-    const totalNodes = outbreaks.length + 12; // 12 static default mock nodes
+    
+    // Nodes calculation accounts for active scanners toggled online
+    let baseNodesCount = outbreaks.length;
+    if (acousticScanner) baseNodesCount += 4;
+    if (ocrScanner) baseNodesCount += 4;
+    if (heatmapInterpolation) baseNodesCount += 5;
     
     return {
       totalCases,
       activeAlerts,
       aiInsightsCount,
-      totalNodes
+      totalNodes: baseNodesCount
     };
   };
 
@@ -144,20 +171,46 @@ export default function DashboardPage() {
     if (selectedHotspot && activeHotspots.find(h => h.id === id)) {
       setSelectedHotspot(null);
     }
+    if (inspectedNodeId === id) setInspectedNodeId(null);
   };
 
   const handleEscalateIncident = (id: string, location: string) => {
     if (escalatedList.includes(id)) {
-      // De-escalate
       setEscalatedList(prev => prev.filter(item => item !== id));
       toast.info(`Escalation caution flag removed for ${location}.`);
       setTerminalLogs(prev => [...prev, `[STATUS] De-escalated warnings for node: ${location}`]);
     } else {
-      // Escalate
       setEscalatedList(prev => [...prev, id]);
       toast.error(`[EMERGENCY] Escalating outbreak threats in ${location}! Alert broadcasted.`, { duration: 6000 });
       setTerminalLogs(prev => [...prev, `[ESCALATION] Emergency signals dispatched to district: ${location}`]);
     }
+  };
+
+  // Cascade resolve all active incidents
+  const handleMitigateAll = async () => {
+    if (outbreaks.length === 0) {
+      toast.info("No active incidents to mitigate.");
+      return;
+    }
+    setIsMitigatingAll(true);
+    setTerminalLogs(prev => [...prev, "[SHUTDOWN] Starting emergency containment protocols..."]);
+    
+    // Resolve one by one
+    const localOutbreaksCopy = [...outbreaks];
+    for (let i = 0; i < localOutbreaksCopy.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, 450));
+      const target = localOutbreaksCopy[i];
+      setOutbreaks(prev => prev.filter(o => o.id !== target.id));
+      setTerminalLogs(prev => [...prev, `[CONTAINED] Node cleared: ${target.location}`]);
+      toast.success(`Contained: ${target.location}`);
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 300));
+    setIsMitigatingAll(false);
+    setSelectedHotspot(null);
+    setInspectedNodeId(null);
+    toast.info("All regional disease parameters brought back to nominal levels.");
+    setTerminalLogs(prev => [...prev, "[SYSTEM] Threat levels nominal. 0 cases reported."]);
   };
 
   const simulateLiveEvent = () => {
@@ -195,6 +248,57 @@ export default function DashboardPage() {
     setTerminalLogs(prev => [...prev, `[SIM_ALERT] Ingested raw telemetry warning: ${cases} cases at ${targetCity.name}`]);
   };
 
+  // Node Comments Log system
+  const handleAddNodeLog = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inspectedNodeId || !nodeLogInput.trim()) return;
+
+    setNodeLogs(prev => {
+      const currentLogs = prev[inspectedNodeId] || [];
+      return {
+        ...prev,
+        [inspectedNodeId]: [...currentLogs, `[${new Date().toLocaleTimeString()}] ${nodeLogInput}`]
+      };
+    });
+
+    setTerminalLogs(prev => [...prev, `[LOG_RECORDED] Added comment to node ${inspectedNodeId}`]);
+    setNodeLogInput("");
+  };
+
+  // Audio speech synthesis simulation
+  const triggerAudioScanner = async () => {
+    setIsRecording(true);
+    setTerminalLogs(prev => [...prev, "[VOICE] Initializing acoustic recording sweep..."]);
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    const simulatedAudioInput = "High fever spike and respiratory coughs reported in Sualkuchi Sector 3 after drinking local canal water.";
+    setTerminalLogs(prev => [
+      ...prev, 
+      `[AUDIO_INGESTED] Raw speech: "${simulatedAudioInput}"`,
+      "[VOICE] Parsing speech parameters using Neural Parser..."
+    ]);
+
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    
+    // Inject parsed data
+    const parsedOutbreak = {
+      id: `voice-${Date.now()}`,
+      lat: 26.1738,
+      lng: 91.5694,
+      cases: 26,
+      location: "Sualkuchi",
+      disease: "Waterborne Cholera",
+      severity: "high",
+      timestamp: Date.now()
+    };
+    
+    setOutbreaks(prev => [parsedOutbreak, ...prev]);
+    setSelectedHotspot({ lat: 26.1738, lng: 91.5694 });
+    setIsRecording(false);
+    toast.success("Voice telemetry ingested! Outbreak parsed at Sualkuchi.");
+    setTerminalLogs(prev => [...prev, `[INGESTION] Plotted voice parsed node at lat: 26.17, lng: 91.56`]);
+  };
+
   const handleExportData = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
       userScope: user?.role,
@@ -225,7 +329,7 @@ export default function DashboardPage() {
     
     switch (primaryCmd) {
       case 'help':
-        response = "Directives Menu:\n - help : List commands\n - scan : Run diagnostic sweep on nodes\n - alert <msg> : Broadcast Sonner warning\n - clear : Wipe terminal logs\n - status : Show connection parameters\n - inject : Spawns simulated outbreak on map\n - resolve <city> : Solves outbreak at city name";
+        response = "Directives Menu:\n - help : List commands\n - scan : Run diagnostic sweep\n - alert <msg> : Broadcast Sonner warning\n - clear : Wipe logs\n - status : Show sync statistics\n - inject : Inject mock outbreak\n - resolve <city> : Solve outbreak by city\n - toggle <node> : Toggle scanner (acoustic/ocr/heatmap)";
         break;
       case 'scan':
         response = `Scan completed. Scanned ${outbreaks.length} active reporting nodes. Detections count:\n - Waterborne: ${outbreaks.filter(o => o.disease === 'Cholera').length}\n - Vector-borne: ${outbreaks.filter(o => o.disease === 'Dengue' || o.disease === 'Malaria').length}`;
@@ -235,7 +339,22 @@ export default function DashboardPage() {
         setTerminalInput("");
         return;
       case 'status':
-        response = `NODE_SOCKET://ONLINE\nCLOUD_LATENCY://18ms\nRECORDS_SYNCED://${outbreaks.length}\nCREDENTIAL_SCOPE://${user?.role?.toUpperCase()}`;
+        response = `NODE_SOCKET://ONLINE\nCLOUD_LATENCY://18ms\nRECORDS_SYNCED://${outbreaks.length}\nSCANNERS://Acoustic:${acousticScanner ? 'ON':'OFF'}|OCR:${ocrScanner ? 'ON':'OFF'}`;
+        break;
+      case 'toggle':
+        const targetScanner = args[1];
+        if (targetScanner === 'acoustic') {
+          setAcousticScanner(prev => !prev);
+          response = `Acoustic scanner node set to ${!acousticScanner ? 'ON' : 'OFF'}`;
+        } else if (targetScanner === 'ocr') {
+          setOcrScanner(prev => !prev);
+          response = `OCR scanner node set to ${!ocrScanner ? 'ON' : 'OFF'}`;
+        } else if (targetScanner === 'heatmap') {
+          setHeatmapInterpolation(prev => !prev);
+          response = `Heatmap interpolation mode set to ${!heatmapInterpolation ? 'ON' : 'OFF'}`;
+        } else {
+          response = "Usage: toggle [acoustic | ocr | heatmap]";
+        }
         break;
       case 'alert':
         const alertMsg = args.slice(1).join(" ");
@@ -292,7 +411,8 @@ export default function DashboardPage() {
     setTerminalLogs(prev => [...prev, `[INGESTION] Plotted mock incident coordinates at ${mockForm.location}`]);
   };
 
-  const availableCategories = ["all", "cholera", "dengue", "covid", "flu", "malaria"];
+  const activeCategories = ["all", "cholera", "dengue", "covid", "flu", "malaria"];
+  const inspectedNode = outbreaks.find(o => o.id === inspectedNodeId);
 
   return (
     <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker', 'community-user']}>
@@ -331,6 +451,16 @@ export default function DashboardPage() {
             </Button>
 
             <Button
+              onClick={handleMitigateAll}
+              disabled={isMitigatingAll || outbreaks.length === 0}
+              variant="outline"
+              className="h-10 px-4 rounded-xl text-xs font-bold border-red-500/35 hover:bg-red-500/5 text-red-500 flex items-center gap-2 shadow-sm"
+            >
+              <Flame className="w-4 h-4 text-red-500" />
+              {isMitigatingAll ? "Resolving Nodes..." : "Mitigate All Active Threats"}
+            </Button>
+
+            <Button
               onClick={() => router.push('/surveillance')}
               variant="outline"
               className="h-10 px-4 rounded-xl text-xs font-bold border-border/80 hover:bg-secondary flex items-center gap-2"
@@ -358,15 +488,16 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Filters and Search toolbar */}
+        {/* Dynamic Filters and Search toolbar */}
         <div className="bg-secondary/45 border border-border/70 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 text-xs font-medium">
-          <div className="flex flex-wrap items-center gap-2 md:gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Filter Category */}
             <div className="flex items-center gap-2 bg-card p-1 rounded-xl border border-border/50 shadow-sm">
               <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider px-2 flex items-center gap-1.5">
-                <Filter className="w-3 h-3" /> Filter Category:
+                <Filter className="w-3 h-3" /> Category:
               </span>
               <div className="flex gap-1 flex-wrap">
-                {availableCategories.map(cat => (
+                {activeCategories.map(cat => (
                   <button
                     key={cat}
                     onClick={() => {
@@ -384,6 +515,31 @@ export default function DashboardPage() {
                 ))}
               </div>
             </div>
+
+            {/* Filter Severity */}
+            <div className="flex items-center gap-2 bg-card p-1 rounded-xl border border-border/50 shadow-sm">
+              <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider px-2 flex items-center gap-1.5">
+                <Sliders className="w-3 h-3" /> Severity:
+              </span>
+              <div className="flex gap-1 flex-wrap">
+                {["all", "critical", "high", "medium", "low"].map(sev => (
+                  <button
+                    key={sev}
+                    onClick={() => {
+                      setSelectedSeverityFilter(sev);
+                      setSelectedHotspot(null);
+                    }}
+                    className={`text-[10px] px-2.5 py-1 rounded-lg uppercase tracking-wide font-extrabold transition-all border ${
+                      selectedSeverityFilter === sev 
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm" 
+                        : "bg-secondary text-muted-foreground border-transparent hover:bg-muted"
+                    }`}
+                  >
+                    {sev}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 font-mono text-[10px] text-muted-foreground/80 bg-card px-3 py-1.5 rounded-xl border border-border/55">
@@ -397,7 +553,7 @@ export default function DashboardPage() {
           <StatsGrid statsData={getDynamicStats()} />
         </div>
 
-        {/* Main interactive layouts */}
+        {/* Main Content Layout (Map + Incident List / Detail Inspector) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Left Column (8 Cols): Map */}
@@ -438,95 +594,176 @@ export default function DashboardPage() {
             </motion.div>
           </div>
 
-          {/* Right Column (4 Cols): Interactive Incidents list */}
+          {/* Right Column (4 Cols): Directory or Detail Inspector */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-card border border-border rounded-2xl p-5 flex flex-col shadow-lg max-h-[480px]">
-               <div className="flex items-center gap-2 mb-4 border-b border-border/40 pb-3 justify-between">
-                 <div className="flex items-center gap-2">
-                   <Activity className="w-4.5 h-4.5 text-primary" />
-                   <h3 className="text-sm font-bold text-foreground">Incident Directory</h3>
-                 </div>
-                 <span className="text-[10px] font-mono text-muted-foreground uppercase">{activeHotspots.length} Nodes</span>
-               </div>
-               
-               <div className="space-y-2.5 overflow-y-auto flex-1 pr-1">
-                 {activeHotspots.length === 0 ? (
-                   <div className="text-center text-xs text-muted-foreground py-10 italic">
-                     No reporting incidents found for '{selectedDiseaseFilter}'
-                   </div>
-                 ) : (
-                   activeHotspots.map((hotspot, index) => {
-                     const isSelected = selectedHotspot?.lat === hotspot.lat && selectedHotspot?.lng === hotspot.lng;
-                     const isEscalated = escalatedList.includes(hotspot.id);
+            <AnimatePresence mode="wait">
+              {inspectedNodeId && inspectedNode ? (
+                /* IN-DEPTH NODE DETAILED INSPECTOR DRAW PANEL */
+                <motion.div 
+                  key="inspector"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="bg-card border border-border rounded-2xl p-5 flex flex-col shadow-lg max-h-[480px] h-[480px] text-left relative overflow-hidden"
+                >
+                  <button 
+                    onClick={() => setInspectedNodeId(null)}
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-4.5 h-4.5" />
+                  </button>
 
-                     return (
-                       <div 
-                         key={hotspot.id}
-                         onClick={() => setSelectedHotspot({ lat: hotspot.lat, lng: hotspot.lng })}
-                         className={`p-3.5 rounded-xl border text-left cursor-pointer transition-all relative overflow-hidden ${
-                           isEscalated 
-                             ? "bg-red-500/5 border-red-500/40 shadow-sm animate-pulse-subtle" 
-                             : isSelected
-                             ? "border-primary bg-primary/5 shadow-sm"
-                             : "border-border/60 bg-secondary/20 hover:bg-secondary/50 hover:border-border"
-                         }`}
-                       >
-                         {/* Visual alert outline if escalated */}
-                         {isEscalated && (
-                           <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500" />
-                         )}
+                  <div className="mb-4 pb-3 border-b border-border/40">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className={`text-[8px] font-extrabold px-2 py-0.5 rounded-full uppercase ${
+                        inspectedNode.severity === 'critical' ? 'bg-red-500/15 text-red-500' :
+                        inspectedNode.severity === 'high' ? 'bg-amber-500/15 text-amber-500' :
+                        'bg-emerald-500/15 text-emerald-500'
+                      }`}>
+                        {inspectedNode.severity} ALERT
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-black text-foreground">{inspectedNode.location} Node</h3>
+                  </div>
 
-                         <div className="flex justify-between items-start gap-2 mb-1.5">
-                           <span className="text-xs font-bold text-foreground">
-                             {hotspot.location}
-                           </span>
-                           <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase ${
-                             hotspot.severity === 'critical' ? 'bg-red-500/15 text-red-500' :
-                             hotspot.severity === 'high' ? 'bg-amber-500/15 text-amber-500' :
-                             'bg-emerald-500/15 text-emerald-500'
-                           }`}>
-                             {hotspot.severity}
-                           </span>
-                         </div>
-                         <div className="flex justify-between items-end text-xs text-muted-foreground">
-                           <span className="font-semibold">{hotspot.disease}</span>
-                           <span className="font-mono font-bold text-foreground">{hotspot.cases} cases</span>
-                         </div>
+                  <div className="space-y-3 flex-1 overflow-y-auto mb-4 scrollbar-thin text-xs">
+                    <div className="grid grid-cols-2 gap-2 bg-secondary/45 p-3 rounded-xl border border-border/55">
+                      <div>
+                        <span className="text-[10px] text-muted-foreground block font-bold">DISEASE</span>
+                        <span className="font-bold text-foreground">{inspectedNode.disease}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground block font-bold">CASES</span>
+                        <span className="font-bold text-foreground">{inspectedNode.cases} active</span>
+                      </div>
+                    </div>
 
-                         {/* Action Buttons inside Card */}
-                         <div className="mt-3 pt-2.5 border-t border-border/40 flex justify-end gap-2 text-[10px]">
-                           <button
-                             onClick={(e) => {
-                               e.stopPropagation();
-                               handleEscalateIncident(hotspot.id, hotspot.location);
-                             }}
-                             className={`px-2 py-1 rounded-md font-bold transition-all flex items-center gap-1 ${
-                               isEscalated 
-                                 ? "bg-red-500 text-white hover:bg-red-600" 
-                                 : "bg-secondary text-muted-foreground hover:text-foreground border border-border"
-                             }`}
-                           >
-                             <ShieldAlert className="w-3 h-3" />
-                             {isEscalated ? "Escalated" : "Escalate"}
-                           </button>
+                    {/* Node logs / timeline updates */}
+                    <div>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase block mb-1.5">Action Log Logbook</span>
+                      <div className="space-y-1.5 font-mono text-[9px] text-muted-foreground">
+                        {(nodeLogs[inspectedNode.id] || []).length === 0 ? (
+                          <div className="italic text-muted-foreground/60 py-2">No comments logged for this outbreak yet.</div>
+                        ) : (
+                          nodeLogs[inspectedNode.id].map((log, index) => (
+                            <div key={index} className="p-1.5 rounded bg-secondary/30 border border-border/40">
+                              {log}
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
 
-                           <button
-                             onClick={(e) => {
-                               e.stopPropagation();
-                               handleResolveIncident(hotspot.id, hotspot.location);
-                             }}
-                             className="px-2.5 py-1 rounded-md bg-emerald-500/15 hover:bg-emerald-500 text-emerald-500 hover:text-white font-bold transition-all flex items-center gap-1 border border-emerald-500/20"
-                           >
-                             <Check className="w-3 h-3" />
-                             Resolve
-                           </button>
-                         </div>
-                       </div>
-                     );
-                   })
-                 )}
-               </div>
-            </div>
+                  {/* Add Log / Action Form */}
+                  <form onSubmit={handleAddNodeLog} className="mt-auto pt-3 border-t border-border/40 space-y-2">
+                    <div className="flex gap-2">
+                      <input
+                        value={nodeLogInput}
+                        onChange={(e) => setNodeLogInput(e.target.value)}
+                        placeholder="Log new countermeasure..."
+                        className="flex-1 bg-secondary border border-border px-3 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary text-foreground placeholder:text-muted-foreground"
+                      />
+                      <Button type="submit" className="h-8 px-3 rounded-xl text-[10px] font-bold bg-primary text-primary-foreground shrink-0">
+                        Log
+                      </Button>
+                    </div>
+
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => handleResolveIncident(inspectedNode.id, inspectedNode.location)}
+                        className="flex-1 py-2 rounded-xl bg-emerald-500 text-white font-bold text-[10px] text-center hover:bg-emerald-600 transition-all"
+                      >
+                        Contain outbreak
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleEscalateIncident(inspectedNode.id, inspectedNode.location)}
+                        className="flex-1 py-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border font-bold text-[10px] text-center text-foreground transition-all"
+                      >
+                        {escalatedList.includes(inspectedNode.id) ? "De-escalate" : "Escalate Warnings"}
+                      </button>
+                    </div>
+                  </form>
+                </motion.div>
+              ) : (
+                /* INCIDENT DIRECTORY CARD LIST */
+                <motion.div 
+                  key="directory"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-card border border-border rounded-2xl p-5 flex flex-col shadow-lg max-h-[480px] h-[480px]"
+                >
+                  <div className="flex items-center gap-2 mb-4 border-b border-border/40 pb-3 justify-between">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-4.5 h-4.5 text-primary" />
+                      <h3 className="text-sm font-bold text-foreground">Incident Directory</h3>
+                    </div>
+                    <span className="text-[10px] font-mono text-muted-foreground uppercase">{activeHotspots.length} Nodes</span>
+                  </div>
+                  
+                  <div className="space-y-2.5 overflow-y-auto flex-1 pr-1 text-left scrollbar-thin">
+                    {activeHotspots.length === 0 ? (
+                      <div className="text-center text-xs text-muted-foreground py-10 italic">
+                        No active reports found matching filters.
+                      </div>
+                    ) : (
+                      activeHotspots.map((hotspot) => {
+                        const isSelected = selectedHotspot?.lat === hotspot.lat && selectedHotspot?.lng === hotspot.lng;
+                        const isEscalated = escalatedList.includes(hotspot.id);
+
+                        return (
+                          <div 
+                            key={hotspot.id}
+                            onClick={() => {
+                              setSelectedHotspot({ lat: hotspot.lat, lng: hotspot.lng });
+                              setInspectedNodeId(hotspot.id);
+                            }}
+                            className={`p-3 rounded-xl border text-left cursor-pointer transition-all relative overflow-hidden group/item ${
+                              isEscalated 
+                                ? "bg-red-500/5 border-red-500/40 shadow-sm animate-pulse-subtle" 
+                                : isSelected
+                                ? "border-primary bg-primary/5 shadow-sm"
+                                : "border-border/60 bg-secondary/20 hover:bg-secondary/50 hover:border-border"
+                            }`}
+                          >
+                            {isEscalated && (
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500" />
+                            )}
+
+                            <div className="flex justify-between items-start gap-2 mb-1">
+                              <span className="text-xs font-bold text-foreground">
+                                {hotspot.location}
+                              </span>
+                              <span className={`text-[8px] font-extrabold px-1.5 py-0.25 rounded uppercase leading-normal ${
+                                hotspot.severity === 'critical' ? 'bg-red-500/15 text-red-500' :
+                                hotspot.severity === 'high' ? 'bg-amber-500/15 text-amber-500' :
+                                'bg-emerald-500/15 text-emerald-500'
+                              }`}>
+                                {hotspot.severity}
+                              </span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                              <span>{hotspot.disease}</span>
+                              <span className="font-mono font-bold text-foreground">{hotspot.cases} cases</span>
+                            </div>
+
+                            {/* View Details hover trigger */}
+                            <div className="mt-2.5 pt-2 border-t border-border/30 flex justify-between items-center text-[9px] font-bold text-primary opacity-0 group-hover/item:opacity-100 transition-opacity">
+                              <span>Inspect Node Details</span>
+                              <Eye className="w-3.5 h-3.5 text-primary" />
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -539,14 +776,27 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Interactive Console Shell */}
+          {/* Interactive Console Shell (Includes Speech Trigger) */}
           <div className="lg:col-span-4 flex flex-col">
             <div className="bg-card border border-border rounded-2xl p-5 flex flex-col shadow-lg flex-1 min-h-[300px]">
               <div className="flex items-center justify-between mb-4 border-b border-border/40 pb-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                  <TerminalIcon className="w-4 h-4 text-primary" /> Telemetry Control Console
+                  <TerminalIcon className="w-4 h-4 text-primary" /> Cognitive Telemetry Terminal
                 </div>
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm" />
+                
+                {/* Speech Micro Sensor Simulation Trigger */}
+                <button
+                  onClick={triggerAudioScanner}
+                  disabled={isRecording}
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center border transition-all ${
+                    isRecording 
+                      ? "bg-red-500 border-red-500 text-white animate-pulse" 
+                      : "bg-secondary hover:bg-secondary/80 border-border text-muted-foreground hover:text-foreground"
+                  }`}
+                  title="Simulate Voice Report Ingestion"
+                >
+                  <Mic className="w-3.5 h-3.5" />
+                </button>
               </div>
               
               <div className="flex-1 bg-secondary/40 rounded-xl border border-border p-4 font-mono text-[10px] text-muted-foreground flex flex-col justify-between h-[160px]">
@@ -576,7 +826,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Global Distribution details */}
+        {/* Global Distribution details + Hardware Node Toggles */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg">
              <InstitutionalTrust />
@@ -592,31 +842,63 @@ export default function DashboardPage() {
              </div>
           </div>
 
-          <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col justify-between">
+          {/* Node Controllers (HUD switches) */}
+          <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col justify-between text-left">
             <div>
-              <div className="flex items-center gap-2.5 mb-3">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                <h4 className="font-bold text-sm text-foreground">Operational Protocol Checklist</h4>
+              <div className="flex items-center gap-2.5 mb-3 border-b border-border/40 pb-3 justify-between">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-4.5 h-4.5 text-primary" />
+                  <h4 className="font-bold text-sm text-foreground">Sensory Node Config</h4>
+                </div>
+                <span className="text-[9px] font-mono text-muted-foreground">HUD CONTROL</span>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Verify central server compliance flags and district health authority certificates periodically.
-              </p>
               
-              <div className="space-y-2 mt-4 text-xs font-semibold">
-                <div className="flex items-center gap-2 text-emerald-500">
-                  <CheckCircle2 className="w-4 h-4" /> Endpoint Encryption SSL
+              <div className="space-y-4 pt-2 text-xs font-semibold text-foreground">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2"><Volume2 className="w-4 h-4 text-cyan-400" /> Acoustic Scanning Node</span>
+                  <input
+                    type="checkbox"
+                    checked={acousticScanner}
+                    onChange={(e) => {
+                      setAcousticScanner(e.target.checked);
+                      toast.info(`Acoustic scanning node set to ${e.target.checked ? 'ONLINE' : 'OFFLINE'}`);
+                      setTerminalLogs(prev => [...prev, `[CONFIG] Acoustic scanning hardware is now ${e.target.checked ? 'ACTIVE' : 'DEACTIVATED'}`]);
+                    }}
+                    className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
+                  />
                 </div>
-                <div className="flex items-center gap-2 text-emerald-500">
-                  <CheckCircle2 className="w-4 h-4" /> Multi-Node Auth Signature
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2"><Eye className="w-4 h-4 text-violet-400" /> OCR Report Scan Node</span>
+                  <input
+                    type="checkbox"
+                    checked={ocrScanner}
+                    onChange={(e) => {
+                      setOcrScanner(e.target.checked);
+                      toast.info(`OCR scanner node set to ${e.target.checked ? 'ONLINE' : 'OFFLINE'}`);
+                      setTerminalLogs(prev => [...prev, `[CONFIG] Optical text reader node is now ${e.target.checked ? 'ONLINE' : 'DEACTIVATED'}`]);
+                    }}
+                    className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
+                  />
                 </div>
-                <div className="flex items-center gap-2 text-emerald-500">
-                  <CheckCircle2 className="w-4 h-4" /> Convex Sync Engine
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2"><Globe className="w-4 h-4 text-emerald-400" /> Heatmap Interpolation</span>
+                  <input
+                    type="checkbox"
+                    checked={heatmapInterpolation}
+                    onChange={(e) => {
+                      setHeatmapInterpolation(e.target.checked);
+                      toast.info(`Geospatial Heatmap Interpolation set to ${e.target.checked ? 'ENABLED' : 'DISABLED'}`);
+                      setTerminalLogs(prev => [...prev, `[CONFIG] Heatmap rendering algorithm set to ${e.target.checked ? 'INTERPOLATED' : 'DISCRETE'}`]);
+                    }}
+                    className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
+                  />
                 </div>
               </div>
             </div>
             
-            <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider pt-4 border-t border-border/40 mt-4">
-              Compliant ISO-901-Biotech
+            <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider pt-4 border-t border-border/40 mt-6 flex justify-between items-center font-mono">
+              <span>Telemetry Compliant</span>
+              <span>127.0.0.1</span>
             </div>
           </div>
         </div>
