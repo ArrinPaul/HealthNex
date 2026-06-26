@@ -6,6 +6,8 @@ import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import WaterSearch from '@/components/water/WaterSearch';
 import WaterResults from '@/components/water/WaterResults';
 import HistoricalTrends from '@/components/water/HistoricalTrends';
+import { motion } from 'framer-motion';
+import { Droplet, Activity } from 'lucide-react';
 
 export default function WaterQualityPage() {
   const { t } = useTranslation();
@@ -14,26 +16,57 @@ export default function WaterQualityPage() {
 
   return (
     <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">{t('waterQuality')}</h1>
-          <p className="text-muted-foreground mt-2">
-            Monitor water quality parameters using environmental data
-          </p>
+      <div className="flex flex-col gap-6 animate-in fade-in duration-500 relative">
+        {/* Ambient background */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+
+        {/* Page Header */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-border/40">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400/60 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+              </span>
+              <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Environmental Monitoring</span>
+            </div>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Water Quality</h1>
+            <p className="text-xs text-muted-foreground mt-1">Monitor water quality parameters using environmental data</p>
+          </div>
         </div>
 
-        {/* Search Logic */}
-        <WaterSearch 
-          onResults={setResults} 
-          loading={loading} 
-          setLoading={setLoading} 
-        />
+        {/* Search */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <WaterSearch 
+            onResults={setResults} 
+            loading={loading} 
+            setLoading={setLoading} 
+          />
+        </motion.div>
 
         {/* Dynamic Results */}
-        {results && <WaterResults results={results} />}
+        {results && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="flex flex-col gap-4"
+          >
+            <WaterResults results={results} />
+          </motion.div>
+        )}
 
         {/* Charts */}
-        <HistoricalTrends />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <HistoricalTrends />
+        </motion.div>
       </div>
     </ProtectedRoute>
   );

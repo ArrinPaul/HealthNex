@@ -67,16 +67,17 @@ export default function DistributionSection({ compact, distributionData }: Distr
             </Pie>
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'rgba(15, 23, 42, 0.95)', 
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: '#1a1a1a', 
+                border: '1px solid #333333',
                 borderRadius: '0.75rem',
                 fontSize: '10px',
                 fontWeight: 'bold',
                 textTransform: 'uppercase',
-                color: '#fff',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
+                color: '#e2e8f0',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                padding: '10px 14px'
               }}
-              itemStyle={{ color: '#fff' }}
+              itemStyle={{ color: '#e2e8f0' }}
             />
           </PieChart>
         </ResponsiveContainer>

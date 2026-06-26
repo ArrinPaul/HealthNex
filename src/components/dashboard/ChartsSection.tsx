@@ -63,66 +63,76 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
   const renderTrendChart = () => {
     if (chartType === "bar") {
       return (
-        <BarChart data={currentTrends}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#475569" strokeOpacity={0.2} vertical={false} />
+        <BarChart data={currentTrends} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#333333" strokeOpacity={0.6} vertical={false} />
           <XAxis 
             dataKey="month" 
-            axisLine={false} 
+            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
             tickLine={false} 
-            tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
+            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
           />
           <YAxis 
-            axisLine={false} 
+            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
             tickLine={false} 
-            tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
+            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: 'rgba(15, 23, 42, 0.95)', 
-              borderColor: 'rgba(255, 255, 255, 0.1)',
+              backgroundColor: '#1a1a1a', 
+              border: '1px solid #333333',
               borderRadius: '0.75rem',
-              fontSize: '10px',
+              fontSize: '11px',
               fontWeight: 'bold',
               textTransform: 'uppercase',
-              color: '#fff'
+              color: '#e2e8f0',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+              padding: '10px 14px'
             }}
+            itemStyle={{ color: '#e2e8f0' }}
+            labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
+            cursor={{ stroke: '#00d9ff', strokeWidth: 1, strokeDasharray: '4 4' }}
           />
-          <Bar dataKey="actual" fill="#00d9ff" radius={[4, 4, 0, 0]} name="Confirmed Cases" />
+          <Bar dataKey="actual" fill="#00d9ff" radius={[6, 6, 0, 0]} name="Confirmed Cases" />
         </BarChart>
       );
     }
 
     return (
-      <LineChart data={currentTrends}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#475569" strokeOpacity={0.2} vertical={false} />
-        <XAxis 
-          dataKey="month" 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
-        />
-        <YAxis 
-          axisLine={false} 
-          tickLine={false} 
-          tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
-        />
+        <LineChart data={currentTrends} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#333333" strokeOpacity={0.6} vertical={false} />
+          <XAxis 
+            dataKey="month" 
+            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
+            tickLine={false} 
+            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+          />
+          <YAxis 
+            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
+            tickLine={false} 
+            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+          />
         <Tooltip 
           contentStyle={{ 
-            backgroundColor: 'rgba(15, 23, 42, 0.95)', 
-            borderColor: 'rgba(255, 255, 255, 0.1)',
+            backgroundColor: '#1a1a1a', 
+            border: '1px solid #333333',
             borderRadius: '0.75rem',
-            fontSize: '10px',
+            fontSize: '11px',
             fontWeight: 'bold',
             textTransform: 'uppercase',
-            color: '#fff'
+            color: '#e2e8f0',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+            padding: '10px 14px'
           }}
+          itemStyle={{ color: '#e2e8f0' }}
+          labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
+          cursor={{ stroke: '#00d9ff', strokeWidth: 1, strokeDasharray: '4 4' }}
         />
         <Line 
           type="monotone" 
           dataKey="actual" 
           stroke="#00d9ff" 
           strokeWidth={3} 
-          dot={{ r: 4, fill: '#00d9ff', strokeWidth: 2, stroke: '#1e293b' }}
+          dot={{ r: 4, fill: '#00d9ff', strokeWidth: 2, stroke: '#0a0a0a' }}
           activeDot={{ r: 6, strokeWidth: 0 }}
           name="Confirmed"
         />
@@ -140,7 +150,7 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
   };
 
   const ChartContent = (
-    <div className="flex-1 min-h-0 w-full p-2 h-full">
+    <div className="flex-1 min-h-0 w-full p-2 h-full bg-secondary/20 rounded-xl">
       <ResponsiveContainer width="100%" height="100%">
         {renderTrendChart()}
       </ResponsiveContainer>
@@ -187,31 +197,35 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
           <CardTitle className="text-sm font-bold text-foreground">{t('waterQualityTrend', 'Regional Hazard Categories')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[300px] p-4">
-          <div className="flex-1 min-h-0 w-full p-2 h-full">
+          <div className="flex-1 min-h-0 w-full p-2 h-full bg-secondary/20 rounded-xl">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={currentDistribution}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#475569" strokeOpacity={0.2} vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#333333" strokeOpacity={0.6} vertical={false} />
                 <XAxis 
                   dataKey="name" 
-                  axisLine={false} 
+                  axisLine={{ stroke: '#333333', strokeWidth: 1 }}
                   tickLine={false} 
-                  tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
                 />
                 <YAxis 
-                  axisLine={false} 
+                  axisLine={{ stroke: '#333333', strokeWidth: 1 }}
                   tickLine={false} 
-                  tick={{ fontSize: 10, fontWeight: 'bold', fill: '#94a3b8' }}
+                  tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
                 />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: 'rgba(15, 23, 42, 0.95)', 
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    backgroundColor: '#1a1a1a', 
+                    border: '1px solid #333333',
                     borderRadius: '0.75rem',
-                    fontSize: '10px',
+                    fontSize: '11px',
                     fontWeight: 'bold',
                     textTransform: 'uppercase',
-                    color: '#fff'
+                    color: '#e2e8f0',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                    padding: '10px 14px'
                   }}
+                  itemStyle={{ color: '#e2e8f0' }}
+                  labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
                 />
                 <Bar 
                   dataKey="value" 

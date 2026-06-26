@@ -675,78 +675,128 @@ export default function DashboardPage() {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-violet-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
         
         {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-4 border-b border-border/40">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-xs text-emerald-500 font-bold uppercase tracking-wider">LIVE TELEMETRY NODE ACTIVE</span>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-card to-primary/5 border border-border/50 p-6 lg:p-8">
+          {/* Decorative background elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/8 rounded-full blur-[80px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/8 rounded-full blur-[60px] pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-primary/3 to-transparent rounded-full blur-[100px] pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2">
+              {/* Live Status Badge */}
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span className="text-[11px] text-emerald-500 font-bold uppercase tracking-wider">Live Telemetry Active</span>
+                <span className="text-[9px] text-emerald-400/70 font-mono">NODE://ONLINE</span>
+              </motion.div>
+              
+              {/* Main Title */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-foreground">
+                  Command{' '}
+                  <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+                    Dashboard
+                  </span>
+                </h1>
+                <p className="text-sm text-muted-foreground mt-2 max-w-lg">
+                  Global health surveillance audit command system — Monitor, analyze, and respond to disease outbreaks across India in real-time.
+                </p>
+              </motion.div>
+              
+              {/* Quick Stats Row */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex flex-wrap items-center gap-4 pt-2"
+              >
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span className="font-semibold">{outbreaks.length}</span> Active Nodes
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  <span className="font-semibold">{outbreaks.filter(h => h.severity === 'critical' || h.severity === 'high').length}</span> Critical Alerts
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="font-semibold">24/7</span> Surveillance
+                </div>
+              </motion.div>
             </div>
             
-            <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
-              Dashboard
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              Global health surveillance audit command system
-            </p>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-3">
-            <Button
-              onClick={handleSeedIDSP}
-              variant="outline"
-              className="h-10 px-4 rounded-xl text-xs font-bold border-emerald-500/30 hover:bg-emerald-500/5 text-emerald-400 flex items-center gap-2 shadow-sm animate-pulse-subtle"
+            {/* Action Buttons */}
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+              className="flex flex-wrap items-center gap-2"
             >
-              <Database className="w-4 h-4 text-emerald-400" />
-              Seed IDSP Data
-            </Button>
+              <Button
+                onClick={handleSeedIDSP}
+                variant="outline"
+                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-400 flex items-center gap-1.5"
+              >
+                <Database className="w-3.5 h-3.5" />
+                Seed IDSP
+              </Button>
 
-            <Button
-              onClick={simulateLiveEvent}
-              variant="outline"
-              className="h-10 px-4 rounded-xl text-xs font-bold border-primary/30 hover:bg-primary/5 text-primary flex items-center gap-2 shadow-sm"
-            >
-              <Zap className="w-4 h-4 text-primary fill-primary/10" />
-              Simulate Live Event
-            </Button>
+              <Button
+                onClick={simulateLiveEvent}
+                variant="outline"
+                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-primary/30 hover:bg-primary/10 text-primary flex items-center gap-1.5"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                Simulate
+              </Button>
 
-            <Button
-              onClick={handleMitigateAll}
-              disabled={isMitigatingAll || outbreaks.length === 0}
-              variant="outline"
-              className="h-10 px-4 rounded-xl text-xs font-bold border-red-500/35 hover:bg-red-500/5 text-red-500 flex items-center gap-2 shadow-sm"
-            >
-              <Flame className="w-4 h-4 text-red-500" />
-              {isMitigatingAll ? "Resolving Nodes..." : "Mitigate All Active Threats"}
-            </Button>
+              <Button
+                onClick={handleMitigateAll}
+                disabled={isMitigatingAll || outbreaks.length === 0}
+                variant="outline"
+                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-red-500/30 hover:bg-red-500/10 text-red-400 flex items-center gap-1.5"
+              >
+                <Flame className="w-3.5 h-3.5" />
+                {isMitigatingAll ? "Resolving..." : "Mitigate All"}
+              </Button>
 
-            <Button
-              onClick={() => router.push('/surveillance')}
-              variant="outline"
-              className="h-10 px-4 rounded-xl text-xs font-bold border-border/80 hover:bg-secondary flex items-center gap-2"
-            >
-              <FileText className="w-4 h-4" />
-              Symptom Reports
-            </Button>
-            
-            <Button
-              onClick={handleExportData}
-              variant="outline"
-              className="h-10 px-4 rounded-xl text-xs font-bold border-border/80 hover:bg-secondary flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export Telemetry
-            </Button>
-            
-            <Button
-              onClick={() => setIsSimulateOpen(true)}
-              className="h-10 px-5 rounded-xl text-xs font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/15 hover:scale-102 active:scale-98 transition-all flex items-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              Report Simulation
-            </Button>
+              <Button
+                onClick={() => router.push('/surveillance')}
+                variant="outline"
+                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-border/60 hover:bg-secondary/80 flex items-center gap-1.5"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Reports
+              </Button>
+              
+              <Button
+                onClick={handleExportData}
+                variant="outline"
+                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-border/60 hover:bg-secondary/80 flex items-center gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Export
+              </Button>
+              
+              <Button
+                onClick={() => setIsSimulateOpen(true)}
+                className="h-9 px-4 rounded-xl text-[11px] font-semibold bg-gradient-to-r from-primary to-cyan-500 text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                New Report
+              </Button>
+            </motion.div>
           </div>
         </div>
 
