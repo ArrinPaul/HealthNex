@@ -161,6 +161,7 @@ export const getOutbreaksNearLocation = query({
 export const seedHistoricalOutbreaks = mutation({
   args: {
     force: v.optional(v.boolean()),
+    csvData: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const existingCount = (await ctx.db.query("diseaseOutbreaks").collect()).length;
@@ -176,120 +177,209 @@ export const seedHistoricalOutbreaks = mutation({
       }
     }
 
-    const realOutbreaks = [
-      {
-        disease: "Cholera",
-        cases: 142,
-        location: "Visakhapatnam, Andhra Pradesh",
-        latitude: 17.6868,
-        longitude: 83.2185,
-        severity: "high" as const,
-        status: "resolved" as const,
-        confirmedCases: 142,
-        suspectedCases: 190,
-        deaths: 3,
-        recovered: 139,
-        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 12, // ~1 year ago (July 2023)
-        notes: "Real IDSP outbreak reported in tribal hamlets of Visakhapatnam district. Contaminated drinking water source identified as root cause.",
-        reportedBy: "system"
-      },
-      {
-        disease: "Dengue",
-        cases: 175,
-        location: "Kolkata, West Bengal",
-        latitude: 22.5726,
-        longitude: 88.3639,
-        severity: "high" as const,
-        status: "resolved" as const,
-        confirmedCases: 175,
-        suspectedCases: 320,
-        deaths: 2,
-        recovered: 173,
-        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 8, // ~8 months ago (Nov 2023)
-        notes: "Real vector-borne Dengue surge documented by West Bengal Health Department in urban Kolkata wards. Mega sanitation and anti-larvae drives deployed.",
-        reportedBy: "system"
-      },
-      {
-        disease: "H1N1 Influenza",
-        cases: 210,
-        location: "New Delhi, Delhi (UT)",
-        latitude: 28.6139,
-        longitude: 77.2090,
-        severity: "high" as const,
-        status: "resolved" as const,
-        confirmedCases: 210,
-        suspectedCases: 250,
-        deaths: 1,
-        recovered: 209,
-        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 15, // ~15 months ago (Feb 2023)
-        notes: "Real seasonal Influenza H1N1 spike reported across Delhi NCR during winter season. Advisory on masks and vaccination issued.",
-        reportedBy: "system"
-      },
-      {
-        disease: "Typhoid",
-        cases: 60,
-        location: "Bengaluru, Karnataka",
-        latitude: 12.9716,
-        longitude: 77.5946,
-        severity: "medium" as const,
-        status: "contained" as const,
-        confirmedCases: 60,
-        suspectedCases: 85,
-        deaths: 0,
-        recovered: 58,
-        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 2, // ~2 months ago (May 2024)
-        notes: "Real typhoid cluster reported in South Bengaluru areas. Traced to local food stalls and compromised water pipeline.",
-        reportedBy: "system"
-      },
-      {
-        disease: "Malaria",
-        cases: 85,
-        location: "Ahmedabad, Gujarat",
-        latitude: 23.0225,
-        longitude: 72.5714,
-        severity: "medium" as const,
-        status: "resolved" as const,
-        confirmedCases: 85,
-        suspectedCases: 110,
-        deaths: 0,
-        recovered: 85,
-        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 10, // ~10 months ago (Aug 2023)
-        notes: "Real post-monsoon malaria cases registered by AMC. Vector control teams distributed medicated mosquito nets.",
-        reportedBy: "system"
-      },
-      {
-        disease: "Japanese Encephalitis",
-        cases: 34,
-        location: "Guwahati, Assam",
-        latitude: 26.1445,
-        longitude: 91.7362,
-        severity: "critical" as const,
-        status: "resolved" as const,
-        confirmedCases: 34,
-        suspectedCases: 55,
-        deaths: 5,
-        recovered: 29,
-        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 24, // ~2 years ago (July 2022)
-        notes: "Assam state-wide Japanese Encephalitis alert. Vaccination drives and fogging implemented in high-risk zones.",
-        reportedBy: "system"
-      },
-      {
-        disease: "Nipah Virus",
-        cases: 5,
-        location: "Kozhikode, Kerala",
-        latitude: 11.2588,
-        longitude: 75.7804,
-        severity: "critical" as const,
-        status: "resolved" as const,
-        confirmedCases: 5,
-        suspectedCases: 36,
-        deaths: 2,
-        recovered: 3,
-        timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 20, // ~20 months ago (Oct 2023)
-        notes: "Real Nipah containment zone set up in Kozhikode district. Strict quarantine and contact-tracing successfully halted further transmission.",
-        reportedBy: "system"
+    let realOutbreaks: any[] = [];
+
+    if (args.csvData) {
+      // Parse CSV Data
+      const lines = args.csvData.trim().split("\n");
+      if (lines.length > 1) {
+        const headers = lines[0].split(",").map(h => h.trim().replace(/^["']|["']$/g, ''));
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+          
+          // Custom CSV line parser handling double-quoted strings
+          const values: string[] = [];
+          let currentVal = "";
+          let insideQuotes = false;
+          for (let j = 0; j < line.length; j++) {
+            const char = line[j];
+            if (char === '"') {
+              insideQuotes = !insideQuotes;
+            } else if (char === ',' && !insideQuotes) {
+              values.push(currentVal.trim().replace(/^["']|["']$/g, ''));
+              currentVal = "";
+            } else {
+              currentVal += char;
+            }
+          }
+          values.push(currentVal.trim().replace(/^["']|["']$/g, ''));
+
+          const outbreak: any = {};
+          headers.forEach((header, index) => {
+            const val = values[index];
+            if (val === undefined) return;
+            
+            if (
+              header === "cases" || 
+              header === "latitude" || 
+              header === "longitude" || 
+              header === "confirmedCases" || 
+              header === "suspectedCases" || 
+              header === "deaths" || 
+              header === "recovered" || 
+              header === "timestamp"
+            ) {
+              outbreak[header] = Number(val);
+            } else if (header === "symptoms") {
+              outbreak[header] = val ? val.split(";").map(s => s.trim()) : [];
+            } else {
+              outbreak[header] = val;
+            }
+          });
+
+          // Ensure mandatory types and fields
+          outbreak.disease = outbreak.disease || "Unknown";
+          outbreak.cases = outbreak.cases || 0;
+          outbreak.location = outbreak.location || "Unknown";
+          outbreak.latitude = outbreak.latitude || 0;
+          outbreak.longitude = outbreak.longitude || 0;
+          outbreak.reportedBy = outbreak.reportedBy || "system";
+          outbreak.timestamp = outbreak.timestamp || Date.now();
+          
+          // Enforce severity types
+          const sev = outbreak.severity;
+          if (sev === "low" || sev === "medium" || sev === "high" || sev === "critical") {
+            outbreak.severity = sev;
+          } else {
+            outbreak.severity = "medium";
+          }
+
+          // Enforce status types
+          const stat = outbreak.status;
+          if (stat === "active" || stat === "contained" || stat === "resolved") {
+            outbreak.status = stat;
+          } else {
+            outbreak.status = "resolved";
+          }
+
+          outbreak.confirmedCases = outbreak.confirmedCases || outbreak.cases || 0;
+          outbreak.suspectedCases = outbreak.suspectedCases || 0;
+          outbreak.deaths = outbreak.deaths || 0;
+          outbreak.recovered = outbreak.recovered || 0;
+
+          realOutbreaks.push(outbreak);
+        }
       }
-    ];
+    }
+
+    // Fallback to static seed data if no CSV provided or parsed
+    if (realOutbreaks.length === 0) {
+      realOutbreaks = [
+        {
+          disease: "Cholera",
+          cases: 142,
+          location: "Visakhapatnam, Andhra Pradesh",
+          latitude: 17.6868,
+          longitude: 83.2185,
+          severity: "high" as const,
+          status: "resolved" as const,
+          confirmedCases: 142,
+          suspectedCases: 190,
+          deaths: 3,
+          recovered: 139,
+          timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 12,
+          notes: "Real IDSP outbreak reported in tribal hamlets of Visakhapatnam district. Contaminated drinking water source identified as root cause.",
+          reportedBy: "system"
+        },
+        {
+          disease: "Dengue",
+          cases: 175,
+          location: "Kolkata, West Bengal",
+          latitude: 22.5726,
+          longitude: 88.3639,
+          severity: "high" as const,
+          status: "resolved" as const,
+          confirmedCases: 175,
+          suspectedCases: 320,
+          deaths: 2,
+          recovered: 173,
+          timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 8,
+          notes: "Real vector-borne Dengue surge documented by West Bengal Health Department in urban Kolkata wards. Mega sanitation and anti-larvae drives deployed.",
+          reportedBy: "system"
+        },
+        {
+          disease: "H1N1 Influenza",
+          cases: 210,
+          location: "New Delhi, Delhi (UT)",
+          latitude: 28.6139,
+          longitude: 77.2090,
+          severity: "high" as const,
+          status: "resolved" as const,
+          confirmedCases: 210,
+          suspectedCases: 250,
+          deaths: 1,
+          recovered: 209,
+          timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 15,
+          notes: "Real seasonal Influenza H1N1 spike reported across Delhi NCR during winter season. Advisory on masks and vaccination issued.",
+          reportedBy: "system"
+        },
+        {
+          disease: "Typhoid",
+          cases: 60,
+          location: "Bengaluru, Karnataka",
+          latitude: 12.9716,
+          longitude: 77.5946,
+          severity: "medium" as const,
+          status: "contained" as const,
+          confirmedCases: 60,
+          suspectedCases: 85,
+          deaths: 0,
+          recovered: 58,
+          timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 2,
+          notes: "Real typhoid cluster reported in South Bengaluru areas. Traced to local food stalls and compromised water pipeline.",
+          reportedBy: "system"
+        },
+        {
+          disease: "Malaria",
+          cases: 85,
+          location: "Ahmedabad, Gujarat",
+          latitude: 23.0225,
+          longitude: 72.5714,
+          severity: "medium" as const,
+          status: "resolved" as const,
+          confirmedCases: 85,
+          suspectedCases: 110,
+          deaths: 0,
+          recovered: 85,
+          timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 10,
+          notes: "Real post-monsoon malaria cases registered by AMC. Vector control teams distributed medicated mosquito nets.",
+          reportedBy: "system"
+        },
+        {
+          disease: "Japanese Encephalitis",
+          cases: 34,
+          location: "Guwahati, Assam",
+          latitude: 26.1445,
+          longitude: 91.7362,
+          severity: "critical" as const,
+          status: "resolved" as const,
+          confirmedCases: 34,
+          suspectedCases: 55,
+          deaths: 5,
+          recovered: 29,
+          timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 24,
+          notes: "Assam state-wide Japanese Encephalitis alert. Vaccination drives and fogging implemented in high-risk zones.",
+          reportedBy: "system"
+        },
+        {
+          disease: "Nipah Virus",
+          cases: 5,
+          location: "Kozhikode, Kerala",
+          latitude: 11.2588,
+          longitude: 75.7804,
+          severity: "critical" as const,
+          status: "resolved" as const,
+          confirmedCases: 5,
+          suspectedCases: 36,
+          deaths: 2,
+          recovered: 3,
+          timestamp: Date.now() - 30 * 24 * 60 * 60 * 1000 * 20,
+          notes: "Real Nipah containment zone set up in Kozhikode district. Strict quarantine and contact-tracing successfully halted further transmission.",
+          reportedBy: "system"
+        }
+      ];
+    }
 
     for (const outbreak of realOutbreaks) {
       await ctx.db.insert("diseaseOutbreaks", outbreak);

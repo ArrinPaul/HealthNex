@@ -13,7 +13,7 @@ import {
   Globe, Map as MapIcon, Zap, LayoutGrid, Bell, 
   Activity, ArrowRight, ShieldCheck, Download, Plus, Filter,
   RefreshCw, Radio, FileText, CheckCircle2, AlertOctagon, Terminal as TerminalIcon, Send, Eye, X, Check, ShieldAlert,
-  Mic, Volume2, Sliders, CheckSquare, Trash2, Flame, Play, Square, Settings, MessageSquare, Database
+  Mic, Volume2, Sliders, CheckSquare, Trash2, Flame, Play, Square, Settings, MessageSquare, Database, Droplet
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -482,20 +482,22 @@ export default function DashboardPage() {
     setTerminalLogs(prev => [...prev, `[SIM_ALERT] Ingested raw telemetry warning: ${cases} cases at ${targetCity.name}`]);
   };
 
-  const seedHistorical = useMutation(api.diseases.seedHistoricalOutbreaks);
-  
   const handleSeedIDSP = async () => {
     try {
-      const result = await seedHistorical({ force: true });
+      setTerminalLogs(prev => [...prev, "[DATABASE] Ingesting IDSP CSV telemetry seed stream..."]);
+      const res = await fetch("/api/health/seed-idsp", { method: "POST" });
+      const result = await res.json();
       if (result.success) {
-        toast.success(`Successfully seeded ${result.count} real historical IDSP outbreaks across India!`);
-        setTerminalLogs(prev => [...prev, `[DATABASE] Seeded ${result.count} real-world IDSP data nodes successfully`]);
+        toast.success(result.message || `Successfully seeded ${result.count} real historical IDSP outbreaks!`);
+        setTerminalLogs(prev => [...prev, `[DATABASE] Synced ${result.count} official IDSP telemetry records from CSV`]);
       } else {
-        toast.error(result.message || "Failed to seed historical outbreaks");
+        toast.error(result.error || "Failed to seed historical outbreaks");
+        setTerminalLogs(prev => [...prev, `[DATABASE] Seeding failure: ${result.error || "Unknown error"}`]);
       }
     } catch (err: any) {
       console.error(err);
       toast.error("Failed to seed real historical outbreaks");
+      setTerminalLogs(prev => [...prev, `[DATABASE] System connection error during seed transmission`]);
     }
   };
 
