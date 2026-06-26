@@ -59,11 +59,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(name, email, password, role, location, verificationFile || undefined);
-      if (email === 'admin@healthnex.com') {
-        router.push('/dashboard');
-      } else {
-        router.push('/education');
-      }
+      router.push('/education');
     } catch (error) {
       console.error('Registration failed:', error);
     } finally {
