@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function UsageStats() {
   const { token } = useAuth();
-  const stats = useQuery(api.usage.getUsageStats, token ? { token, days: 30 } : "skip");
+  const stats = useQuery(api.usage.getUsageStats as any, token ? { token, days: 30 } : "skip");
 
   if (!stats) {
     return <div className="text-muted-foreground text-sm">Loading usage data...</div>;
@@ -56,7 +56,7 @@ export default function UsageStats() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {Object.entries(stats.byFeature).map(([feature, count]) => (
+            {Object.entries(stats.byFeature as Record<string, number>).map(([feature, count]) => (
               <div key={feature} className="flex items-center justify-between">
                 <span className="text-sm capitalize">{feature.replace(/_/g, ' ')}</span>
                 <span className="text-sm font-mono font-medium">{count}</span>

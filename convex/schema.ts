@@ -152,12 +152,12 @@ export default defineSchema({
         email: v.string(),
         subject: v.string(),
         message: v.string(),
+        userId: v.optional(v.id("users")),
         status: v.union(v.literal("open"), v.literal("in-progress"), v.literal("closed")),
         priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
         createdAt: v.number(),
       }).index("by_status", ["status"])
-        .index("by_created", ["createdAt"])
-        .index("by_user", ["userId"]),
+        .index("by_created", ["createdAt"]),
 
       externalInstitutionalData: defineTable({
         source: v.string(), // e.g., "disease.sh", "WHO"

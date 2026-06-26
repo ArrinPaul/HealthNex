@@ -39,9 +39,9 @@ export default function UserManagement() {
     setLoadingId(targetUserId);
     
     try {
-      await updateUserRole({
+      await (updateUserRole as any)({
         token,
-        targetUserId: targetUserId as any,
+        targetUserId: targetUserId,
         newRole
       });
       toast.success("Role Updated", { description: "User permissions have been updated in the protocol." });

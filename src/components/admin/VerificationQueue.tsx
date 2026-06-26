@@ -31,9 +31,9 @@ export default function VerificationQueue() {
     }
     setLoadingId(userId);
     try {
-      await verifyUser({
+      await (verifyUser as any)({
         token,
-        targetUserId: userId as any,
+        targetUserId: userId,
         status: "verified",
       });
       toast.success("Professional Verified", { description: "User has been promoted to their requested role." });
@@ -52,9 +52,9 @@ export default function VerificationQueue() {
     }
     setLoadingId(userId);
     try {
-      await verifyUser({
+      await (verifyUser as any)({
         token,
-        targetUserId: userId as any,
+        targetUserId: userId,
         status: "rejected",
         adminNotes: "Does not meet professional criteria"
       });

@@ -15,7 +15,7 @@ export default function HealthDataDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { token } = useAuth();
-  const record = useQuery(api.healthData.getHealthDataById, token ? { token, id: params.id as any } : "skip");
+  const record = useQuery(api.healthData.getHealthDataById as any, token ? { token, id: params.id } : "skip");
 
   if (record === undefined) {
     return <div className="p-12 text-center text-muted-foreground">Retrieving clinical record...</div>;

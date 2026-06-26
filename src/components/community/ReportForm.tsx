@@ -36,7 +36,7 @@ export default function ReportForm() {
 
     setLoading(true);
     try {
-      await createReport({
+      await (createReport as any)({
         title: formData.issueType === 'water' ? 'Unsafe Water Source' : 'Health Issue',
         description: formData.description,
         category: formData.issueType,

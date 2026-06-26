@@ -192,12 +192,14 @@ export const getUserByEmail = query({
 
     if (!user) return null;
 
-    // Return only fields needed for authentication
     return {
       _id: user._id,
+      email: user.email,
+      name: user.name,
       passwordHash: user.passwordHash,
       role: user.role,
       isActive: user.isActive,
+      verificationStatus: user.verificationStatus,
     };
   },
 });

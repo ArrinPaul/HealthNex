@@ -95,7 +95,7 @@ export default function HelpPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await sendTicket({
+      await (sendTicket as any)({
         token: token || '',
         name: formData.name,
         email: formData.email,

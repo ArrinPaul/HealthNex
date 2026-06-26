@@ -82,7 +82,7 @@ async function trackChatbotUsage(request: NextRequest): Promise<void> {
     const token = request.cookies.get('auth-token')?.value;
     if (!token) return;
 
-    await convex.mutation(api.usage.trackUsage, {
+    await (convex.mutation as any)(api.usage.trackUsage, {
       token,
       feature: 'chatbot',
       status: 'success',

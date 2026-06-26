@@ -37,8 +37,7 @@ export default function AlertBroadcastPage() {
     
     setLoading(true);
     try {
-      await broadcastAlert({
-        token,
+      await (broadcastAlert as any)({        token,
         title: formData.title,
         message: formData.message,
         type: formData.type,

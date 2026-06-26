@@ -40,13 +40,13 @@ function base64UrlDecodeToString(value: string): string {
   return atob(padded);
 }
 
-function base64UrlDecodeToBytes(value: string): Uint8Array {
+function base64UrlDecodeToBytes(value: string): ArrayBuffer {
   const decoded = base64UrlDecodeToString(value);
   const bytes = new Uint8Array(decoded.length);
   for (let i = 0; i < decoded.length; i += 1) {
     bytes[i] = decoded.charCodeAt(i);
   }
-  return bytes;
+  return bytes.buffer;
 }
 
 async function verifyToken(token: string): Promise<boolean> {

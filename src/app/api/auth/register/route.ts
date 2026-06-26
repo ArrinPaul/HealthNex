@@ -63,8 +63,7 @@ export async function POST(request: NextRequest) {
         name, 
         role: assignedRole,
         location: location || 'Unknown',
-        verificationStatus: (assignedRole === 'super-admin') ? 'verified' : 
-                            (assignedRole === 'community-user' ? 'none' : 'pending')
+        verificationStatus: 'none'
       }
     });
 

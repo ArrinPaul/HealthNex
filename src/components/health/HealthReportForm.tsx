@@ -65,7 +65,7 @@ export default function HealthReportForm() {
     
     setLoading(true);
     try {
-      await addReport({
+      await (addReport as any)({
         token,
         type: "symptom",
         data: {

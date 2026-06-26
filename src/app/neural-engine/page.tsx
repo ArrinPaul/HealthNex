@@ -130,9 +130,9 @@ export default function NeuralEnginePage() {
                 </div>
                 <div className="grid gap-3">
                    {[
-                     { label: 'Accuracy', value: stats?.accuracy ? `${stats.accuracy}%` : '...', icon: Target },
-                     { label: 'Processing Speed', value: stats?.latency ?? '...', icon: Activity },
-                     { label: 'Reports Analyzed', value: '12,847', icon: Activity }
+                      { label: 'Data Nodes', value: stats?.dataNodes ?? '...', icon: Target },
+                      { label: 'Active Alerts', value: stats?.alertsSent ?? '...', icon: Activity },
+                      { label: 'Reports Analyzed', value: stats?.communityReports ?? 0, icon: Activity }
                    ].map((item, i) => (
                      <motion.div 
                        key={i}

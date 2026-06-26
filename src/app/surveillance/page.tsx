@@ -195,7 +195,7 @@ export default function SurveillancePage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-lg mx-auto">
                    {[
-                     { label: 'Avg Response Time', value: stats?.latency ?? '...', icon: Activity },
+                     { label: 'Active Alerts', value: stats?.alertsSent ?? 0, icon: Activity },
                      { label: 'Total Reports', value: stats?.communityReports ?? 0, icon: BarChart3 }
                    ].map((stat) => (
                      <div key={stat.label} className="space-y-2 text-center">
