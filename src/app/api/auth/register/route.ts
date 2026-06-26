@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const isValidUrl = convexUrl && (convexUrl.startsWith('http://') || convexUrl.startsWith('https://'));
@@ -10,6 +11,23 @@ const convex = new ConvexHttpClient(isValidUrl ? convexUrl : 'https://placeholde
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimitResult = checkRateLimit(`register:${clientIp}`, 3, 60000);
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: 'Too many registration attempts. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': '3',
+            'X-RateLimit-Remaining': '0',
+            'Retry-After': String(Math.ceil(rateLimitResult.retryAfterMs / 1000)),
+          }
+        }
+      );
+    }
+
     const { email, password, name, location, verificationDoc } = await request.json();
 
     if (!email || !password || !name) {
@@ -19,14 +37,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: 'Password must be at least 8 characters' },
+        { status: 400 }
+      );
+    }
+
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Save user to Convex
     let userId;
     try {
-      // All new registrations start as community-user
       const finalRole = 'community-user';
       
       userId = await convex.mutation(api.users.createUser, {
@@ -43,12 +65,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // After creation, determine the actual role for the token
-    // If they requested community-user, they get it immediately.
-    // Otherwise, they stay as 'public' until verified.
     const assignedRole = 'community-user'; 
     
-    // Generate JWT token with the actual assigned role
     const token = JWTService.generateToken({
       userId,
       email,
@@ -80,7 +98,6 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.error('Registration error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

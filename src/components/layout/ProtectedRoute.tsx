@@ -28,14 +28,14 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
       const url = new URL('/login', window.location.origin);
       url.searchParams.set('callbackUrl', window.location.pathname);
       router.push(url.pathname + url.search);
-    } else if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    } else if (allowedRolesString && user && !allowedRoles?.includes(user.role)) {
       if (user.role === 'public') {
         router.push('/education');
       } else {
         router.push('/dashboard');
       }
     }
-  }, [isAuthenticated, user, allowedRolesString, router]);
+  }, [isAuthenticated, user, allowedRolesString, allowedRoles, router]);
 
   if (!isAuthenticated || (allowedRoles && user && !allowedRoles.includes(user.role))) {
     return null;

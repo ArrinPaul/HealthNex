@@ -5,29 +5,28 @@ import { Activity, ShieldCheck, Globe, Zap, Users, MessageSquare, Droplet, Check
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 
+const initialEvents = [
+  { id: 1, type: 'VERIFICATION', text: 'Regional Node HN-ZONE-04 Verified', time: new Date(), icon: ShieldCheck, color: 'text-emerald-500' },
+  { id: 2, type: 'REPORT', text: 'New Ground Intelligence: Water Quality Alert (S-01)', time: new Date(Date.now() - 1000 * 60 * 5), icon: Droplet, color: 'text-sky-400' },
+  { id: 3, type: 'NEURAL', text: 'Gemini v1.5 Pro: Forecast Recalibrated (Zone 7)', time: new Date(Date.now() - 1000 * 60 * 12), icon: Zap, color: 'text-violet-500' },
+  { id: 4, type: 'NETWORK', text: '512 Community Nodes Synchronized', time: new Date(Date.now() - 1000 * 60 * 25), icon: Globe, color: 'text-primary' },
+  { id: 5, type: 'ACTION', text: 'Symptom Cluster Analyzed (Confidence: 98%)', time: new Date(Date.now() - 1000 * 60 * 45), icon: Activity, color: 'text-rose-500' }
+];
+
+const randomEventTemplates = [
+  { type: 'NETWORK', text: 'Protocol Heartbeat: Sync Success', icon: Globe, color: 'text-primary' },
+  { type: 'VERIFICATION', text: 'Credential Audit Complete (Node ID: 882)', icon: CheckCircle2, color: 'text-emerald-500' },
+  { type: 'REPORT', text: 'Symptom Upload Received (Confidential)', icon: MessageSquare, color: 'text-amber-500' }
+];
+
 export default function IntelligencePulse() {
   const [events, setEvents] = useState<any[]>([]);
 
-  const mockEvents = [
-    { id: 1, type: 'VERIFICATION', text: 'Regional Node HN-ZONE-04 Verified', time: new Date(), icon: ShieldCheck, color: 'text-emerald-500' },
-    { id: 2, type: 'REPORT', text: 'New Ground Intelligence: Water Quality Alert (S-01)', time: new Date(Date.now() - 1000 * 60 * 5), icon: Droplet, color: 'text-sky-400' },
-    { id: 3, type: 'NEURAL', text: 'Gemini v1.5 Pro: Forecast Recalibrated (Zone 7)', time: new Date(Date.now() - 1000 * 60 * 12), icon: Zap, color: 'text-violet-500' },
-    { id: 4, type: 'NETWORK', text: '512 Community Nodes Synchronized', time: new Date(Date.now() - 1000 * 60 * 25), icon: Globe, color: 'text-primary' },
-    { id: 5, type: 'ACTION', text: 'Symptom Cluster Analyzed (Confidence: 98%)', time: new Date(Date.now() - 1000 * 60 * 45), icon: Activity, color: 'text-rose-500' }
-  ];
-
   useEffect(() => {
-    setEvents(mockEvents);
+    setEvents(initialEvents);
     
-    // Simulate new events arriving
     const interval = setInterval(() => {
-      const types = [
-        { type: 'NETWORK', text: 'Protocol Heartbeat: Sync Success', icon: Globe, color: 'text-primary' },
-        { type: 'VERIFICATION', text: 'Credential Audit Complete (Node ID: 882)', icon: CheckCircle2, color: 'text-emerald-500' },
-        { type: 'REPORT', text: 'Symptom Upload Received (Confidential)', icon: MessageSquare, color: 'text-amber-500' }
-      ];
-      const random = types[Math.floor(Math.random() * types.length)];
-      
+      const random = randomEventTemplates[Math.floor(Math.random() * randomEventTemplates.length)];
       setEvents(prev => [{ ...random, id: Date.now(), time: new Date() }, ...prev].slice(0, 10));
     }, 15000);
 

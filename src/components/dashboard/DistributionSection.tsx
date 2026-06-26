@@ -2,14 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import dynamic from 'next/dynamic';
 import { useDashboardAggregates } from '@/services/healthDataService';
-
-const PieChart = dynamic(() => import('recharts').then(mod => mod.PieChart), { ssr: false });
-const Pie = dynamic(() => import('recharts').then(mod => mod.Pie), { ssr: false });
-const Cell = dynamic(() => import('recharts').then(mod => mod.Cell), { ssr: false });
-const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
-const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
+import {
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer
+} from 'recharts';
 
 const COLORS = ['#00d9ff', '#10b981', '#f59e0b', '#8b5cf6'];
 
