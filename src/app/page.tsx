@@ -49,11 +49,11 @@ const FeatureCard = ({ title, desc, icon: Icon, color, delay }: any) => (
 
 const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
   const [mockOutbreaks, setMockOutbreaks] = useState([
-    { id: "mock-1", location: "Guwahati", disease: "Cholera", cases: 45, severity: "critical", x: 100, y: 110 },
-    { id: "mock-2", location: "Jorhat", disease: "Dengue", cases: 23, severity: "medium", x: 260, y: 95 },
-    { id: "mock-3", location: "Dibrugarh", disease: "COVID", cases: 12, severity: "low", x: 350, y: 80 },
-    { id: "mock-4", location: "Shillong", disease: "Flu", cases: 34, severity: "high", x: 120, y: 180 },
-    { id: "mock-5", location: "Tezpur", disease: "Malaria", cases: 18, severity: "medium", x: 190, y: 100 }
+    { id: "mock-1", location: "Delhi", disease: "Cholera", cases: 45, severity: "critical", x: 100, y: 110 },
+    { id: "mock-2", location: "Mumbai", disease: "Dengue", cases: 23, severity: "medium", x: 260, y: 95 },
+    { id: "mock-3", location: "Kolkata", disease: "COVID", cases: 12, severity: "low", x: 350, y: 80 },
+    { id: "mock-4", location: "Bengaluru", disease: "Flu", cases: 34, severity: "high", x: 120, y: 180 },
+    { id: "mock-5", location: "Guwahati", disease: "Malaria", cases: 18, severity: "medium", x: 190, y: 100 }
   ]);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -175,7 +175,7 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
             <div className="md:col-span-8 bg-card border border-border rounded-2xl overflow-hidden flex flex-col shadow-sm relative h-full">
               <div className="p-3 border-b border-border/60 flex items-center justify-between shrink-0 bg-secondary/30 text-[10px] font-bold text-foreground">
                 <span className="flex items-center gap-1.5"><MapIcon className="w-3.5 h-3.5 text-primary" /> Spatial Hazard Map</span>
-                <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider">Assam / Shillong Region</span>
+                <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider">National Surveillance Feed</span>
               </div>
               <div className="flex-1 relative bg-secondary/10 overflow-hidden">
                 {/* SVG mock map */}

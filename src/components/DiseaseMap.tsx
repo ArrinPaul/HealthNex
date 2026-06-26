@@ -24,7 +24,7 @@ export default function DiseaseMap({ hotspots = [], selectedHotspot = null }: Di
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapRef.current).setView([26.1445, 91.7362], 7); // Guwahati, Assam
+    const map = L.map(mapRef.current).setView([20.5937, 78.9629], 5); // Center of India
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -50,11 +50,11 @@ export default function DiseaseMap({ hotspots = [], selectedHotspot = null }: Di
     markersRef.current = [];
 
     const defaultHotspots = hotspots.length > 0 ? hotspots : [
-      { lat: 26.1445, lng: 91.7362, cases: 45, location: 'Guwahati', disease: 'Cholera' },
-      { lat: 26.2006, lng: 92.9376, cases: 23, location: 'Jorhat', disease: 'Dengue' },
-      { lat: 26.7509, lng: 94.2037, cases: 12, location: 'Dibrugarh', disease: 'COVID' },
-      { lat: 25.5788, lng: 91.8933, cases: 34, location: 'Shillong', disease: 'Flu' },
-      { lat: 26.7271, lng: 93.0800, cases: 18, location: 'Tezpur', disease: 'Malaria' }
+      { lat: 28.6139, lng: 77.2090, cases: 45, location: 'Delhi', disease: 'COVID' },
+      { lat: 19.0760, lng: 72.8777, cases: 38, location: 'Mumbai', disease: 'Dengue' },
+      { lat: 22.5726, lng: 88.3639, cases: 28, location: 'Kolkata', disease: 'Cholera' },
+      { lat: 12.9716, lng: 77.5946, cases: 15, location: 'Bengaluru', disease: 'Flu' },
+      { lat: 26.1445, lng: 91.7362, cases: 23, location: 'Guwahati', disease: 'Malaria' }
     ];
 
     defaultHotspots.forEach((hotspot) => {

@@ -34,8 +34,9 @@ export default function DistributionSection({ compact, distributionData }: Distr
   }
 
   return (
-    <div className="flex flex-col h-full justify-between">
-      <div className="flex-1 min-h-[140px] relative">
+    <div className="flex items-center justify-between h-full gap-4 min-h-0">
+      {/* Chart Section */}
+      <div className="w-[140px] h-[140px] relative shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -43,38 +44,56 @@ export default function DistributionSection({ compact, distributionData }: Distr
               cx="50%"
               cy="50%"
               labelLine={false}
-              innerRadius={50}
-              outerRadius={70}
-              paddingAngle={6}
+              innerRadius={38}
+              outerRadius={58}
+              paddingAngle={4}
               dataKey="value"
               stroke="transparent"
             >
               {currentData?.map((entry: any, index: number) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={COLORS[index % COLORS.length]} 
+                  style={{ filter: 'drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.2))' }}
+                />
               ))}
             </Pie>
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'var(--surface-2)', 
-                borderColor: 'var(--border-soft)',
-                borderRadius: '1rem',
+                backgroundColor: 'rgba(15, 23, 42, 0.95)', 
+                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '0.75rem',
                 fontSize: '10px',
                 fontWeight: 'bold',
-                textTransform: 'uppercase'
+                textTransform: 'uppercase',
+                color: '#fff',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
               }}
+              itemStyle={{ color: '#fff' }}
             />
           </PieChart>
         </ResponsiveContainer>
+        {/* Center Text Indicator */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Total</span>
+          <span className="text-sm font-black text-foreground">
+            {currentData?.reduce((acc: number, item: any) => acc + (item.value || 0), 0) || 0}
+          </span>
+        </div>
       </div>
 
-      <div className="mt-2 grid grid-cols-2 gap-2">
+      {/* Legend / Status List Section */}
+      <div className="flex-1 flex flex-col gap-1.5 justify-center py-1 max-h-full overflow-y-auto pr-1">
          {currentData?.map((d: any, index: number) => (
-           <div key={d.name} className="flex items-center gap-1.5 bg-secondary/40 p-2 rounded-xl border border-border/60">
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] text-muted-foreground truncate font-semibold uppercase">{d.name}</div>
-                <div className="text-xs font-black text-foreground">{d.value}</div>
+           <div 
+             key={d.name} 
+             className="flex items-center justify-between gap-2 bg-secondary/20 hover:bg-secondary/40 p-2 rounded-xl border border-border/30 hover:border-border/60 transition-all"
+           >
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate">{d.name}</span>
               </div>
+              <span className="text-xs font-black text-foreground font-mono bg-background/50 px-2 py-0.5 rounded border border-border/20">{d.value}</span>
            </div>
          ))}
       </div>
