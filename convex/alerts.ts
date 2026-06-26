@@ -54,3 +54,30 @@ export const getActiveAlerts = query({
       .collect();
   },
 });
+
+export const deactivateAlert = mutationWithAuth({
+  args: {
+    alertId: v.id("alerts"),
+  },
+  handler: async (ctx: any, args: any) => {
+    const { userId, alertId } = args;
+    
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
+      throw new Error("Unauthorized to resolve alerts");
+    }
+
+    await ctx.db.patch(alertId, { isActive: false });
+
+    // AUDIT LOG
+    await ctx.db.insert("auditLogs", {
+      userId,
+      targetId: alertId,
+      action: "ALERT_DEACTIVATE",
+      details: `${user.name} marked alert ${alertId} as resolved`,
+      timestamp: Date.now(),
+    });
+
+    return { success: true };
+  },
+});

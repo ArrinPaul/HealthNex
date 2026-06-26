@@ -8,8 +8,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Radio, Send, ShieldAlert, Zap, Globe, MapPin, Loader2 } from 'lucide-react';
+import { 
+  Radio, 
+  Send, 
+  ShieldAlert, 
+  Zap, 
+  Globe, 
+  MapPin, 
+  Loader2, 
+  Heart, 
+  Droplet, 
+  CloudRain, 
+  Check, 
+  X 
+} from 'lucide-react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,183 +32,299 @@ import { format } from 'date-fns';
 export default function AlertBroadcastPage() {
   const { token } = useAuth();
   const broadcastAlert = useMutation(api.alerts.broadcastAlert);
+  const deactivateAlert = useMutation(api.alerts.deactivateAlert);
   const activeAlerts = useQuery(api.alerts.getActiveAlerts);
   const [loading, setLoading] = useState(false);
+  const [deactivatingId, setDeactivatingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
     message: '',
-    type: 'health_alert' as any,
-    severity: 'medium' as any,
-    radius: '10'
+    type: 'health_alert' as 'health_alert' | 'outbreak' | 'water_quality' | 'weather_warning',
+    severity: 'medium' as 'low' | 'medium' | 'high' | 'critical',
+    radius: 10
   });
+
+  const getRadiusDescription = (radiusVal: number) => {
+    if (radiusVal <= 15) return "Local Community Node (Immediate Proximity)";
+    if (radiusVal <= 50) return "Sub-District Hub (Block/Taluk Area)";
+    if (radiusVal <= 150) return "District Network (City & Outer Regions)";
+    return "State-Level Broadcast (Wide-Area Alert)";
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    if (!token) {
+      toast.error("Authentication required", { description: "Please log in to broadcast alerts." });
+      return;
+    }
     
     setLoading(true);
     try {
-      await (broadcastAlert as any)({        token,
+      await (broadcastAlert as any)({
+        token,
         title: formData.title,
         message: formData.message,
         type: formData.type,
         severity: formData.severity,
-        radius: parseInt(formData.radius)
+        radius: formData.radius
       });
-      toast.success("Protocol Alert Broadcasted", { description: "Notification is being transmitted to all regional nodes." });
-      setFormData({ title: '', message: '', type: 'health_alert', severity: 'medium', radius: '10' });
+      toast.success("Protocol Alert Broadcasted", { description: "Notification has been successfully transmitted to all regional nodes." });
+      setFormData({ title: '', message: '', type: 'health_alert', severity: 'medium', radius: 10 });
     } catch (error: any) {
-      toast.error("Broadcast Failed", { description: error.message });
+      toast.error("Broadcast Failed", { description: error.message || "An unexpected database validation occurred." });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleDeactivate = async (alertId: any) => {
+    if (!token) return;
+    setDeactivatingId(alertId);
+    try {
+      await (deactivateAlert as any)({ token, alertId });
+      toast.success("Alert Dismissed", { description: "The broadcast has been marked as resolved and cleared from active nodes." });
+    } catch (error: any) {
+      toast.error("Action Failed", { description: error.message || "Could not resolve alert." });
+    } finally {
+      setDeactivatingId(null);
+    }
+  };
+
+  const alertTypes = [
+    { id: 'health_alert', label: 'Health Alert', icon: Heart, color: 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10' },
+    { id: 'outbreak', label: 'Outbreak Warning', icon: ShieldAlert, color: 'border-rose-500/20 text-rose-400 bg-rose-500/5 hover:bg-rose-500/10' },
+    { id: 'water_quality', label: 'Water Advisory', icon: Droplet, color: 'border-cyan-500/20 text-cyan-400 bg-cyan-500/5 hover:bg-cyan-500/10' },
+    { id: 'weather_warning', label: 'Weather Warning', icon: CloudRain, color: 'border-amber-500/20 text-amber-400 bg-amber-500/5 hover:bg-amber-500/10' }
+  ];
+
+  const severityLevels = [
+    { id: 'low', label: 'Low Impact', color: 'border-emerald-500/20 text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 active:bg-emerald-500/20' },
+    { id: 'medium', label: 'Medium Priority', color: 'border-amber-500/20 text-amber-400 bg-amber-500/5 hover:bg-amber-500/10 active:bg-amber-500/20' },
+    { id: 'high', label: 'High Alert', color: 'border-orange-500/20 text-orange-400 bg-orange-500/5 hover:bg-orange-500/10 active:bg-orange-500/20' },
+    { id: 'critical', label: 'Critical Emergency', color: 'border-rose-500/20 text-rose-400 bg-rose-500/5 hover:bg-rose-500/10 active:bg-rose-500/20 animate-pulse' }
+  ];
+
   return (
     <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
-      <div className="space-y-8">
+      <div className="flex flex-col gap-6 animate-in fade-in duration-500 relative text-left">
+        {/* Glow Backgrounds */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-rose-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+
+        {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold uppercase tracking-tight">Broadcast Center</h1>
-          <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest mt-2">
-            Regional Alert Transmission & Node Notifications
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+            </span>
+            <span className="text-[10px] text-rose-500 font-bold uppercase tracking-wider font-mono">EMERGENCY BROADCAST ROUTER: ONLINE</span>
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
+            <Radio className="w-8 h-8 text-rose-500" /> Broadcast Center
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Regional Alert Transmission & Node Notifications — Deploy warnings and emergency advisories to community segments.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-8">
-           {/* Composer */}
-           <div className="lg:col-span-7">
-              <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] shadow-2xl overflow-hidden">
-                <CardHeader className="border-b border-[var(--border-soft)] bg-rose-500/5">
-                   <CardTitle className="flex items-center gap-3 text-lg uppercase font-bold tracking-tight text-rose-500">
-                      <Radio className="w-5 h-5 animate-pulse" />
-                      Compose Alert Payload
-                   </CardTitle>
-                </CardHeader>
-                <CardContent className="p-8">
-                   <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="space-y-4">
-                         <div className="grid md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                               <Label className="text-[10px] font-bold uppercase tracking-widest ml-2">Alert Type</Label>
-                               <Select value={formData.type} onValueChange={(val) => setFormData({...formData, type: val})}>
-                                  <SelectTrigger className="h-12 rounded-xl bg-[var(--surface-2)]">
-                                     <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                     <SelectItem value="health_alert">Health Alert</SelectItem>
-                                     <SelectItem value="outbreak">Outbreak Warning</SelectItem>
-                                     <SelectItem value="water_quality">Water Advisory</SelectItem>
-                                     <SelectItem value="weather_warning">Weather Warning</SelectItem>
-                                  </SelectContent>
-                               </Select>
-                            </div>
-                            <div className="space-y-2">
-                               <Label className="text-[10px] font-bold uppercase tracking-widest ml-2">Severity Level</Label>
-                               <Select value={formData.severity} onValueChange={(val) => setFormData({...formData, severity: val})}>
-                                  <SelectTrigger className="h-12 rounded-xl bg-[var(--surface-2)]">
-                                     <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                     <SelectItem value="low">Low Impact</SelectItem>
-                                     <SelectItem value="medium">Medium Priority</SelectItem>
-                                     <SelectItem value="high">High Alert</SelectItem>
-                                     <SelectItem value="critical">Critical Emergency</SelectItem>
-                                  </SelectContent>
-                               </Select>
-                            </div>
-                         </div>
+        {/* Grid Panels */}
+        <div className="grid lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column (7 Cols): Composer Form */}
+          <div className="lg:col-span-7">
+            <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden">
+              <CardHeader className="border-b border-border/40 bg-rose-500/5 py-4 px-5">
+                <CardTitle className="text-sm font-bold uppercase tracking-wide text-rose-500 flex items-center gap-2.5">
+                  <Zap className="w-4.5 h-4.5" /> Compose Alert Payload
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-5">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* Alert Type Choice Chips */}
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Alert Ingestion Type</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {alertTypes.map(t => {
+                        const isSelected = formData.type === t.id;
+                        const Icon = t.icon;
+                        return (
+                          <button
+                            key={t.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, type: t.id as any })}
+                            className={`p-3 rounded-xl border text-center flex flex-col items-center justify-center gap-2 transition-all ${
+                              isSelected 
+                                ? 'border-rose-500 bg-rose-500/10 text-rose-400 shadow-md shadow-rose-500/5 scale-[1.01]' 
+                                : t.color
+                            }`}
+                          >
+                            <Icon className="w-4.5 h-4.5 shrink-0" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">{t.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                         <div className="space-y-2">
-                            <Label className="text-[10px] font-bold uppercase tracking-widest ml-2">Alert Title</Label>
-                            <Input 
-                              placeholder="e.g., Regional Symptom Spike Detected"
-                              value={formData.title}
-                              onChange={(e) => setFormData({...formData, title: e.target.value})}
-                              required
-                              className="h-14 rounded-xl bg-[var(--surface-2)] border-[var(--border-soft)] font-bold"
-                            />
-                         </div>
+                  {/* Severity Level Choice Chips */}
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Severity Priority</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {severityLevels.map(s => {
+                        const isSelected = formData.severity === s.id;
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, severity: s.id as any })}
+                            className={`p-2.5 rounded-xl border text-center font-bold text-[10px] uppercase transition-all ${
+                              isSelected 
+                                ? 'border-rose-500 bg-rose-500/10 text-rose-400 shadow-md scale-[1.01]' 
+                                : s.color
+                            }`}
+                          >
+                            {s.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                         <div className="space-y-2">
-                            <Label className="text-[10px] font-bold uppercase tracking-widest ml-2">Protocol Message</Label>
-                            <Textarea 
-                              placeholder="Detailed instructions for community nodes..."
-                              value={formData.message}
-                              onChange={(e) => setFormData({...formData, message: e.target.value})}
-                              required
-                              className="min-h-[120px] rounded-xl bg-[var(--surface-2)] border-[var(--border-soft)]"
-                            />
-                         </div>
+                  {/* Alert Title */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="title" className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Alert Headline</Label>
+                    <Input 
+                      id="title"
+                      placeholder="e.g., Regional Waterborne Spike Identified"
+                      value={formData.title}
+                      onChange={(e) => setFormData({...formData, title: e.target.value})}
+                      required
+                      className="h-11 rounded-xl bg-secondary/30 border-border text-xs font-bold text-foreground focus:ring-1 focus:ring-rose-500 placeholder:text-muted-foreground/60"
+                    />
+                  </div>
 
-                         <div className="space-y-2">
-                            <Label className="text-[10px] font-bold uppercase tracking-widest ml-2">Transmission Radius (km)</Label>
-                            <Input 
-                              type="number"
-                              value={formData.radius}
-                              onChange={(e) => setFormData({...formData, radius: e.target.value})}
-                              className="h-12 rounded-xl bg-[var(--surface-2)] border-[var(--border-soft)]"
-                            />
-                         </div>
+                  {/* Protocol Message */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="message" className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Protocol Instructions & Message</Label>
+                    <Textarea 
+                      id="message"
+                      placeholder="Detail instructions for local health nodes, sanitation desks, and water containment units..."
+                      value={formData.message}
+                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      required
+                      className="min-h-[100px] rounded-xl bg-secondary/30 border-border text-xs text-foreground placeholder:text-muted-foreground/60 resize-none focus:ring-1 focus:ring-rose-500"
+                    />
+                  </div>
+
+                  {/* Transmission Radius Range Input */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase ml-1">
+                      <span>Transmission Broadcast Radius</span>
+                      <span className="font-mono text-rose-400">{formData.radius} km</span>
+                    </div>
+                    <input 
+                      type="range"
+                      min="5"
+                      max="300"
+                      step="5"
+                      value={formData.radius}
+                      onChange={(e) => setFormData({...formData, radius: Number(e.target.value)})}
+                      className="w-full accent-rose-500 h-1 bg-secondary rounded-lg appearance-none cursor-pointer"
+                    />
+                    <span className="text-[9px] font-mono text-muted-foreground block text-left ml-1 italic">{getRadiusDescription(formData.radius)}</span>
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/10 transition-all hover:scale-[1.005] flex items-center justify-center gap-2">
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                    Broadcast Alert Payload
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column (5 Cols): Active Streams */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">Active Broadcasters Stream</h3>
+              <Badge variant="outline" className="text-[8px] font-bold uppercase tracking-widest border-emerald-500/30 text-emerald-500 animate-pulse-subtle bg-emerald-500/5">LIVE TELEMETRY</Badge>
+            </div>
+
+            <div className="space-y-3.5 max-h-[600px] overflow-y-auto pr-1 scrollbar-thin">
+              <AnimatePresence mode="popLayout">
+                {activeAlerts?.map((alert) => (
+                  <motion.div 
+                    key={alert._id}
+                    layout
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className={`p-4 rounded-xl border text-left cursor-default transition-all relative overflow-hidden group ${
+                      alert.severity === 'critical' ? 'bg-rose-500/5 border-rose-500/40 shadow-sm animate-pulse-subtle' :
+                      alert.severity === 'high' ? 'bg-orange-500/5 border-orange-500/40 shadow-sm' :
+                      alert.severity === 'medium' ? 'bg-amber-500/5 border-amber-500/30' : 'bg-secondary/20 border-border/75'
+                    }`}
+                  >
+                    {/* Left Accent Color bar */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                      alert.severity === 'critical' ? 'bg-rose-500' :
+                      alert.severity === 'high' ? 'bg-orange-500' :
+                      alert.severity === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`} />
+
+                    <div className="flex items-start justify-between gap-4 mb-2 pl-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[8px] font-extrabold px-1.5 py-0.25 rounded uppercase leading-normal ${
+                          alert.severity === 'critical' ? 'bg-rose-500/15 text-rose-500' :
+                          alert.severity === 'high' ? 'bg-orange-500/15 text-orange-500' :
+                          alert.severity === 'medium' ? 'bg-amber-500/15 text-amber-500' :
+                          'bg-emerald-500/15 text-emerald-500'
+                        }`}>
+                          {alert.severity}
+                        </span>
+                        <h4 className="font-bold text-xs text-foreground tracking-tight">{alert.title}</h4>
                       </div>
-
-                      <Button type="submit" disabled={loading} className="w-full h-16 rounded-2xl text-lg font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-xl shadow-rose-500/20 transition-all hover:scale-[1.02]">
-                         {loading ? <Loader2 className="w-6 h-6 animate-spin mr-3" /> : <Send className="w-5 h-5 mr-3" />}
-                         Broadcast to Global Network
-                      </Button>
-                   </form>
-                </CardContent>
-              </Card>
-           </div>
-
-           {/* Active Stream */}
-           <div className="lg:col-span-5 space-y-6">
-              <div className="flex items-center justify-between px-2">
-                 <h3 className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Active Broadcast Stream</h3>
-                 <Badge variant="outline" className="text-[8px] font-bold uppercase tracking-widest border-emerald-500/30 text-emerald-500">Live</Badge>
-              </div>
-
-              <div className="space-y-4 max-h-[700px] overflow-auto pr-2 custom-scrollbar">
-                 <AnimatePresence mode="popLayout">
-                    {activeAlerts?.map((alert) => (
-                      <motion.div 
-                        key={alert._id}
-                        layout
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="p-6 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-sm hover:border-rose-500/30 transition-colors group"
+                      
+                      {/* Action buttons (Dismiss / Resolve Alert) */}
+                      <button
+                        onClick={() => handleDeactivate(alert._id)}
+                        disabled={deactivatingId === alert._id}
+                        className="text-muted-foreground hover:text-rose-500 p-1 rounded-lg hover:bg-secondary border border-transparent hover:border-border/60 transition-all shrink-0"
+                        title="Dismiss / Resolve Alert"
                       >
-                         <div className="flex items-start justify-between gap-4 mb-3">
-                            <div className="flex items-center gap-3">
-                               <div className={`p-2 rounded-lg ${
-                                 alert.severity === 'critical' ? 'bg-rose-500/20 text-rose-500' :
-                                 alert.severity === 'high' ? 'bg-amber-500/20 text-amber-500' : 'bg-primary/20 text-primary'
-                               }`}>
-                                  <ShieldAlert className="w-4 h-4" />
-                               </div>
-                               <h4 className="font-bold text-sm tracking-tight group-hover:text-rose-500 transition-colors">{alert.title}</h4>
-                            </div>
-                            <span className="text-[8px] font-mono opacity-50 uppercase">{format(alert.createdAt, 'HH:mm:ss')}</span>
-                         </div>
-                         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-4">{alert.message}</p>
-                         <div className="flex items-center justify-between pt-4 border-t border-[var(--border-soft)]">
-                            <div className="flex items-center gap-2">
-                               <MapPin className="w-3 h-3 text-muted-foreground" />
-                               <span className="text-[9px] font-bold text-muted-foreground uppercase">{alert.location?.radius || 0}km Range</span>
-                            </div>
-                            <Badge className="text-[8px] font-bold uppercase bg-[var(--surface-2)] text-foreground border-0">{alert.type.replace('_', ' ')}</Badge>
-                         </div>
-                      </motion.div>
-                    ))}
-                 </AnimatePresence>
-                 {activeAlerts?.length === 0 && (
-                   <div className="text-center py-20 border-2 border-dashed border-[var(--border-soft)] rounded-3xl opacity-30">
-                      <Globe className="w-10 h-10 mx-auto mb-4" />
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em]">No active broadcasts</p>
-                   </div>
-                 )}
-              </div>
-           </div>
+                        {deactivatingId === alert._id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Check className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-3.5 pl-1.5 font-medium">{alert.message}</p>
+                    
+                    <div className="flex items-center justify-between pt-3 border-t border-border/30 pl-1.5">
+                      <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground font-mono">
+                        <MapPin className="w-3 h-3 text-muted-foreground" />
+                        <span>{alert.location?.radius || 0} km Broadcast</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[8px] font-mono text-muted-foreground/60">{format(alert.createdAt, 'HH:mm:ss')}</span>
+                        <Badge className="text-[8px] font-bold uppercase bg-secondary/80 text-foreground border-0">{alert.type.replace('_', ' ')}</Badge>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              
+              {activeAlerts?.length === 0 && (
+                <div className="text-center py-16 border-2 border-dashed border-border/60 rounded-2xl opacity-40 bg-secondary/10 flex flex-col items-center justify-center">
+                  <Globe className="w-8 h-8 mx-auto mb-3 text-muted-foreground/50 animate-pulse" />
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">No active network broadcasts</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </ProtectedRoute>

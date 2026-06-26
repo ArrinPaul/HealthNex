@@ -688,40 +688,41 @@ export default function AIFeaturesPage() {
                             </span>
                           </CardHeader>
                           <CardContent className="p-5 space-y-4 text-xs">
-                            {/* Probability Gauge */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                              <div className="bg-secondary/35 border border-border/60 rounded-xl p-4 flex flex-col items-center justify-center">
+                            {/* Probability & Peak Window Row */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div className="bg-secondary/35 border border-border/60 rounded-xl p-4 flex flex-col items-center justify-center min-h-[110px]">
                                 <span className="text-[9px] text-muted-foreground font-black uppercase tracking-wider mb-2">Outbreak Probability</span>
                                 <div className="relative flex items-center justify-center">
                                   {/* Simple Ring Visualizer */}
-                                  <svg className="w-18 h-18">
-                                    <circle className="text-secondary" strokeWidth="6" stroke="currentColor" fill="transparent" r="28" cx="36" cy="36" />
-                                    <circle className="text-primary" strokeWidth="6" strokeDasharray="175" strokeDashoffset={175 - (175 * results.data.probability) / 100} strokeLinecap="round" stroke="currentColor" fill="transparent" r="28" cx="36" cy="36" />
+                                  <svg className="w-16 h-16" viewBox="0 0 80 80">
+                                    <circle className="text-secondary/20" strokeWidth="6" stroke="currentColor" fill="transparent" r="32" cx="40" cy="40" />
+                                    <circle className="text-primary" strokeWidth="6" strokeDasharray="201" strokeDashoffset={201 - (201 * results.data.probability) / 100} strokeLinecap="round" stroke="currentColor" fill="transparent" r="32" cx="40" cy="40" />
                                   </svg>
-                                  <span className="absolute font-mono font-black text-lg text-foreground">{results.data.probability}%</span>
+                                  <span className="absolute font-mono font-black text-sm text-foreground">{results.data.probability}%</span>
                                 </div>
                               </div>
 
-                              <div className="bg-secondary/30 border border-border/60 rounded-xl p-4 flex flex-col justify-between">
+                              <div className="bg-secondary/30 border border-border/60 rounded-xl p-4 flex flex-col justify-between min-h-[110px]">
                                 <div>
                                   <span className="text-[9px] text-muted-foreground block font-black uppercase tracking-wider mb-1">Peak Incident Window</span>
-                                  <span className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                                  <span className="font-bold text-foreground text-sm flex items-center gap-1.5 mt-1">
                                     <Calendar className="w-4 h-4 text-primary" /> {results.data.peakWindow}
                                   </span>
                                 </div>
                                 <span className="text-[8px] text-muted-foreground leading-normal mt-2 block font-mono">Calculated using historic outbreak timelines.</span>
                               </div>
+                            </div>
 
-                              <div className="bg-secondary/30 border border-border/60 rounded-xl p-4">
-                                <span className="text-[9px] text-muted-foreground block font-black uppercase tracking-wider mb-1">Factor Diagnostics</span>
-                                <div className="space-y-1 mt-1 font-mono text-[9px] font-bold">
-                                  {Object.entries(results.data.factors || {}).map(([factor, val]: [string, any]) => (
-                                    <div key={factor} className="flex justify-between items-center py-0.5 border-b border-border/20">
-                                      <span className="text-muted-foreground truncate max-w-[60%]">{factor}</span>
-                                      <span className="text-foreground">{val}</span>
-                                    </div>
-                                  ))}
-                                </div>
+                            {/* Factor Diagnostics (Full Width) */}
+                            <div className="bg-secondary/30 border border-border/60 rounded-xl p-4">
+                              <span className="text-[9px] text-muted-foreground block font-black uppercase tracking-wider mb-2">Factor Diagnostics</span>
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-[9px] font-bold">
+                                {Object.entries(results.data.factors || {}).map(([factor, val]: [string, any]) => (
+                                  <div key={factor} className="p-2.5 rounded-lg bg-secondary/50 border border-border/40 flex flex-col justify-between">
+                                    <span className="text-muted-foreground truncate mb-1">{factor}</span>
+                                    <span className="text-foreground text-[10px] font-black">{val}</span>
+                                  </div>
+                                ))}
                               </div>
                             </div>
 
