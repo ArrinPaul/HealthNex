@@ -3,6 +3,8 @@ import { v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
 import { ROLES, ROLE_HIERARCHY, VERIFICATION_STATUS, UserRole } from "./roles";
 
+const VALID_ROLES = Object.values(ROLES);
+
 // Create a new user
 export const createUser = mutation({
   args: {
@@ -22,21 +24,18 @@ export const createUser = mutation({
       throw new Error("User with this email already exists");
     }
 
-    const requestedRole = args.role || ROLES.PUBLIC;
-    const isSuperAdmin = requestedRole === ROLES.SUPER_ADMIN;
-    
-    const needsVerification = !isSuperAdmin && (
-                             requestedRole === ROLES.ADMIN || 
-                             requestedRole === ROLES.HEALTH_WORKER);
+    const requestedRole = (args.role && VALID_ROLES.includes(args.role as UserRole))
+      ? args.role as UserRole
+      : ROLES.COMMUNITY_USER;
 
     const userId = await ctx.db.insert("users", {
       email: args.email,
       name: args.name,
       passwordHash: args.passwordHash,
-      role: isSuperAdmin ? ROLES.SUPER_ADMIN : (needsVerification ? ROLES.PUBLIC : requestedRole), 
+      role: requestedRole,
       requestedRole: requestedRole,
       verificationDocUrl: args.verificationDocUrl,
-      verificationStatus: isSuperAdmin ? VERIFICATION_STATUS.VERIFIED : (needsVerification ? VERIFICATION_STATUS.PENDING : VERIFICATION_STATUS.NONE),
+      verificationStatus: VERIFICATION_STATUS.NONE,
       createdAt: Date.now(),
       isActive: true,
     });
@@ -136,6 +135,10 @@ export const updateUserRole = mutationWithAuth({
   handler: async (ctx: any, args: any) => {
     const { userId, targetUserId, newRole } = args;
     
+    if (!VALID_ROLES.includes(newRole as UserRole)) {
+      throw new Error(`Invalid role: ${newRole}. Valid roles: ${VALID_ROLES.join(', ')}`);
+    }
+
     const currentUser = await ctx.db.get(userId);
     const targetUser = await ctx.db.get(targetUserId);
 
@@ -160,6 +163,7 @@ export const updateUserRole = mutationWithAuth({
 
     await ctx.db.patch(targetUserId, {
       role: newRole,
+      requestedRole: newRole,
     });
 
     // AUDIT LOG

@@ -11,7 +11,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Shield, User, Activity, Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { ROLE_HIERARCHY } from "../../../convex/roles";
+import { ROLE_HIERARCHY, ROLES } from "../../../convex/roles";
+import type { UserRole } from "../../../convex/roles";
 
 export default function UserManagement() {
   const { user: currentUser, token } = useAuth();
@@ -54,30 +55,25 @@ export default function UserManagement() {
   };
 
   const getAvailableRoles = (targetUser: any) => {
-    if (targetUser.role === 'super-admin') return [];
+    if (targetUser.role === ROLES.SUPER_ADMIN) return [];
     
-    const currentUserLevel = ROLE_HIERARCHY[currentUser.role as keyof typeof ROLE_HIERARCHY] || 0;
-    const targetUserLevel = ROLE_HIERARCHY[targetUser.role as keyof typeof ROLE_HIERARCHY] || 0;
+    const currentUserLevel = ROLE_HIERARCHY[currentUser.role as UserRole] || 0;
 
-    if (currentUser.role === 'super-admin') {
-      return Object.keys(ROLE_HIERARCHY);
+    if (currentUser.role === ROLES.SUPER_ADMIN) {
+      return Object.values(ROLES).filter(r => r !== ROLES.SUPER_ADMIN);
     }
 
-    if (currentUserLevel > targetUserLevel) {
-      return Object.entries(ROLE_HIERARCHY)
-        .filter(([, level]) => level < currentUserLevel)
-        .map(([role]) => role);
-    }
-
-    return [];
+    return Object.entries(ROLE_HIERARCHY)
+      .filter(([role, level]) => level < currentUserLevel && role !== ROLES.SUPER_ADMIN)
+      .map(([role]) => role);
   };
 
   const getRoleIcon = (role: string) => {
     switch(role) {
-      case 'super-admin': return <Shield className="w-4 h-4 text-rose-500" />;
-      case 'admin': return <Shield className="w-4 h-4 text-violet-500" />;
-      case 'health-worker': return <Activity className="w-4 h-4 text-emerald-500" />;
-      case 'community-user': return <User className="w-4 h-4 text-sky-400" />;
+      case ROLES.SUPER_ADMIN: return <Shield className="w-4 h-4 text-rose-500" />;
+      case ROLES.ADMIN: return <Shield className="w-4 h-4 text-violet-500" />;
+      case ROLES.HEALTH_WORKER: return <Activity className="w-4 h-4 text-emerald-500" />;
+      case ROLES.COMMUNITY_USER: return <User className="w-4 h-4 text-sky-400" />;
       default: return <Globe className="w-4 h-4 text-muted-foreground" />;
     }
   };
