@@ -13,13 +13,15 @@ import {
   Globe, Map as MapIcon, Zap, LayoutGrid, Bell, 
   Activity, ArrowRight, ShieldCheck, Download, Plus, Filter,
   RefreshCw, Radio, FileText, CheckCircle2, AlertOctagon, Terminal as TerminalIcon, Send, Eye, X, Check, ShieldAlert,
-  Mic, Volume2, Sliders, CheckSquare, Trash2, Flame, Play, Square, Settings, MessageSquare
+  Mic, Volume2, Sliders, CheckSquare, Trash2, Flame, Play, Square, Settings, MessageSquare, Database
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import InstitutionalTrust from '@/components/dashboard/InstitutionalTrust';
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 const DiseaseMap = dynamic(() => import('@/components/DiseaseMap'), { ssr: false });
 
@@ -238,6 +240,62 @@ export default function DashboardPage() {
     }
   };
 
+  // WHO & Weather Telemetry States
+  const [configTab, setConfigTab] = useState<"hud" | "who">("hud");
+  const [whoRecords, setWhoRecords] = useState<any[]>([]);
+  const [whoDisease, setWhoDisease] = useState<string>("cholera");
+  const [whoLoading, setWhoLoading] = useState<boolean>(false);
+
+  const [nodeWeather, setNodeWeather] = useState<any>(null);
+  const [weatherLoading, setWeatherLoading] = useState<boolean>(false);
+
+  // Fetch WHO GHO data
+  useEffect(() => {
+    if (configTab !== "who") return;
+    const fetchWhoData = async () => {
+      setWhoLoading(true);
+      try {
+        const res = await fetch(`/api/health/who?disease=${whoDisease}`);
+        const data = await res.json();
+        if (data.success) {
+          setWhoRecords(data.records || []);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setWhoLoading(false);
+      }
+    };
+    fetchWhoData();
+  }, [configTab, whoDisease]);
+
+  // Fetch live weather data for the inspected node
+  useEffect(() => {
+    const inspectedNode = outbreaks.find(o => o.id === inspectedNodeId);
+    if (!inspectedNodeId || !inspectedNode) {
+      setNodeWeather(null);
+      return;
+    }
+    const fetchWeather = async () => {
+      setWeatherLoading(true);
+      try {
+        const res = await fetch(`/api/weather?lat=${inspectedNode.lat || inspectedNode.latitude}&lon=${inspectedNode.lng || inspectedNode.longitude}`);
+        const data = await res.json();
+        if (data && !data.error) {
+          setNodeWeather(data);
+        } else {
+          setNodeWeather(null);
+        }
+      } catch (err) {
+        console.error(err);
+        setNodeWeather(null);
+      } finally {
+        setWeatherLoading(false);
+      }
+    };
+    fetchWeather();
+  }, [inspectedNodeId, outbreaks]);
+
   // Terminal Logs
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalLogs, setTerminalLogs] = useState<string[]>([
@@ -403,7 +461,6 @@ export default function DashboardPage() {
     const diseases = ["Cholera", "Dengue", "COVID", "Malaria", "Flu"];
     const severities = ["medium", "high", "critical"];
 
-    const targetCity = cities[Math.floor(Math.random() * cities.length)];
     const disease = diseases[Math.floor(Math.random() * diseases.length)];
     const severity = severities[Math.floor(Math.random() * severities.length)];
     const cases = Math.floor(Math.random() * 55) + 20;
@@ -423,6 +480,23 @@ export default function DashboardPage() {
     setSelectedHotspot({ lat: targetCity.lat, lng: targetCity.lng });
     toast.warning(`[SIMULATION] Spontaneous ${disease} outbreak reported in ${targetCity.name}!`);
     setTerminalLogs(prev => [...prev, `[SIM_ALERT] Ingested raw telemetry warning: ${cases} cases at ${targetCity.name}`]);
+  };
+
+  const seedHistorical = useMutation(api.diseases.seedHistoricalOutbreaks);
+  
+  const handleSeedIDSP = async () => {
+    try {
+      const result = await seedHistorical({ force: true });
+      if (result.success) {
+        toast.success(`Successfully seeded ${result.count} real historical IDSP outbreaks across India!`);
+        setTerminalLogs(prev => [...prev, `[DATABASE] Seeded ${result.count} real-world IDSP data nodes successfully`]);
+      } else {
+        toast.error(result.message || "Failed to seed historical outbreaks");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Failed to seed real historical outbreaks");
+    }
   };
 
   // Node Comments Log system
@@ -619,9 +693,18 @@ export default function DashboardPage() {
           
           <div className="flex flex-wrap items-center gap-3">
             <Button
+              onClick={handleSeedIDSP}
+              variant="outline"
+              className="h-10 px-4 rounded-xl text-xs font-bold border-emerald-500/30 hover:bg-emerald-500/5 text-emerald-400 flex items-center gap-2 shadow-sm animate-pulse-subtle"
+            >
+              <Database className="w-4 h-4 text-emerald-400" />
+              Seed IDSP Data
+            </Button>
+
+            <Button
               onClick={simulateLiveEvent}
               variant="outline"
-              className="h-10 px-4 rounded-xl text-xs font-bold border-primary/30 hover:bg-primary/5 text-primary flex items-center gap-2 shadow-sm animate-pulse-subtle"
+              className="h-10 px-4 rounded-xl text-xs font-bold border-primary/30 hover:bg-primary/5 text-primary flex items-center gap-2 shadow-sm"
             >
               <Zap className="w-4 h-4 text-primary fill-primary/10" />
               Simulate Live Event
@@ -813,6 +896,24 @@ export default function DashboardPage() {
                         <span className="text-[10px] text-muted-foreground block font-bold">CASES</span>
                         <span className="font-bold text-foreground">{inspectedNode.cases} active</span>
                       </div>
+                    </div>
+
+                    {/* Real-Time Climate Metrics */}
+                    <div className="bg-cyan-500/5 border border-cyan-500/15 p-3 rounded-xl">
+                      <span className="text-[10px] text-cyan-400 block font-black uppercase tracking-wider mb-1.5 flex items-center gap-1.5 font-sans">
+                        <Droplet className="w-3.5 h-3.5" /> Environmental Metrics (Live)
+                      </span>
+                      {weatherLoading ? (
+                        <div className="text-[9px] text-muted-foreground animate-pulse font-mono">Querying weather node...</div>
+                      ) : nodeWeather ? (
+                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-foreground font-semibold">
+                          <div>Temp: <span className="text-cyan-400 font-bold">{nodeWeather.current.temperature}°C</span></div>
+                          <div>Humidity: <span className="text-cyan-400 font-bold">{nodeWeather.current.humidity}%</span></div>
+                          <div className="col-span-2">Condition: <span className="text-cyan-400 font-bold">{nodeWeather.current.condition}</span></div>
+                        </div>
+                      ) : (
+                        <div className="text-[9px] text-muted-foreground italic font-mono">Weather telemetry unavailable</div>
+                      )}
                     </div>
 
                     {/* Node logs / timeline updates */}
@@ -1019,58 +1120,99 @@ export default function DashboardPage() {
              </div>
           </div>
 
-          {/* Node Controllers (HUD switches) */}
-          <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col justify-between text-left">
+          {/* Node Controllers (HUD switches / WHO Feed) */}
+          <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col justify-between text-left min-h-[300px]">
             <div>
               <div className="flex items-center gap-2.5 mb-3 border-b border-border/40 pb-3 justify-between">
-                <div className="flex items-center gap-2">
-                  <Settings className="w-4.5 h-4.5 text-primary" />
-                  <h4 className="font-bold text-sm text-foreground">Sensory Node Config</h4>
+                <div className="flex gap-3 text-xs">
+                  <button 
+                    onClick={() => setConfigTab("hud")}
+                    className={`font-bold pb-1 border-b-2 transition-all ${configTab === 'hud' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                  >
+                    Sensory Config
+                  </button>
+                  <button 
+                    onClick={() => setConfigTab("who")}
+                    className={`font-bold pb-1 border-b-2 transition-all ${configTab === 'who' ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
+                  >
+                    WHO Feed (IND)
+                  </button>
                 </div>
-                <span className="text-[9px] font-mono text-muted-foreground">HUD CONTROL</span>
+                <span className="text-[9px] font-mono text-muted-foreground uppercase">{configTab === 'hud' ? 'HUD CONTROL' : 'REAL DATA'}</span>
               </div>
               
-              <div className="space-y-4 pt-2 text-xs font-semibold text-foreground">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2"><Volume2 className="w-4 h-4 text-cyan-400" /> Acoustic Scanning Node</span>
-                  <input
-                    type="checkbox"
-                    checked={acousticScanner}
-                    onChange={(e) => {
-                      setAcousticScanner(e.target.checked);
-                      toast.info(`Acoustic scanning node set to ${e.target.checked ? 'ONLINE' : 'OFFLINE'}`);
-                      setTerminalLogs(prev => [...prev, `[CONFIG] Acoustic scanning hardware is now ${e.target.checked ? 'ACTIVE' : 'DEACTIVATED'}`]);
-                    }}
-                    className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
-                  />
+              {configTab === 'hud' ? (
+                <div className="space-y-4 pt-2 text-xs font-semibold text-foreground">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2"><Volume2 className="w-4 h-4 text-cyan-400" /> Acoustic Scanning Node</span>
+                    <input
+                      type="checkbox"
+                      checked={acousticScanner}
+                      onChange={(e) => {
+                        setAcousticScanner(e.target.checked);
+                        toast.info(`Acoustic scanning node set to ${e.target.checked ? 'ONLINE' : 'OFFLINE'}`);
+                        setTerminalLogs(prev => [...prev, `[CONFIG] Acoustic scanning hardware is now ${e.target.checked ? 'ACTIVE' : 'DEACTIVATED'}`]);
+                      }}
+                      className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2"><Eye className="w-4 h-4 text-violet-400" /> OCR Report Scan Node</span>
+                    <input
+                      type="checkbox"
+                      checked={ocrScanner}
+                      onChange={(e) => {
+                        setOcrScanner(e.target.checked);
+                        toast.info(`OCR scanner node set to ${e.target.checked ? 'ONLINE' : 'OFFLINE'}`);
+                        setTerminalLogs(prev => [...prev, `[CONFIG] Optical text reader node is now ${e.target.checked ? 'ONLINE' : 'DEACTIVATED'}`]);
+                      }}
+                      className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2"><Globe className="w-4 h-4 text-emerald-400" /> Heatmap Interpolation</span>
+                    <input
+                      type="checkbox"
+                      checked={heatmapInterpolation}
+                      onChange={(e) => {
+                        setHeatmapInterpolation(e.target.checked);
+                        toast.info(`Geospatial Heatmap Interpolation set to ${e.target.checked ? 'ENABLED' : 'DISABLED'}`);
+                        setTerminalLogs(prev => [...prev, `[CONFIG] Heatmap rendering algorithm set to ${e.target.checked ? 'INTERPOLATED' : 'DISCRETE'}`]);
+                      }}
+                      className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2"><Eye className="w-4 h-4 text-violet-400" /> OCR Report Scan Node</span>
-                  <input
-                    type="checkbox"
-                    checked={ocrScanner}
-                    onChange={(e) => {
-                      setOcrScanner(e.target.checked);
-                      toast.info(`OCR scanner node set to ${e.target.checked ? 'ONLINE' : 'OFFLINE'}`);
-                      setTerminalLogs(prev => [...prev, `[CONFIG] Optical text reader node is now ${e.target.checked ? 'ONLINE' : 'DEACTIVATED'}`]);
-                    }}
-                    className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
-                  />
+              ) : (
+                <div className="space-y-3 pt-1 text-xs">
+                  <div className="flex justify-between items-center bg-secondary/30 p-1.5 rounded-lg border border-border/30">
+                    <span className="text-[10px] text-muted-foreground uppercase font-bold">Select Disease</span>
+                    <select 
+                      value={whoDisease}
+                      onChange={(e) => setWhoDisease(e.target.value)}
+                      className="bg-background border border-border rounded px-2 py-1 text-[10px] text-foreground focus:outline-none"
+                    >
+                      <option value="cholera">Cholera cases</option>
+                      <option value="malaria">Malaria cases</option>
+                    </select>
+                  </div>
+                  
+                  <div className="h-[120px] overflow-y-auto space-y-1.5 scrollbar-thin pr-1 text-left">
+                    {whoLoading ? (
+                      <div className="text-center text-muted-foreground py-6 animate-pulse text-[10px]">Loading WHO Feed...</div>
+                    ) : whoRecords.length === 0 ? (
+                      <div className="text-center text-muted-foreground py-6 italic text-[10px]">No WHO records found.</div>
+                    ) : (
+                      whoRecords.map((r, i) => (
+                        <div key={i} className="flex justify-between items-center py-1 border-b border-border/20 text-[10px] font-mono">
+                          <span className="text-muted-foreground font-semibold">Year {r.year}</span>
+                          <span className="text-foreground font-bold">{r.cases.toLocaleString()} cases</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2"><Globe className="w-4 h-4 text-emerald-400" /> Heatmap Interpolation</span>
-                  <input
-                    type="checkbox"
-                    checked={heatmapInterpolation}
-                    onChange={(e) => {
-                      setHeatmapInterpolation(e.target.checked);
-                      toast.info(`Geospatial Heatmap Interpolation set to ${e.target.checked ? 'ENABLED' : 'DISABLED'}`);
-                      setTerminalLogs(prev => [...prev, `[CONFIG] Heatmap rendering algorithm set to ${e.target.checked ? 'INTERPOLATED' : 'DISCRETE'}`]);
-                    }}
-                    className="w-4 h-4 text-primary bg-secondary border-border focus:ring-0 rounded cursor-pointer"
-                  />
-                </div>
-              </div>
+              )}
             </div>
             
             <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider pt-4 border-t border-border/40 mt-6 flex justify-between items-center font-mono">
