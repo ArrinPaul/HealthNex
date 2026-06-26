@@ -249,3 +249,23 @@
 nextjs-portal {
   display: none !important;
 }
+
+/* Force generous side margins/paddings on all layout containers */
+.container {
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 4.5rem !important;
+    padding-right: 4.5rem !important;
+  }
+}

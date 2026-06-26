@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useDashboardAggregates } from '@/services/healthDataService';
 
@@ -14,7 +13,12 @@ const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.Res
 
 const COLORS = ['#00d9ff', '#10b981', '#f59e0b', '#8b5cf6'];
 
-export default function DistributionSection({ compact }: { compact?: boolean }) {
+interface DistributionSectionProps {
+  compact?: boolean;
+  distributionData?: Array<{ name: string; value: number }>;
+}
+
+export default function DistributionSection({ compact, distributionData }: DistributionSectionProps) {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   const aggregates = useDashboardAggregates();
@@ -23,27 +27,29 @@ export default function DistributionSection({ compact }: { compact?: boolean }) 
     setIsMounted(true);
   }, []);
 
-  if (!isMounted || !aggregates) {
+  const currentData = distributionData || aggregates?.distribution;
+
+  if (!isMounted || (!currentData && !aggregates)) {
     return <div className="h-full flex items-center justify-center animate-pulse bg-[var(--surface-2)] text-[8px] font-bold uppercase tracking-widest opacity-20">Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 min-h-0">
+    <div className="flex flex-col h-full justify-between">
+      <div className="flex-1 min-h-[140px] relative">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
-              data={aggregates.distribution}
+              data={currentData}
               cx="50%"
               cy="50%"
               labelLine={false}
-              innerRadius={70}
-              outerRadius={90}
-              paddingAngle={8}
+              innerRadius={50}
+              outerRadius={70}
+              paddingAngle={6}
               dataKey="value"
               stroke="transparent"
             >
-              {aggregates.distribution.map((entry: any, index: number) => (
+              {currentData?.map((entry: any, index: number) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
@@ -61,13 +67,13 @@ export default function DistributionSection({ compact }: { compact?: boolean }) 
         </ResponsiveContainer>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-         {aggregates.distribution.map((d: any, index: number) => (
-           <div key={d.name} className="flex items-center gap-2 bg-secondary p-2.5 rounded-lg border border-border">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+      <div className="mt-2 grid grid-cols-2 gap-2">
+         {currentData?.map((d: any, index: number) => (
+           <div key={d.name} className="flex items-center gap-1.5 bg-secondary/40 p-2 rounded-xl border border-border/60">
+              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
               <div className="flex-1 min-w-0">
-                <div className="text-xs text-muted-foreground truncate">{d.name}</div>
-                <div className="text-sm font-semibold">{d.value}</div>
+                <div className="text-[10px] text-muted-foreground truncate font-semibold uppercase">{d.name}</div>
+                <div className="text-xs font-black text-foreground">{d.value}</div>
               </div>
            </div>
          ))}
