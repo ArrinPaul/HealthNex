@@ -12,8 +12,18 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
+  const allowedRolesString = allowedRoles ? allowedRoles.join(',') : '';
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname;
+      if (path.startsWith('/login')) return;
+      if (user) {
+        if (user.role === 'public' && path.startsWith('/education')) return;
+        if (user.role !== 'public' && path.startsWith('/dashboard')) return;
+      }
+    }
+
     if (!isAuthenticated) {
       const url = new URL('/login', window.location.origin);
       url.searchParams.set('callbackUrl', window.location.pathname);
@@ -25,7 +35,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
         router.push('/dashboard');
       }
     }
-  }, [isAuthenticated, user, allowedRoles, router]);
+  }, [isAuthenticated, user, allowedRolesString, router]);
 
   if (!isAuthenticated || (allowedRoles && user && !allowedRoles.includes(user.role))) {
     return null;

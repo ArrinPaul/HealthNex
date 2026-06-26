@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import { Button } from '@/components/ui/button';
 import { useDiseaseData, useDashboardAggregates } from '@/services/healthDataService';
 import StatsGrid from '@/components/dashboard/StatsGrid';
 import ChartsSection from '@/components/dashboard/ChartsSection';

@@ -43,14 +43,14 @@ export const getUsageStats = queryWithAuth({
     
     const logs = await ctx.db
       .query("usageTracking")
-      .filter((q) => q.gte(q.field("timestamp"), daysAgo))
+      .filter((q: any) => q.gte(q.field("timestamp"), daysAgo))
       .collect();
     
     return {
       totalCalls: logs.length,
-      successCount: logs.filter(l => l.status === "success").length,
-      errorCount: logs.filter(l => l.status === "error").length,
-      byFeature: logs.reduce((acc, log) => {
+      successCount: logs.filter((l: any) => l.status === "success").length,
+      errorCount: logs.filter((l: any) => l.status === "error").length,
+      byFeature: logs.reduce((acc: any, log: any) => {
         acc[log.feature] = (acc[log.feature] || 0) + 1;
         return acc;
       }, {} as Record<string, number>),

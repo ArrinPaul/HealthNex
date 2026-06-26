@@ -41,10 +41,10 @@ export const getDashboardAggregates = queryWithAuth({
 
     // 1. Distribution by category (Outbreaks + Reports)
     const distribution: Record<string, number> = {
-      Waterborne: outbreaks.filter(o => o.disease.toLowerCase().includes('water') || o.disease.toLowerCase().includes('cholera')).length + reports.filter(r => r.category === 'water').length,
-      Vector: outbreaks.filter(o => o.disease.toLowerCase().includes('malaria') || o.disease.toLowerCase().includes('dengue')).length,
-      Respiratory: outbreaks.filter(o => o.disease.toLowerCase().includes('flu') || o.disease.toLowerCase().includes('covid')).length + reports.filter(r => r.category === 'outbreak').length,
-      Environmental: reports.filter(r => r.category === 'environmental').length + waterQuality.filter(w => w.quality === 'poor').length,
+      Waterborne: outbreaks.filter((o: any) => o.disease.toLowerCase().includes('water') || o.disease.toLowerCase().includes('cholera')).length + reports.filter((r: any) => r.category === 'water').length,
+      Vector: outbreaks.filter((o: any) => o.disease.toLowerCase().includes('malaria') || o.disease.toLowerCase().includes('dengue')).length,
+      Respiratory: outbreaks.filter((o: any) => o.disease.toLowerCase().includes('flu') || o.disease.toLowerCase().includes('covid')).length + reports.filter((r: any) => r.category === 'outbreak').length,
+      Environmental: reports.filter((r: any) => r.category === 'environmental').length + waterQuality.filter((w: any) => w.quality === 'poor').length,
     };
 
     // 2. Trend Data (Last 6 months)
@@ -57,8 +57,8 @@ export const getDashboardAggregates = queryWithAuth({
       const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
       const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getTime();
 
-      const count = outbreaks.filter(o => o.timestamp >= startOfMonth && o.timestamp <= endOfMonth).length +
-                    reports.filter(r => r.createdAt >= startOfMonth && r.createdAt <= endOfMonth).length;
+      const count = outbreaks.filter((o: any) => o.timestamp >= startOfMonth && o.timestamp <= endOfMonth).length +
+                    reports.filter((r: any) => r.createdAt >= startOfMonth && r.createdAt <= endOfMonth).length;
       
       last6Months.push({
         month: monthLabel,
@@ -67,9 +67,9 @@ export const getDashboardAggregates = queryWithAuth({
     }
 
     // 3. Stats for StatsGrid
-    const totalCases = outbreaks.reduce((acc, o) => acc + (o.confirmedCases || 0), 0);
-    const activeAlerts = alerts.filter(a => a.isActive).length;
-    const aiInsightsCount = outbreaks.filter(o => o.severity === 'critical' || o.severity === 'high').length;
+    const totalCases = outbreaks.reduce((acc: number, o: any) => acc + (o.confirmedCases || 0), 0);
+    const activeAlerts = alerts.filter((a: any) => a.isActive).length;
+    const aiInsightsCount = outbreaks.filter((o: any) => o.severity === 'critical' || o.severity === 'high').length;
 
     return {
       distribution: Object.entries(distribution).map(([name, value]) => ({ name, value })),
