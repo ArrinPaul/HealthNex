@@ -12,7 +12,7 @@ export const broadcastAlert = mutationWithAuth({
     radius: v.optional(v.number()),
   },
   handler: async (ctx: any, args: any) => {
-    const { userId, ...alertData } = args as any;
+    const { userId, radius, ...alertData } = args as any;
     
     // Check if user is health-worker or above
     const user = await ctx.db.get(userId);
@@ -25,6 +25,11 @@ export const broadcastAlert = mutationWithAuth({
       isActive: true,
       createdAt: Date.now(),
       source: user.role === ROLES.HEALTH_WORKER ? "system" : "admin",
+      location: radius ? {
+        latitude: 20.5937, // Default baseline center coordinates of India
+        longitude: 78.9629,
+        radius: radius
+      } : undefined
     });
 
     // AUDIT LOG
