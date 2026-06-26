@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Stethoscope, User, MapPin, Calendar, Activity, Database, Shield } from 'lucide-react';
 import { format } from 'date-fns';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function HealthDataDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const record = useQuery(api.healthData.getHealthDataById, { id: params.id as any });
+  const { token } = useAuth();
+  const record = useQuery(api.healthData.getHealthDataById, token ? { token, id: params.id as any } : "skip");
 
   if (record === undefined) {
     return <div className="p-12 text-center text-muted-foreground">Retrieving clinical record...</div>;

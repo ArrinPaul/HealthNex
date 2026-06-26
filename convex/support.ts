@@ -1,26 +1,39 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
+import { ROLES } from "./roles";
 
-export const sendTicket = mutation({
+export const sendTicket = mutationWithAuth({
   args: {
     name: v.string(),
     email: v.string(),
     subject: v.string(),
     message: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
+    const { userId, ...ticketArgs } = args;
+
     const ticketId = await ctx.db.insert("supportTickets", {
-      ...args,
+      ...ticketArgs,
+      userId,
       status: "open",
-      priority: "high", // Defaulting to high as per UI "high-priority ticket"
+      priority: "medium",
       createdAt: Date.now(),
     });
     return ticketId;
   },
 });
 
-export const getTickets = query({
-  handler: async (ctx) => {
+export const getTickets = queryWithAuth({
+  args: {},
+  handler: async (ctx: any, args: any) => {
+    const { userId } = args;
+
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN)) {
+      throw new Error("Unauthorized: Only admins can view all tickets");
+    }
+
     return await ctx.db
       .query("supportTickets")
       .withIndex("by_created")

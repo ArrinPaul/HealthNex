@@ -1,36 +1,43 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
+import { queryWithAuth } from "./lib/withAuth";
+import { ROLES } from "./roles";
 
 export const getLandingPageStats = query({
   handler: async (ctx) => {
-    const users = await ctx.db.query("users").collect();
-    const reports = await ctx.db.query("communityReports").collect();
-    const healthData = await ctx.db.query("healthData").collect();
-    const alerts = await ctx.db.query("alerts").collect();
-    const outbreaks = await ctx.db.query("diseaseOutbreaks").collect();
+    const users = await ctx.db.query("users").take(1000);
+    const reports = await ctx.db.query("communityReports").take(1000);
+    const healthData = await ctx.db.query("healthData").take(1000);
+    const alerts = await ctx.db.query("alerts").take(1000);
+    const outbreaks = await ctx.db.query("diseaseOutbreaks").take(1000);
     
-    // Calculate total data nodes (users + reports + healthData + outbreaks)
     const totalDataNodes = users.length + reports.length + healthData.length + outbreaks.length;
     
     return {
       dataNodes: totalDataNodes,
       alertsSent: alerts.length,
-      accuracy: 99.9, // This remains a performance target
-      latency: "<1s", // System architecture baseline
       activeUsers: users.length,
       communityReports: reports.length,
     };
   },
 });
 
-export const getDashboardAggregates = query({
-  handler: async (ctx) => {
-    const outbreaks = await ctx.db.query("diseaseOutbreaks").collect();
-    const reports = await ctx.db.query("communityReports").collect();
-    const healthData = await ctx.db.query("healthData").collect();
-    const waterQuality = await ctx.db.query("waterQuality").collect();
-    const alerts = await ctx.db.query("alerts").collect();
-    const users = await ctx.db.query("users").collect();
+export const getDashboardAggregates = queryWithAuth({
+  args: {},
+  handler: async (ctx: any, args: any) => {
+    const { userId } = args;
+
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
+      throw new Error("Unauthorized: Only admins and health workers can view dashboard aggregates");
+    }
+
+    const outbreaks = await ctx.db.query("diseaseOutbreaks").take(500);
+    const reports = await ctx.db.query("communityReports").take(500);
+    const healthData = await ctx.db.query("healthData").take(500);
+    const waterQuality = await ctx.db.query("waterQuality").take(500);
+    const alerts = await ctx.db.query("alerts").take(500);
+    const users = await ctx.db.query("users").take(500);
 
     // 1. Distribution by category (Outbreaks + Reports)
     const distribution: Record<string, number> = {
@@ -41,7 +48,6 @@ export const getDashboardAggregates = query({
     };
 
     // 2. Trend Data (Last 6 months)
-    const now = Date.now();
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const last6Months = [];
     for (let i = 5; i >= 0; i--) {
@@ -57,7 +63,6 @@ export const getDashboardAggregates = query({
       last6Months.push({
         month: monthLabel,
         actual: count,
-        predicted: Math.floor(count * 1.1) // Simple AI simulation based on real data
       });
     }
 

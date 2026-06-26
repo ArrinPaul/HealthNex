@@ -1,5 +1,12 @@
 import { v } from "convex/values";
 
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET must be defined in production environment');
+  }
+  console.warn('⚠️ JWT_SECRET is not defined. Using fallback secret for development only.');
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-dev-secret-key-change-in-production-minimum-32-chars';
 
 function base64UrlDecode(str: string) {
@@ -40,6 +47,11 @@ export async function verifyJWT(token: string) {
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp && payload.exp < now) {
       throw new Error('Token expired');
+    }
+
+    // Verify issued-at (reject tokens issued before a reasonable time)
+    if (payload.iat && payload.iat > now + 60) {
+      throw new Error('Token issued in the future');
     }
 
     // Verify signature using Web Crypto API

@@ -3,6 +3,7 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Convex-based hooks
 export const useHealthData = (token: string | null) => {
@@ -21,7 +22,8 @@ export const useAlerts = () => {
 };
 
 export const useDashboardAggregates = () => {
-  const data = useQuery(api.stats.getDashboardAggregates, {});
+  const { token } = useAuth();
+  const data = useQuery(api.stats.getDashboardAggregates, token ? { token } : "skip");
   return data;
 };
 

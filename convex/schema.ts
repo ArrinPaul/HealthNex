@@ -63,6 +63,7 @@ export default defineSchema({
   }).index("by_location", ["location.latitude", "location.longitude"])
     .index("by_category", ["category"])
     .index("by_status", ["status"])
+    .index("by_category_and_status", ["category", "status"])
     .index("by_created", ["createdAt"]),
 
   diseaseOutbreaks: defineTable({
@@ -84,7 +85,8 @@ export default defineSchema({
   }).index("by_location", ["location"])
     .index("by_status", ["status"])
     .index("by_severity", ["severity"])
-    .index("by_timestamp", ["timestamp"]),
+    .index("by_timestamp", ["timestamp"])
+    .index("by_status_and_timestamp", ["status", "timestamp"]),
 
   waterQuality: defineTable({
     location: v.object({
@@ -142,7 +144,8 @@ export default defineSchema({
         status: v.string(), // "success", "error"
         tokens: v.optional(v.number()),
       }).index("by_feature", ["feature"])
-        .index("by_timestamp", ["timestamp"]),
+        .index("by_timestamp", ["timestamp"])
+        .index("by_user", ["userId"]),
 
       supportTickets: defineTable({
         name: v.string(),
@@ -153,7 +156,8 @@ export default defineSchema({
         priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
         createdAt: v.number(),
       }).index("by_status", ["status"])
-        .index("by_created", ["createdAt"]),
+        .index("by_created", ["createdAt"])
+        .index("by_user", ["userId"]),
 
       externalInstitutionalData: defineTable({
         source: v.string(), // e.g., "disease.sh", "WHO"

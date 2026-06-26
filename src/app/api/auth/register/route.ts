@@ -10,7 +10,7 @@ const convex = new ConvexHttpClient(isValidUrl ? convexUrl : 'https://placeholde
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, name, role = 'community-user', location, verificationDoc } = await request.json();
+    const { email, password, name, location, verificationDoc } = await request.json();
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -26,14 +26,14 @@ export async function POST(request: NextRequest) {
     // Save user to Convex
     let userId;
     try {
-      // Auto-promote specific email to super-admin for initial setup
-      const finalRole = email === 'admin@healthnex.com' ? 'super-admin' : role;
+      // All new registrations start as community-user
+      const finalRole = 'community-user';
       
       userId = await convex.mutation(api.users.createUser, {
         email,
         name,
         passwordHash: hashedPassword,
-        role: finalRole, // This is the requested role
+        role: finalRole,
         verificationDocUrl: verificationDoc,
       });
     } catch (dbError: any) {
@@ -46,8 +46,7 @@ export async function POST(request: NextRequest) {
     // After creation, determine the actual role for the token
     // If they requested community-user, they get it immediately.
     // Otherwise, they stay as 'public' until verified.
-    const assignedRole = email === 'admin@healthnex.com' ? 'super-admin' : 
-                         (role === 'community-user' ? 'community-user' : 'public'); 
+    const assignedRole = 'community-user'; 
     
     // Generate JWT token with the actual assigned role
     const token = JWTService.generateToken({

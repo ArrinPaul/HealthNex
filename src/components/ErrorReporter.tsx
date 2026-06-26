@@ -19,7 +19,14 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
     const inIframe = window.parent !== window;
     if (!inIframe) return;
 
-    const send = (payload: unknown) => window.parent.postMessage(payload, "*");
+    const send = (payload: unknown) => {
+      try {
+        const targetOrigin = window.location.origin;
+        window.parent.postMessage(payload, targetOrigin);
+      } catch {
+        // Silently fail if postMessage fails
+      }
+    };
 
     const onError = (e: ErrorEvent) =>
       send({
@@ -78,20 +85,25 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
   /* ─ extra postMessage when on the global-error route ─ */
   useEffect(() => {
     if (!error || typeof window === 'undefined') return;
-    window.parent.postMessage(
-      {
-        type: "global-error-reset",
-        error: {
-          message: error.message,
-          stack: error.stack,
-          digest: error.digest,
-          name: error.name,
+    try {
+      const targetOrigin = window.location.origin;
+      window.parent.postMessage(
+        {
+          type: "global-error-reset",
+          error: {
+            message: error.message,
+            stack: error.stack,
+            digest: error.digest,
+            name: error.name,
+          },
+          timestamp: Date.now(),
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
         },
-        timestamp: Date.now(),
-        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
-      },
-      "*"
-    );
+        targetOrigin
+      );
+    } catch {
+      // Silently fail if postMessage fails
+    }
   }, [error]);
 
   /* ─ ordinary pages render nothing ─ */

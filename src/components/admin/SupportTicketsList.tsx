@@ -4,9 +4,11 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { format } from "date-fns";
 import { MessageSquare } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SupportTicketsList() {
-  const tickets = useQuery(api.support.getTickets);
+  const { token } = useAuth();
+  const tickets = useQuery(api.support.getTickets, token ? { token } : "skip");
 
   if (!tickets) {
     return <div className="text-muted-foreground">Loading tickets...</div>;

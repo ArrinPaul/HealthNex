@@ -3,30 +3,43 @@
 
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
+import { ROLES } from "./roles";
 
 // Track feature usage
-export const trackUsage = mutation({
+export const trackUsage = mutationWithAuth({
   args: {
-    userId: v.optional(v.id("users")),
     feature: v.string(),
     status: v.string(),
     tokens: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
+    const { userId, feature, status, tokens } = args;
+
     await ctx.db.insert("usageTracking", {
-      ...args,
+      userId,
+      feature,
+      status,
+      tokens,
       timestamp: Date.now(),
     });
   },
 });
 
-// Get usage statistics
-export const getUsageStats = query({
+// Get usage statistics (admin only)
+export const getUsageStats = queryWithAuth({
   args: {
     days: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
-    const daysAgo = Date.now() - (args.days || 7) * 24 * 60 * 60 * 1000;
+  handler: async (ctx: any, args: any) => {
+    const { userId, days } = args;
+
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN)) {
+      throw new Error("Unauthorized: Only admins can view usage stats");
+    }
+
+    const daysAgo = Date.now() - (days || 7) * 24 * 60 * 60 * 1000;
     
     const logs = await ctx.db
       .query("usageTracking")

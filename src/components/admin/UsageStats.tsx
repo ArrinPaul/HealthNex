@@ -4,9 +4,11 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, CheckCircle, XCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function UsageStats() {
-  const stats = useQuery(api.usage.getUsageStats, { days: 30 });
+  const { token } = useAuth();
+  const stats = useQuery(api.usage.getUsageStats, token ? { token, days: 30 } : "skip");
 
   if (!stats) {
     return <div className="text-muted-foreground text-sm">Loading usage data...</div>;

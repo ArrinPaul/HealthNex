@@ -5,11 +5,11 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
+import { ROLES } from "./roles";
 
 // Add health data
 export const addHealthData = mutationWithAuth({
   args: {
-    // userId is extracted from token
     type: v.union(v.literal("symptom"), v.literal("medication"), v.literal("vitals"), v.literal("water_test")),
     data: v.any(),
     location: v.optional(v.object({
@@ -21,8 +21,14 @@ export const addHealthData = mutationWithAuth({
     notes: v.optional(v.string()),
   },
   handler: async (ctx: any, args: any) => {
+    const { userId, type, data, location, severity, notes } = args;
     return await ctx.db.insert("healthData", {
-      ...args,
+      userId,
+      type,
+      data,
+      location,
+      severity,
+      notes,
       timestamp: Date.now(),
     });
   },
@@ -46,10 +52,17 @@ export const getUserHealthData = queryWithAuth({
   },
 });
 
-export const getHealthDataById = query({
+export const getHealthDataById = queryWithAuth({
   args: { id: v.id("healthData") },
-  handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+  handler: async (ctx: any, args: any) => {
+    const { userId, id } = args;
+
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN && currentUser.role !== ROLES.HEALTH_WORKER)) {
+      throw new Error("Unauthorized: Only admins and health workers can view health data by ID");
+    }
+
+    return await ctx.db.get(id);
   },
 });
 

@@ -4,13 +4,13 @@ import { z } from "zod";
 export const ChatbotMessageSchema = z.object({
   message: z.string().min(1, "Message cannot be empty").max(1000, "Message too long"),
   language: z.enum(["en", "hi", "bn", "es", "fr"]).default("en"),
-  context: z.any().optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
 });
 
 // Prediction API Validation
 export const PredictionRequestSchema = z.object({
   type: z.enum(["outbreak", "trend", "epidemic", "maintenance", "sentiment"]),
-  data: z.record(z.string(), z.any()),
+  data: z.record(z.string(), z.unknown()),
 });
 
 // Health Data Validation

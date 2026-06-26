@@ -3,9 +3,11 @@
 
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
+import { ROLES, ROLE_HIERARCHY, UserRole } from "./roles";
 
 // Report a disease outbreak
-export const reportDisease = mutation({
+export const reportDisease = mutationWithAuth({
   args: {
     disease: v.string(),
     cases: v.number(),
@@ -14,15 +16,16 @@ export const reportDisease = mutation({
     longitude: v.number(),
     severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("critical")),
     symptoms: v.optional(v.array(v.string())),
-    reportedBy: v.string(), // userId
     notes: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
+    const { userId, ...reportArgs } = args;
     const id = await ctx.db.insert("diseaseOutbreaks", {
-      ...args,
+      ...reportArgs,
+      reportedBy: userId,
       timestamp: Date.now(),
       status: "active",
-      confirmedCases: args.cases,
+      confirmedCases: reportArgs.cases,
       suspectedCases: 0,
       deaths: 0,
       recovered: 0,
@@ -106,7 +109,7 @@ export const getDiseaseStats = query({
 });
 
 // Update outbreak status
-export const updateOutbreakStatus = mutation({
+export const updateOutbreakStatus = mutationWithAuth({
   args: {
     outbreakId: v.id("diseaseOutbreaks"),
     status: v.union(v.literal("active"), v.literal("contained"), v.literal("resolved")),
@@ -115,8 +118,14 @@ export const updateOutbreakStatus = mutation({
     deaths: v.optional(v.number()),
     recovered: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
-    const { outbreakId, ...updates } = args;
+  handler: async (ctx: any, args: any) => {
+    const { userId, outbreakId, ...updates } = args;
+
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
+      throw new Error("Unauthorized: Only admins and health workers can update outbreak status");
+    }
+
     await ctx.db.patch(outbreakId, updates);
   },
 });

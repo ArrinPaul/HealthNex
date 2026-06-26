@@ -74,17 +74,21 @@ function createConvexClient(): ConvexHttpClient | null {
   return new ConvexHttpClient(convexUrl);
 }
 
-async function trackChatbotUsage(): Promise<void> {
+async function trackChatbotUsage(request: NextRequest): Promise<void> {
   const convex = createConvexClient();
   if (!convex) return;
 
   try {
+    const token = request.cookies.get('auth-token')?.value;
+    if (!token) return;
+
     await convex.mutation(api.usage.trackUsage, {
+      token,
       feature: 'chatbot',
       status: 'success',
     });
   } catch (error) {
-    console.error('Usage tracking failed:', error);
+    // Silently fail - usage tracking shouldn't break the main flow
   }
 }
 
@@ -118,7 +122,7 @@ export async function POST(request: NextRequest) {
       'disease prevention, and general health advice.';
 
     const resultStream = await model.generateContentStream(prompt);
-    await trackChatbotUsage();
+    await trackChatbotUsage(request);
 
     const stream = new ReadableStream({
       async start(controller) {

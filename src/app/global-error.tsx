@@ -10,8 +10,9 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error
-    console.error('Global Error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Global Error:', error);
+    }
   }, [error]);
 
   return (
@@ -49,22 +50,8 @@ export default function GlobalError({
               marginBottom: '16px',
               lineHeight: '1.6',
             }}>
-              We're sorry, but something went wrong. Please refresh the page to try again.
+              We apologize for the inconvenience. Please try again.
             </p>
-            {error.message && (
-              <p style={{
-                fontSize: '12px',
-                color: '#9ca3af',
-                marginBottom: '24px',
-                fontFamily: 'monospace',
-                padding: '12px',
-                backgroundColor: '#f3f4f6',
-                borderRadius: '6px',
-                wordBreak: 'break-word',
-              }}>
-                Error: {error.message}
-              </p>
-            )}
             <button
               onClick={() => reset()}
               style={{

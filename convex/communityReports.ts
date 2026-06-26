@@ -4,6 +4,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { mutationWithAuth } from "./lib/withAuth";
+import { ROLES } from "./roles";
 
 // Create a new community report
 export const createReport = mutationWithAuth({
@@ -19,12 +20,15 @@ export const createReport = mutationWithAuth({
     severity: v.union(v.literal(1), v.literal(2), v.literal(3), v.literal(4), v.literal(5)),
   },
   handler: async (ctx: any, args: any) => {
-    // userId is injected by mutationWithAuth
-    const { userId } = args as any;
+    const { userId, title, description, category, location, severity } = args;
     
     const reportId = await ctx.db.insert("communityReports", {
-      ...args,
-      userId: userId,
+      userId,
+      title,
+      description,
+      category,
+      location,
+      severity,
       status: "open",
       upvotes: 0,
       downvotes: 0,
@@ -75,7 +79,7 @@ export const updateReportStatus = mutationWithAuth({
     
     // Auth check
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== "admin" && user.role !== "super-admin" && user.role !== "health-worker")) {
+    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
       throw new Error("Unauthorized to update reports");
     }
 

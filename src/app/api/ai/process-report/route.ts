@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -8,6 +11,14 @@ export async function POST(request: NextRequest) {
 
     if (!image) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
+    }
+
+    if (!ALLOWED_TYPES.includes(image.type)) {
+      return NextResponse.json({ error: 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF' }, { status: 400 });
+    }
+
+    if (image.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: 'File too large. Maximum size: 10MB' }, { status: 400 });
     }
 
     const geminiApiKey = process.env.GOOGLE_AI_API_KEY;

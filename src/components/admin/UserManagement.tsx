@@ -36,7 +36,6 @@ export default function UserManagement() {
       return;
     }
 
-    console.log(`Attempting role change for ${targetUserId} to ${newRole}`);
     setLoadingId(targetUserId);
     
     try {

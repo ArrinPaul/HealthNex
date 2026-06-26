@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const FAQItem = ({ question, answer }: { question: string, answer: string }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -81,6 +82,7 @@ const SystemStatusHUD = () => (
 
 export default function HelpPage() {
   const sendTicket = useMutation(api.support.sendTicket);
+  const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -94,6 +96,7 @@ export default function HelpPage() {
     setLoading(true);
     try {
       await sendTicket({
+        token: token || '',
         name: formData.name,
         email: formData.email,
         subject: formData.subject,
@@ -165,7 +168,7 @@ export default function HelpPage() {
 
           <div className="grid md:grid-cols-3 gap-8 mb-32">
             {[
-              { title: 'Call Support', desc: '24/7 dedicated helpline for urgent regional health alerts.', icon: Phone, action: '1800-XXX-XXXX', color: 'text-sky-400', bg: 'bg-sky-400/10' },
+              { title: 'Call Support', desc: '24/7 dedicated helpline for urgent regional health alerts.', icon: Phone, action: '1800-123-4567', color: 'text-sky-400', bg: 'bg-sky-400/10' },
               { title: 'Email Desk', desc: 'Detailed inquiries and integration support. Response within 24h.', icon: Mail, action: 'support@healthnex.io', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
               { title: 'Live Interface', desc: 'Real-time chat support with our intelligence leads.', icon: MessageCircle, action: 'Initialize Chat', color: 'text-violet-400', bg: 'bg-violet-400/10' }
             ].map((item, i) => (

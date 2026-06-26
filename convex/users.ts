@@ -41,8 +41,6 @@ export const createUser = mutation({
       isActive: true,
     });
 
-    console.log(`User created: ${args.email} with role ${isSuperAdmin ? ROLES.SUPER_ADMIN : ROLES.PUBLIC} (Requested: ${requestedRole})`);
-
     return userId;
   },
 });
@@ -183,18 +181,46 @@ export const getAuditLogs = queryWithAuth({
   }
 });
 
-// Get user by email
+// Get user by email for login (public but returns minimal fields only)
 export const getUserByEmail = query({
   args: { email: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) return null;
+
+    // Return only fields needed for authentication
+    return {
+      _id: user._id,
+      passwordHash: user.passwordHash,
+      role: user.role,
+      isActive: user.isActive,
+    };
+  },
+});
+
+// Get user by email (admin only - returns full profile)
+export const getUserByEmailFull = queryWithAuth({
+  args: { email: v.string() },
+  handler: async (ctx: any, args: any) => {
+    const { userId, email } = args;
+
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+      throw new Error("Unauthorized: Only admins can look up users by email");
+    }
+
+    return await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
   },
 });
 
-// Update last login
+// Update last login (public - called during login flow)
 export const updateLastLogin = mutation({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
@@ -204,10 +230,26 @@ export const updateLastLogin = mutation({
   },
 });
 
-// Get user by ID
-export const getUser = query({
-  args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
-    return await ctx.db.get(args.userId);
+// Get user by ID (admin only)
+export const getUser = queryWithAuth({
+  args: { targetUserId: v.id("users") },
+  handler: async (ctx: any, args: any) => {
+    const { userId, targetUserId } = args;
+
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+      throw new Error("Unauthorized: Only admins can look up users by ID");
+    }
+
+    return await ctx.db.get(targetUserId);
+  },
+});
+
+// Get own profile (any authenticated user)
+export const getSelf = queryWithAuth({
+  args: {},
+  handler: async (ctx: any, args: any) => {
+    const { userId } = args;
+    return await ctx.db.get(userId);
   },
 });

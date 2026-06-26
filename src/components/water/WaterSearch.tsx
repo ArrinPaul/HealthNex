@@ -67,8 +67,8 @@ export default function WaterSearch({ onResults, loading, setLoading }: WaterSea
           const aiData = await aiResponse.json();
           aiAnalysis = aiData.recommendations || [];
         }
-      } catch (aiError) {
-        console.log('AI analysis fallback');
+      } catch {
+        // AI analysis failed, continue without it
       }
       
       onResults({

@@ -66,7 +66,7 @@ class ChatbotService {
 
   async getSuggestions(category?: string): Promise<string[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/chatbot/suggestions${category ? `?category=${category}` : ''}`);
+      const response = await fetch(`${API_BASE_URL}/chatbot/suggestions${category ? `?category=${encodeURIComponent(category)}` : ''}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

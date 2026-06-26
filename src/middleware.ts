@@ -16,15 +16,23 @@ const PROTECTED_ROUTES = [
   '/education',
   '/vault',
   '/resources',
-  '/language-settings'
+  '/language-settings',
+  '/surveillance',
+  '/neural-engine',
+  '/documentation',
+  '/privacy-code',
+  '/mission-state',
+  '/organization',
 ];
 
 // API routes that require authentication
 const PROTECTED_API_PREFIX = '/api/';
 const PUBLIC_API_ROUTES = ['/api/auth/login', '/api/auth/register', '/api/health'];
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || 'fallback-dev-secret-key-change-in-production-minimum-32-chars';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set');
+}
 
 function base64UrlDecodeToString(value: string): string {
   const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
@@ -90,8 +98,6 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('auth-token')?.value;
 
-  console.log(`Middleware: Processing ${pathname} (Token present: ${!!token})`);
-
   // CSRF Protection: Verify Origin/Referer for state-changing API requests
   if (pathname.startsWith('/api/') && ['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
     const origin = request.headers.get('origin');
@@ -113,17 +119,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 0. Development Bypass: Allow access in dev mode if database is not configured
-  const isDev = process.env.NODE_ENV === 'development';
-  const hasConvex = !!process.env.NEXT_PUBLIC_CONVEX_URL;
-  if (isDev && !hasConvex) {
-    return NextResponse.next();
-  }
-
   // 1. Handle Protected Frontend Routes
   if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
     const isValidToken = token ? await verifyToken(token) : false;
-    console.log(`Middleware: ${pathname} is protected. Token valid: ${isValidToken}`);
     if (!isValidToken) {
       const url = new URL('/login', request.url);
       url.searchParams.set('callbackUrl', pathname);

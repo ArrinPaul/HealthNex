@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
+import { ROLES } from "./roles";
 
 export const broadcastAlert = mutationWithAuth({
   args: {
@@ -15,7 +16,7 @@ export const broadcastAlert = mutationWithAuth({
     
     // Check if user is health-worker or above
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== "health-worker" && user.role !== "admin" && user.role !== "super-admin")) {
+    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
       throw new Error("Unauthorized to broadcast alerts");
     }
 
@@ -23,7 +24,7 @@ export const broadcastAlert = mutationWithAuth({
       ...alertData,
       isActive: true,
       createdAt: Date.now(),
-      source: user.role === "health-worker" ? "system" : "admin",
+      source: user.role === ROLES.HEALTH_WORKER ? "system" : "admin",
     });
 
     // AUDIT LOG

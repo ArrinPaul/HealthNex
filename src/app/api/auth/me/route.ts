@@ -21,19 +21,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Optionally fetch full user profile from database to ensure it's still active
+    // Fetch full user profile from database
     let user;
-    if (payload.userId === 'demo-user-id') {
-      user = {
-        _id: 'demo-user-id',
-        email: payload.email,
-        name: 'Demo Admin',
-        role: payload.role,
-        isActive: true
-      };
-    } else {
-      user = await convex.query(api.users.getUser, { userId: payload.userId as any });
-    }
+    user = await convex.query(api.users.getSelf, { token });
 
     if (!user || !user.isActive) {
       return NextResponse.json({ error: 'User no longer exists or is inactive' }, { status: 401 });
@@ -46,7 +36,6 @@ export async function GET(request: NextRequest) {
         name: user.name,
         role: user.role,
         verificationStatus: user.verificationStatus || 'none',
-        location: 'Guwahati, Assam' // Placeholder or fetch from profile if stored
       },
       token: token
     });

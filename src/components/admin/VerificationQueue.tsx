@@ -29,7 +29,6 @@ export default function VerificationQueue() {
       toast.error("Auth Error", { description: "Session token missing." });
       return;
     }
-    console.log(`Approving user ${userId}`);
     setLoadingId(userId);
     try {
       await verifyUser({
@@ -51,7 +50,6 @@ export default function VerificationQueue() {
       toast.error("Auth Error", { description: "Session token missing." });
       return;
     }
-    console.log(`Rejecting user ${userId}`);
     setLoadingId(userId);
     try {
       await verifyUser({

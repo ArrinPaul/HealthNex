@@ -1,18 +1,14 @@
 import jwt from 'jsonwebtoken';
 import { NextRequest } from 'next/server';
 
-// Use a fallback secret for development if JWT_SECRET is not set
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET must be defined in production environment');
+  }
+  console.warn('⚠️ JWT_SECRET is not defined. Using fallback secret for development only.');
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-dev-secret-key-change-in-production-minimum-32-chars';
-
-// Only warn in development if JWT_SECRET is not set
-if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'production') {
-  console.warn('⚠️ JWT_SECRET is not defined. Using fallback secret for development.');
-}
-
-// In production, throw an error if JWT_SECRET is not set
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  console.error('❌ JWT_SECRET must be defined in production environment');
-}
 
 export interface JWTPayload {
   userId: string;
@@ -54,14 +50,5 @@ export class JWTService {
     // Check cookies
     const token = request.cookies.get('auth-token')?.value;
     return token || null;
-  }
-
-  static refreshToken(oldToken: string): string | null {
-    const payload = this.verifyToken(oldToken);
-    if (!payload) return null;
-
-    // Remove iat and exp from payload
-    const { iat, exp, ...newPayload } = payload;
-    return this.generateToken(newPayload);
   }
 }
