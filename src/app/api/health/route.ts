@@ -11,7 +11,7 @@ async function checkAIStatus() {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     // Minimal token count check to verify key validity without generating content
     await model.countTokens("Ping"); 
     return 'operational';

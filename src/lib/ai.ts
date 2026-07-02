@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
 
-export function getGeminiModel(modelName: string = "gemini-1.5-flash") {
+export function getGeminiModel(modelName: string = "gemini-2.0-flash") {
   if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
     throw new Error("AI Service Not Configured. Please configure GOOGLE_AI_API_KEY.");
   }

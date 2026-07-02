@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `You are an expert public health and water safety AI assistant.
 Analyze the following water quality and weather metrics for a region, and provide 3-4 actionable, high-quality public health recommendations to ensure water safety. Keep each recommendation short, precise, and practical.

@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     const prompt =
       `You are a healthcare assistant. Respond in ${language} language. ` +
       `User asks: "${message}". Provide concise, accurate guidance on water safety, hygiene, ` +
