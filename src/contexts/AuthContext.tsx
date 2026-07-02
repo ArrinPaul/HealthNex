@@ -51,11 +51,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const response = await fetch('/api/auth/me');
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
-          // In a real app, you might want to fetch the token from a secure cookie 
-          // but since we need it for Convex calls (client-side), we'll expect it from the API
-          // for this demonstration or store it in localStorage if acceptable.
-          // For now, let's assume /api/auth/me can return the token too or we use the cookie.
+          const u = data.user;
+          // Map API "location" object to "userLocation" on the User interface
+          setUser({
+            ...u,
+            userLocation: u.location || null,
+          });
           if (data.token) setToken(data.token);
           setIsAuthenticated(true);
         } else {
@@ -73,6 +74,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkSession();
   }, []);
 
+  const refreshUser = async () => {
+    try {
+      const response = await fetch('/api/auth/me');
+      if (response.ok) {
+        const data = await response.json();
+        const u = data.user;
+        setUser({ ...u, userLocation: u.location || null });
+        if (data.token) setToken(data.token);
+        setIsAuthenticated(true);
+      }
+    } catch {}
+  };
+
   const login = async (email: string, password: string): Promise<User> => {
     try {
       setIsLoading(true);
@@ -88,12 +102,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const userData = await response.json();
-      const loggedInUser: User = userData.user;
+      const loggedInUser: User = {
+        ...userData.user,
+        userLocation: userData.user.location || null,
+      };
       const authToken = userData.token;
       
       setUser(loggedInUser);
       setToken(authToken);
       setIsAuthenticated(true);
+
+      // Re-fetch full profile in background to get onboarding/location fields
+      refreshUser();
       
       return loggedInUser;
     } catch (error) {

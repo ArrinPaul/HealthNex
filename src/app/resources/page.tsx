@@ -4,15 +4,14 @@ import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { motion } from 'framer-motion';
 import { 
   MapPin, Phone, Search, 
   Hospital, Pill, 
-  Star, Navigation, 
-  Clock, Loader2, RefreshCw, ExternalLink
+  Navigation, Loader2, RefreshCw, ExternalLink, MapPinned
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Facility {
   id: string;
@@ -101,12 +100,25 @@ const FacilityCard = ({ facility }: { facility: Facility }) => (
 );
 
 export default function ResourcesPage() {
+  const { user } = useAuth();
   const [search, setSearch] = useState('');
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'hospital' | 'pharmacy'>('all');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({ lat: 28.6139, lng: 77.2090 });
+  const [locationLabel, setLocationLabel] = useState('Delhi (default)');
+
+  // Derive location from user's onboarding profile
+  const getProfileLocation = useCallback(() => {
+    if (user?.userLocation?.latitude && user?.userLocation?.longitude) {
+      const lat = user.userLocation.latitude;
+      const lng = user.userLocation.longitude;
+      const parts = [user.userLocation.district, user.userLocation.state].filter(Boolean);
+      return { lat, lng, label: parts.join(', ') || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+    }
+    return null;
+  }, [user]);
 
   const fetchFacilities = useCallback(async (lat: number, lng: number) => {
     setLoading(true);
@@ -125,11 +137,22 @@ export default function ResourcesPage() {
   }, [filterType]);
 
   useEffect(() => {
+    // Priority: 1) Onboarding profile location  2) Browser geolocation  3) Delhi fallback
+    const profileLoc = getProfileLocation();
+    if (profileLoc) {
+      setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
+      setLocationLabel(profileLoc.label);
+      fetchFacilities(profileLoc.lat, profileLoc.lng);
+      return;
+    }
+
+    // No profile location — try browser geolocation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setUserLocation(loc);
+          setLocationLabel('Your current location');
           fetchFacilities(loc.lat, loc.lng);
         },
         () => {
@@ -140,7 +163,7 @@ export default function ResourcesPage() {
     } else {
       fetchFacilities(userLocation.lat, userLocation.lng);
     }
-  }, [fetchFacilities]);
+  }, [fetchFacilities, getProfileLocation]);
 
   const filtered = facilities.filter(f =>
     f.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -157,7 +180,7 @@ export default function ResourcesPage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Health Resources</h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Real hospitals & pharmacies from OpenStreetMap near you.
+              Real hospitals & pharmacies near your location.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -180,6 +203,12 @@ export default function ResourcesPage() {
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
+        </div>
+
+        {/* Location badge */}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/50 px-3 py-2 rounded-xl border border-border/50 w-fit">
+          <MapPinned className="w-3.5 h-3.5 text-primary" />
+          <span>Showing results for: <span className="font-medium text-foreground">{locationLabel}</span></span>
         </div>
 
         {/* Filter Tabs */}
