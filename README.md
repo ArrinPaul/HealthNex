@@ -9,7 +9,7 @@
 ![Convex](https://img.shields.io/badge/Convex-Realtime-FF6B35?style=for-the-badge)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss)
-![Gemini AI](https://img.shields.io/badge/Gemini_AI-1.5-4285F4?style=for-the-badge&logo=google)
+![Gemini AI](https://img.shields.io/badge/Gemini_AI-2.0-4285F4?style=for-the-badge&logo=google)
 
 HealthNex is an industry-grade intelligence protocol designed to standardize the world's health response through decentralized reporting, neural forecasting, and zero-trust data synchronization. It bridges the gap between ground-level community intelligence and institutional medical response using advanced AI.
 
@@ -120,51 +120,6 @@ sequenceDiagram
     end
 ```
 
-### Data Flow Architecture
-
-```mermaid
-flowchart LR
-    subgraph INPUT["Data Input"]
-        A1[Community Reports]
-        A2[Health Data]
-        A3[Water Quality Tests]
-        A4[Disease Reports]
-    end
-
-    subgraph PROCESSING["Processing Layer"]
-        B1[Input Validation]
-        B2[Authentication]
-        B3[RBAC Check]
-    end
-
-    subgraph STORAGE["Convex Real-time DB"]
-        C1[(communityReports)]
-        C2[(healthData)]
-        C3[(waterQuality)]
-        C4[(diseaseOutbreaks)]
-    end
-
-    subgraph AI_LAYER["AI Processing"]
-        D1[Gemini Symptom Analysis]
-        D2[Gemini Health Assistant]
-        D3[Gemini Outbreak Prediction]
-        D4[Gemini Document OCR]
-    end
-
-    subgraph OUTPUT["Output & Intelligence"]
-        E1[Dashboard Visualizations]
-        E2[Alert Broadcasting]
-        E3[AI Suggestions]
-        E4[Audit Logs]
-    end
-
-    INPUT --> PROCESSING
-    PROCESSING --> STORAGE
-    STORAGE <--> AI_LAYER
-    STORAGE --> OUTPUT
-    AI_LAYER --> OUTPUT
-```
-
 ---
 
 ## Tech Stack
@@ -182,20 +137,6 @@ flowchart LR
 | **Language** | TypeScript 5 | Full type safety across the stack |
 | **Testing** | Vitest 4 | Unit and integration testing |
 | **Deployment** | Vercel | Edge deployment, serverless functions |
-
-### Key Dependencies
-
-| Package | Purpose |
-|---------|---------|
-| `recharts` | Data visualization (charts, graphs) |
-| `leaflet` + `react-leaflet` | Interactive map rendering |
-| `@react-three/fiber` + `three` | 3D globe visualization |
-| `i18next` + `react-i18next` | Internationalization (EN, HI, BN) |
-| `react-hook-form` + `zod` | Form management and validation |
-| `sonner` | Toast notifications |
-| `embla-carousel-react` | Carousel components |
-| `cobe` | Globe visualization |
-| `@tsparticles/react` | Particle effects |
 
 ---
 
@@ -333,7 +274,7 @@ sequenceDiagram
 
 ### 3. AI Health Assistant
 
-Powered by Google Gemini 1.5 Flash with multilingual support and prompt injection protection.
+Powered by Google Gemini 2.0 Flash with multilingual support and prompt injection protection.
 
 ```mermaid
 graph TD
@@ -482,7 +423,7 @@ graph TD
 
 ### 7. Admin Panel
 
-Comprehensive administration interface with hierarchy-enforced role management.
+Comprehensive administration interface with hierarchy-enforced role management. New users register as **public** and must complete onboarding before admin approval grants dashboard access.
 
 ```mermaid
 graph TD
@@ -536,19 +477,17 @@ AI-powered predictive analytics for outbreak forecasting and health trend detect
 
 ---
 
-### 9. Surveillance System
+### 9. Hospital Finder
 
-Global health surveillance with animated node network visualization and real-time intelligence.
+Real hospital and pharmacy data from OpenStreetMap via the Overpass API. Uses the user's onboarding location to auto-search nearby facilities with phone numbers, opening hours, specialties, and Google Maps directions.
 
-**Features:**
-- Live node network visualization (animated dots with pulsing opacity)
-- Mouse-tracking radial gradient effects on surveillance cards
-- System status monitoring with alert and report counts
-- Real-time data synchronization
+### 10. Onboarding
+
+First-time users complete a 4-step profile (location with geolocation, personal info, health conditions, review). Saved to user profile and used by hospital finder and other location-aware features. Only shown once per account.
 
 ---
 
-### 10. Additional Pages
+### 11. Additional Pages
 
 | Page | Route | Description |
 |------|-------|-------------|
@@ -796,22 +735,6 @@ erDiagram
     USERS ||--o{ SUPPORT_TICKETS : "submits"
 ```
 
-### Table Details
-
-| Table | Records | Indexes | Purpose |
-|-------|---------|---------|---------|
-| `users` | Users | `by_email`, `by_verification_status` | Identity, roles, verification |
-| `healthData` | Health Records | `by_user`, `by_user_and_type`, `by_timestamp` | Symptoms, vitals, medications |
-| `communityReports` | Reports | `by_location`, `by_category`, `by_status`, `by_category_and_status`, `by_created` | Community intelligence |
-| `diseaseOutbreaks` | Outbreaks | `by_location`, `by_status`, `by_severity`, `by_timestamp`, `by_status_and_timestamp` | Disease tracking |
-| `alerts` | Alerts | `by_type`, `by_severity`, `by_active`, `by_created` | Broadcast warnings |
-| `auditLogs` | Logs | `by_timestamp`, `by_user` | Immutable admin audit trail |
-| `chatMessages` | Messages | `by_session`, `by_user`, `by_timestamp` | AI chatbot history |
-| `usageTracking` | Logs | `by_feature`, `by_timestamp`, `by_user` | API usage monitoring |
-| `supportTickets` | Tickets | `by_status`, `by_created` | User support |
-| `externalInstitutionalData` | Records | `by_source_and_type` | External API data |
-| `waterQuality` | Tests | `by_location`, `by_test_date`, `by_quality` | Water quality data |
-
 ---
 
 ## API Reference
@@ -820,7 +743,7 @@ erDiagram
 
 | Route | Method | Auth | Description |
 |-------|--------|------|-------------|
-| `/api/auth/register` | POST | Public | Create new account (default: community-user) |
+| `/api/auth/register` | POST | Public | Create new account (default: public, requires admin approval) |
 | `/api/auth/login` | POST | Public | Authenticate and receive JWT |
 | `/api/auth/me` | GET | Protected | Get current user profile |
 | `/api/auth/logout` | POST | Protected | Clear session cookie |
@@ -840,6 +763,8 @@ erDiagram
 
 | Route | Method | Auth | Description |
 |-------|--------|------|-------------|
+| `/api/hospitals` | GET | Protected | Nearby hospitals from OpenStreetMap |
+| `/api/user/onboarding` | POST | Protected | Save onboarding profile (location, personal info) |
 | `/api/suggestions/generate` | POST | Protected | AI-powered personalized suggestions |
 | `/api/suggestions/contextual` | GET | Protected | Context-aware health suggestions |
 | `/api/suggestions/health-trends` | GET | Protected | Regional health trend analysis |
@@ -851,9 +776,10 @@ erDiagram
 
 | Function | Type | Auth | Description |
 |----------|------|------|-------------|
-| `users.createUser` | Mutation | Public | Register new user |
+| `users.createUser` | Mutation | Public | Register new user (default: public) |
 | `users.getUserByEmail` | Query | Public | Login lookup (limited fields) |
 | `users.getSelf` | Query | Authenticated | Get own profile |
+| `users.completeOnboarding` | Mutation | Authenticated | Save onboarding data |
 | `users.getAllUsers` | Query | Admin+ | List all users |
 | `users.updateUserRole` | Mutation | Admin+ | Change user role (hierarchy-enforced) |
 | `users.verifyUser` | Mutation | Admin+ | Approve/reject verification |
@@ -922,79 +848,7 @@ graph TD
 
 ## Design System
 
-### Theme Architecture
-
-HealthNex uses a **noir biotech aesthetic** with dual-theme support (light/dark) powered by CSS custom properties and Tailwind CSS.
-
-```mermaid
-graph LR
-    A[SettingsContext] -->|localStorage| B[Theme Toggle]
-    B -->|Toggle .dark class| C[CSS Variables]
-    C --> D[Light Theme]
-    C --> E[Dark Theme]
-
-    D --> D1["Background: #ffffff"]
-    D --> D2["Primary: #00b7d9"]
-    D --> D3["Surface: #fafafa"]
-
-    E --> E1["Background: #000000"]
-    E --> E2["Primary: #00d9ff"]
-    E --> E3["Surface: #0a0a0a"]
-```
-
-### Color Palette
-
-| Token | Light | Dark | Usage |
-|-------|-------|------|-------|
-| `--primary` | `#00b7d9` | `#00d9ff` | Brand cyan, CTAs, links |
-| `--background` | `#ffffff` | `#000000` | Page background |
-| `--foreground` | `#000000` | `#ffffff` | Primary text |
-| `--destructive` | `#ef4444` | `#ef4444` | Errors, danger |
-| `--card` | `#fafafa` | `#0a0a0a` | Card backgrounds |
-| `--border` | `#b0b0b0` | `#4a4a4a` | Default borders |
-| `--muted-foreground` | `#404040` | `#b0b0b0` | Secondary text |
-
-### Typography
-
-| Font | Variable | Usage |
-|------|----------|-------|
-| **Instrument Sans** | `--font-sans` | Body text, UI elements |
-| **Unbounded** | `--font-display` | Headings, display text |
-| **JetBrains Mono** | `--font-mono` | Code blocks, data values |
-
-### Accessibility
-
-- **Font Scaling:** Small (0.95x), Medium (1x), Large (1.08x)
-- **High Contrast Mode:** Forces maximum border contrast
-- **Reduced Motion:** All animations disabled via `prefers-reduced-motion`
-- **Focus Rings:** Cyan focus ring on all interactive elements
-- **ARIA Attributes:** Full accessibility on all form components
-
-### Animation System
-
-| Type | Library | Usage |
-|------|---------|-------|
-| Page Transitions | Framer Motion | Fade-in, slide-up, stagger reveals |
-| Layout Morphing | Framer Motion `layoutId` | Active navigation indicator |
-| Scroll Animations | Framer Motion `useScroll` | Scroll progress bar with spring physics |
-| Mouse Tracking | Framer Motion `useMotionValue` | Radial gradient effects on cards |
-| Component Entry | tailwindcss-animate | `animate-in`, `fade-in`, `zoom-in`, `slide-in` |
-| Particle Effects | tsparticles | Animated background particles |
-
-### Component Library
-
-| Component | Description |
-|-----------|-------------|
-| Button | Hover/active micro-interactions with scale transforms |
-| Card | Glass morphism with backdrop blur |
-| Dialog | Modal with zoom-in animation |
-| Sheet | Slide-in drawer panel |
-| Select | Animated dropdown with search |
-| Tabs | Animated tab indicator |
-| Tooltip | Hover-triggered info popups |
-| Toast | Sonner-based notifications |
-| Accordion | Animated height expansion |
-| Command | Cmd+K command palette |
+HealthNex uses a **noir biotech aesthetic** with dual-theme support (light/dark) powered by CSS custom properties and Tailwind CSS. Typography uses Instrument Sans (body), Unbounded (headings), and JetBrains Mono (code).
 
 ---
 
