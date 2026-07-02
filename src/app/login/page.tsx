@@ -24,11 +24,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const loggedInUser = await login(email, password);
-      if (loggedInUser.role === 'public') {
-        router.push('/education');
-      } else {
-        router.push('/dashboard');
-      }
+      // ProtectedRoute handles onboarding/pending-approval/dashboard routing
+      router.push('/dashboard');
     } catch (error) {
       console.error('Login failed:', error);
     } finally {

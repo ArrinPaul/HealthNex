@@ -26,7 +26,7 @@ export const createUser = mutation({
 
     const requestedRole = (args.role && VALID_ROLES.includes(args.role as UserRole))
       ? args.role as UserRole
-      : ROLES.COMMUNITY_USER;
+      : ROLES.PUBLIC;
 
     const userId = await ctx.db.insert("users", {
       email: args.email,
@@ -38,6 +38,7 @@ export const createUser = mutation({
       verificationStatus: VERIFICATION_STATUS.NONE,
       createdAt: Date.now(),
       isActive: true,
+      onboardingCompleted: false,
     });
 
     return userId;
@@ -124,6 +125,28 @@ export const verifyUser = mutationWithAuth({
     );
 
     return { success: true };
+  },
+});
+
+// One-time migration: set onboardingCompleted for existing users
+export const migrateOnboarding = mutation({
+  args: {
+    email: v.string(),
+    onboardingCompleted: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (!user) throw new Error(`User not found: ${args.email}`);
+
+    await ctx.db.patch(user._id, {
+      onboardingCompleted: args.onboardingCompleted,
+    });
+
+    return { success: true, userId: user._id };
   },
 });
 

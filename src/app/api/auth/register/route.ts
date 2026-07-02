@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     let userId;
     try {
-      const finalRole = 'community-user';
+      const finalRole = 'public';
       
       userId = await convex.mutation(api.users.createUser, {
         email,
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const assignedRole = 'community-user'; 
+    const assignedRole = 'public'; 
     
     const token = JWTService.generateToken({
       userId,
@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
         name, 
         role: assignedRole,
         location: location || 'Unknown',
-        verificationStatus: 'none'
+        verificationStatus: 'none',
+        onboardingCompleted: false,
       }
     });
 
