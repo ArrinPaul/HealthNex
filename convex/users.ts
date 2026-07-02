@@ -204,6 +204,7 @@ export const getUserByEmail = query({
       role: user.role,
       isActive: user.isActive,
       verificationStatus: user.verificationStatus,
+      onboardingCompleted: user.onboardingCompleted,
     };
   },
 });
@@ -257,5 +258,50 @@ export const getSelf = queryWithAuth({
   handler: async (ctx: any, args: any) => {
     const { userId } = args;
     return await ctx.db.get(userId);
+  },
+});
+
+// Complete onboarding — saves all profile fields at once
+export const completeOnboarding = mutation({
+  args: {
+    token: v.string(),
+    dateOfBirth: v.string(),
+    gender: v.string(),
+    location: v.object({
+      latitude: v.number(),
+      longitude: v.number(),
+      address: v.optional(v.string()),
+      state: v.optional(v.string()),
+      district: v.optional(v.string()),
+    }),
+    bloodGroup: v.string(),
+    medicalConditions: v.array(v.string()),
+    occupation: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Decode token to get userId
+    let userId: string;
+    try {
+      const parts = args.token.split('.');
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
+      userId = payload.userId;
+    } catch {
+      throw new Error("Invalid token");
+    }
+
+    const user = await ctx.db.get(userId as any);
+    if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(userId as any, {
+      onboardingCompleted: true,
+      dateOfBirth: args.dateOfBirth,
+      gender: args.gender,
+      location: args.location,
+      bloodGroup: args.bloodGroup,
+      medicalConditions: args.medicalConditions,
+      occupation: args.occupation,
+    });
+
+    return { success: true };
   },
 });

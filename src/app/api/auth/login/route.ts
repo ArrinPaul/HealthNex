@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
         name: user.name,
         role: user.role,
         verificationStatus: user.verificationStatus || 'none',
+        onboardingCompleted: user.onboardingCompleted || false,
       },
       token: token
     });

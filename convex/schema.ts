@@ -16,6 +16,20 @@ export default defineSchema({
     createdAt: v.number(),
     lastLoginAt: v.optional(v.number()),
     isActive: v.boolean(),
+    // Onboarding fields
+    onboardingCompleted: v.optional(v.boolean()),
+    dateOfBirth: v.optional(v.string()),
+    gender: v.optional(v.string()),
+    location: v.optional(v.object({
+      latitude: v.number(),
+      longitude: v.number(),
+      address: v.optional(v.string()),
+      state: v.optional(v.string()),
+      district: v.optional(v.string()),
+    })),
+    bloodGroup: v.optional(v.string()),
+    medicalConditions: v.optional(v.array(v.string())),
+    occupation: v.optional(v.string()),
   }).index("by_email", ["email"])
     .index("by_verification_status", ["verificationStatus"]),
 

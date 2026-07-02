@@ -36,6 +36,13 @@ export async function GET(request: NextRequest) {
         name: user.name,
         role: user.role,
         verificationStatus: user.verificationStatus || 'none',
+        onboardingCompleted: user.onboardingCompleted || false,
+        dateOfBirth: user.dateOfBirth || null,
+        gender: user.gender || null,
+        location: user.location || null,
+        bloodGroup: user.bloodGroup || null,
+        medicalConditions: user.medicalConditions || [],
+        occupation: user.occupation || null,
       },
       token: token
     });

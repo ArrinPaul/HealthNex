@@ -13,6 +13,19 @@ export interface User {
   location: string;
   verificationStatus: string;
   requestedRole?: string;
+  onboardingCompleted?: boolean;
+  dateOfBirth?: string;
+  gender?: string;
+  userLocation?: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+    state?: string;
+    district?: string;
+  };
+  bloodGroup?: string;
+  medicalConditions?: string[];
+  occupation?: string;
 }
 
 interface AuthContextType {
