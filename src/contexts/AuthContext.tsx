@@ -22,7 +22,7 @@ export interface User {
     address?: string;
     state?: string;
     district?: string;
-  };
+  } | null;
   bloodGroup?: string;
   medicalConditions?: string[];
   occupation?: string;
@@ -52,11 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (response.ok) {
           const data = await response.json();
           const u = data.user;
-          // Map API "location" object to "userLocation" on the User interface
-          setUser({
-            ...u,
-            userLocation: u.location || null,
-          });
+          setUser(u);
           if (data.token) setToken(data.token);
           setIsAuthenticated(true);
         } else {
@@ -79,8 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch('/api/auth/me');
       if (response.ok) {
         const data = await response.json();
-        const u = data.user;
-        setUser({ ...u, userLocation: u.location || null });
+        setUser(data.user);
         if (data.token) setToken(data.token);
         setIsAuthenticated(true);
       }
@@ -102,10 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const userData = await response.json();
-      const loggedInUser: User = {
-        ...userData.user,
-        userLocation: userData.user.location || null,
-      };
+      const loggedInUser: User = userData.user;
       const authToken = userData.token;
       
       setUser(loggedInUser);
