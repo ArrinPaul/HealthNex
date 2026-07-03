@@ -287,7 +287,7 @@ export const getSelf = queryWithAuth({
 // Complete onboarding — saves all profile fields at once
 export const completeOnboarding = mutation({
   args: {
-    token: v.string(),
+    userId: v.id("users"),
     dateOfBirth: v.string(),
     gender: v.string(),
     location: v.object({
@@ -302,20 +302,10 @@ export const completeOnboarding = mutation({
     occupation: v.string(),
   },
   handler: async (ctx, args) => {
-    // Decode token to get userId
-    let userId: string;
-    try {
-      const parts = args.token.split('.');
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString());
-      userId = payload.userId;
-    } catch {
-      throw new Error("Invalid token");
-    }
-
-    const user = await ctx.db.get(userId as any);
+    const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("User not found");
 
-    await ctx.db.patch(userId as any, {
+    await ctx.db.patch(args.userId, {
       onboardingCompleted: true,
       dateOfBirth: args.dateOfBirth,
       gender: args.gender,

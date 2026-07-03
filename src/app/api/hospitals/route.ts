@@ -121,15 +121,34 @@ export async function GET(request: NextRequest) {
       out center;
     `;
 
-    const response = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `data=${encodeURIComponent(query)}`,
-      signal: AbortSignal.timeout(15000),
-    });
+    const OVERPASS_ENDPOINTS = [
+      'https://overpass-api.de/api/interpreter',
+      'https://overpass.kumi.systems/api/interpreter',
+      'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+    ];
 
-    if (!response.ok) {
-      throw new Error(`Overpass API returned ${response.status}`);
+    let response: Response | null = null;
+    let lastError: string = '';
+
+    for (const endpoint of OVERPASS_ENDPOINTS) {
+      try {
+        response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `data=${encodeURIComponent(query)}`,
+          signal: AbortSignal.timeout(20000),
+        });
+        if (response.ok) break;
+        lastError = `Overpass returned ${response.status}`;
+        response = null;
+      } catch (err: any) {
+        lastError = err.message || 'fetch failed';
+        response = null;
+      }
+    }
+
+    if (!response || !response.ok) {
+      throw new Error(`All Overpass endpoints failed: ${lastError}`);
     }
 
     const data = await response.json();
