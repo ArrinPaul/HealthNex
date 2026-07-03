@@ -1,14 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { NextRequest } from 'next/server';
 
+const JWT_SECRET: string = process.env.JWT_SECRET!;
 if (!process.env.JWT_SECRET) {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('JWT_SECRET must be defined in production environment');
   }
-  console.warn('⚠️ JWT_SECRET is not defined. Using fallback secret for development only.');
+  throw new Error('JWT_SECRET must be defined. Add it to your .env file.');
 }
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-dev-secret-key-change-in-production-minimum-32-chars';
 
 export interface JWTPayload {
   userId: string;
@@ -24,7 +23,7 @@ export class JWTService {
       payload,
       JWT_SECRET,
       {
-        expiresIn: '7d',
+        expiresIn: '1d',
         algorithm: 'HS256'
       }
     );
@@ -32,7 +31,7 @@ export class JWTService {
 
   static verifyToken(token: string): JWTPayload | null {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
+      const decoded = jwt.verify(token, JWT_SECRET) as unknown as JWTPayload;
       return decoded;
     } catch (error) {
       console.error('JWT verification failed:', error);

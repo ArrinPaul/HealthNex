@@ -48,12 +48,13 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self' https:; connect-src 'self' https: wss:; frame-ancestors 'none';" },
         ],
       },
       {
         source: '/manifest.json',
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Origin', value: allowedOrigin },
           { key: 'Cache-Control', value: 'public, max-age=86400' },
           { key: 'Content-Type', value: 'application/manifest+json' },
         ],

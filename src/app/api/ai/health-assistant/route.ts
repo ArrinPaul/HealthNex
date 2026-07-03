@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 function sanitizeInput(input: string): string {
   return input.replace(/[<>{}]/g, '').slice(0, 1000);
@@ -7,6 +8,12 @@ function sanitizeInput(input: string): string {
 
 // Parse the request body to extract 'message'
 export async function POST(req: Request) {
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(`ai-chat:${clientIp}`, 20, 60000);
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
   const body = await req.json();
   const rawMessage = body?.message || "";
   const message = sanitizeInput(rawMessage);

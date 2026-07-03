@@ -50,7 +50,7 @@ export default function AuditLogPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {logs.map((log) => (
+                {logs.map((log: { _id: string; timestamp: number; action: string; details: string; [key: string]: any }) => (
                   <TableRow key={log._id} className="border-border hover:bg-secondary/50 transition-colors">
                     <TableCell className="py-3">
                        <span className="text-sm">{format(log.timestamp, 'MMM d, HH:mm:ss')}</span>

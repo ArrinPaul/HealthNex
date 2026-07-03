@@ -27,7 +27,7 @@ export default function SupportTicketsList() {
       <h2 className="text-lg font-semibold">Support Tickets</h2>
 
       <div className="grid gap-4">
-        {tickets.map((ticket) => (
+        {tickets.map((ticket: any) => (
           <div key={ticket._id} className="bg-card border border-border rounded-xl overflow-hidden hover:border-primary/40 transition-colors">
             <div className="p-5 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div className="flex items-center gap-3">

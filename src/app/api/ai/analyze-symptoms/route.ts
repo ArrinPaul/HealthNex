@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGeminiModel, generateJSONResponse } from '@/lib/ai';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 function sanitizeInput(input: string): string {
   return input.replace(/[<>{}]/g, '').slice(0, 500);
@@ -7,6 +8,12 @@ function sanitizeInput(input: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`ai-symptoms:${clientIp}`, 10, 60000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const body = await request.json();
     const { symptoms, location } = body;
 

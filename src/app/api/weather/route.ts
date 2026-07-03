@@ -125,7 +125,7 @@ async function getOpenWeatherMapData(latitude: string, longitude: string) {
     daily: {
       // OpenWeatherMap free tier only gives 5-day/3-hour forecast
       // We'll group by day for daily data
-      time: [...new Set(forecastData.list.map((item: any) => new Date(item.dt * 1000).toDateString()))]
+      time: [...new Set<string>(forecastData.list.map((item: any) => new Date(item.dt * 1000).toDateString()))]
         .slice(0, 5)
         .map((date: string) => new Date(date).toISOString().split('T')[0]),
       temperatureMax: groupDailyTemperatures(forecastData.list, 'max'),

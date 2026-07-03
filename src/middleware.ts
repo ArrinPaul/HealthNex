@@ -103,18 +103,25 @@ export async function middleware(request: NextRequest) {
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');
     const host = request.headers.get('host');
-    
-    // Allow if origin matches host (same-origin)
-    // In production, you might need to check against a whitelist of allowed domains
-    if (origin) {
-      const originHost = new URL(origin).host;
-      if (originHost !== host) {
-        return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 });
+
+    // Public API routes (login/register) don't need CSRF checks
+    const isPublicApi = PUBLIC_API_ROUTES.some(route => pathname === route);
+    if (!isPublicApi) {
+      // Both headers missing = suspicious request (curl, Postman, etc.)
+      if (!origin && !referer) {
+        return NextResponse.json({ error: 'CSRF validation failed: missing Origin and Referer headers' }, { status: 403 });
       }
-    } else if (referer) {
-      const refererHost = new URL(referer).host;
-      if (refererHost !== host) {
-        return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 });
+
+      if (origin) {
+        const originHost = new URL(origin).host;
+        if (originHost !== host) {
+          return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 });
+        }
+      } else if (referer) {
+        const refererHost = new URL(referer).host;
+        if (refererHost !== host) {
+          return NextResponse.json({ error: 'CSRF validation failed' }, { status: 403 });
+        }
       }
     }
   }

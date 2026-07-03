@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`ai-report:${clientIp}`, 5, 60000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const formData = await request.formData();
     const image = formData.get('image') as File;
 

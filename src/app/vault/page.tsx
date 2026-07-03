@@ -87,7 +87,7 @@ export default function HealthVaultPage() {
   const [waterSource, setWaterSource] = useState('Well');
 
   // Compute Vitals summary based on the latest logged vitals
-  const latestVitals = healthRecords?.find(r => r.type === 'vitals');
+  const latestVitals = healthRecords?.find((r: any) => r.type === 'vitals');
   const latestVitalsData = latestVitals?.data || {};
 
   const handleOpenAddDialog = () => {
@@ -314,7 +314,7 @@ export default function HealthVaultPage() {
                 </CardHeader>
                 <CardContent className="p-0">
                     <div className="divide-y divide-border/60">
-                       {healthRecords?.map((record) => {
+                       {healthRecords?.map((record: any) => {
                          const isOwner = record.userId === user?.id;
                          const canEdit = isOwner || isAdmin;
                          return (
