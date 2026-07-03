@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
+import { Id } from "../../../../../convex/_generated/dataModel";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const isValidUrl = convexUrl && (convexUrl.startsWith('http://') || convexUrl.startsWith('https://'));
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     };
 
     await convex.mutation(api.users.completeOnboarding, {
-      userId: payload.userId,
+      userId: payload.userId as Id<"users">,
       dateOfBirth,
       gender,
       location,
