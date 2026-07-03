@@ -59,7 +59,7 @@ const slideVariants = {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, refreshUser } = useAuth();
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -153,8 +153,8 @@ export default function OnboardingPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save');
       toast.success('Profile completed!');
-      // Force page reload to refresh auth state
-      window.location.href = '/dashboard';
+      await refreshUser();
+      router.push('/dashboard');
     } catch (err: any) {
       toast.error(err.message || 'Something went wrong');
     } finally {

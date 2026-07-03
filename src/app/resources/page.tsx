@@ -12,6 +12,7 @@ import {
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { lookupCoordsFromLocation } from '@/lib/location-utils';
 
 interface Facility {
   id: string;
@@ -106,16 +107,25 @@ export default function ResourcesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'hospital' | 'pharmacy'>('all');
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({ lat: 28.6139, lng: 77.2090 });
-  const [locationLabel, setLocationLabel] = useState('Delhi (default)');
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLabel, setLocationLabel] = useState('Detecting location...');
 
   // Derive location from user's onboarding profile
   const getProfileLocation = useCallback(() => {
+    // Try direct coordinates first
     if (user?.userLocation?.latitude && user?.userLocation?.longitude) {
       const lat = user.userLocation.latitude;
       const lng = user.userLocation.longitude;
       const parts = [user.userLocation.district, user.userLocation.state].filter(Boolean);
       return { lat, lng, label: parts.join(', ') || `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+    }
+    // Fallback: resolve from state/district even if lat/lng are 0
+    if (user?.userLocation?.state) {
+      const resolved = lookupCoordsFromLocation(user.userLocation.state, user.userLocation.district);
+      if (resolved) {
+        const parts = [user.userLocation.district, user.userLocation.state].filter(Boolean);
+        return { lat: resolved.lat, lng: resolved.lng, label: parts.join(', ') };
+      }
     }
     return null;
   }, [user]);
@@ -137,16 +147,9 @@ export default function ResourcesPage() {
   }, [filterType]);
 
   useEffect(() => {
-    // Priority: 1) Onboarding profile location  2) Browser geolocation  3) Delhi fallback
+    // Priority: 1) Browser geolocation  2) Onboarding profile  3) Delhi fallback
     const profileLoc = getProfileLocation();
-    if (profileLoc) {
-      setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
-      setLocationLabel(profileLoc.label);
-      fetchFacilities(profileLoc.lat, profileLoc.lng);
-      return;
-    }
 
-    // No profile location — try browser geolocation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -156,12 +159,29 @@ export default function ResourcesPage() {
           fetchFacilities(loc.lat, loc.lng);
         },
         () => {
-          fetchFacilities(userLocation.lat, userLocation.lng);
+          // Geolocation failed — fall back to profile or Delhi
+          if (profileLoc) {
+            setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
+            setLocationLabel(profileLoc.label);
+            fetchFacilities(profileLoc.lat, profileLoc.lng);
+          } else {
+            const delhi = { lat: 28.6139, lng: 77.2090 };
+            setUserLocation(delhi);
+            setLocationLabel('Delhi (fallback)');
+            fetchFacilities(delhi.lat, delhi.lng);
+          }
         },
         { timeout: 5000 }
       );
+    } else if (profileLoc) {
+      setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
+      setLocationLabel(profileLoc.label);
+      fetchFacilities(profileLoc.lat, profileLoc.lng);
     } else {
-      fetchFacilities(userLocation.lat, userLocation.lng);
+      const delhi = { lat: 28.6139, lng: 77.2090 };
+      setUserLocation(delhi);
+      setLocationLabel('Delhi (fallback)');
+      fetchFacilities(delhi.lat, delhi.lng);
     }
   }, [fetchFacilities, getProfileLocation]);
 
@@ -197,7 +217,7 @@ export default function ResourcesPage() {
               variant="outline"
               size="icon"
               className="h-10 w-10 shrink-0"
-              onClick={() => fetchFacilities(userLocation.lat, userLocation.lng)}
+              onClick={() => userLocation && fetchFacilities(userLocation.lat, userLocation.lng)}
               disabled={loading}
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -261,7 +281,7 @@ export default function ResourcesPage() {
             ) : error ? (
               <div className="text-center py-20">
                 <p className="text-sm text-rose-500 mb-3">{error}</p>
-                <Button variant="outline" size="sm" onClick={() => fetchFacilities(userLocation.lat, userLocation.lng)}>
+                <Button variant="outline" size="sm" onClick={() => userLocation && fetchFacilities(userLocation.lat, userLocation.lng)} disabled={!userLocation}>
                   <RefreshCw className="w-3 h-3 mr-1" /> Retry
                 </Button>
               </div>

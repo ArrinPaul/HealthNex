@@ -3,6 +3,7 @@ import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
 import { Id } from "../../../../../convex/_generated/dataModel";
+import { lookupCoordsFromLocation } from '@/lib/location-utils';
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const isValidUrl = convexUrl && (convexUrl.startsWith('http://') || convexUrl.startsWith('https://'));
@@ -28,9 +29,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'State, date of birth, and gender are required' }, { status: 400 });
     }
 
+    let lat = latitude || 0;
+    let lng = longitude || 0;
+    // If no browser coordinates, resolve from state/district
+    if (!lat || !lng) {
+      const resolved = lookupCoordsFromLocation(state, district);
+      if (resolved) {
+        lat = resolved.lat;
+        lng = resolved.lng;
+      }
+    }
+
     const location = {
-      latitude: latitude || 0,
-      longitude: longitude || 0,
+      latitude: lat,
+      longitude: lng,
       address: address || '',
       state: state || '',
       district: district || '',
