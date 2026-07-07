@@ -491,8 +491,7 @@ export default function Home() {
         </div>
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-12">
-               <Zap className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-12">
                <span>Open-Source Health Monitoring</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-8 text-foreground leading-tight">

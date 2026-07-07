@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -113,12 +116,28 @@ const renderManualText = (text: string) => {
 };
 
 export default function EducationHubPage() {
+  const { token } = useAuth();
+  const trackUsage = useMutation(api.usage.trackUsage as any);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
   const [completedModules, setCompletedModules] = useState<string[]>([]);
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizError, setQuizError] = useState(false);
   const [activeTab, setActiveTab] = useState<'video' | 'text'>('video');
+  const [videoError, setVideoError] = useState(false);
+  const videoTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (selectedModule && activeTab === 'video') {
+      setVideoError(false);
+      videoTimerRef.current = setTimeout(() => {
+        setVideoError(true);
+      }, 8000);
+    }
+    return () => {
+      if (videoTimerRef.current) clearTimeout(videoTimerRef.current);
+    };
+  }, [selectedModule, activeTab]);
 
   const categories = [
     { title: 'Water Safety', icon: Droplet, count: 4, label: 'Potable water monitoring & filter protocols' },
@@ -136,7 +155,7 @@ export default function EducationHubPage() {
       desc: 'Learn the visual, biological, and chemical indicators of water source contamination.', 
       icon: Droplet, 
       color: 'text-sky-400',
-      videoUrl: 'https://www.youtube.com/embed/q02n1y41n-Y', // TED-Ed: When is water safe to drink?
+      videoUrl: 'https://www.youtube.com/embed/2mG3sFfLUVc',
       manualText: `### Potable Water Contamination Protocols
 
 This training module details the methods required to audit local drinking water safety in rural and high-risk nodes.
@@ -168,7 +187,7 @@ This training module details the methods required to audit local drinking water 
       desc: 'How to write structured community health reports to notify central desks of outbreaks.', 
       icon: FileText, 
       color: 'text-primary',
-      videoUrl: 'https://www.youtube.com/embed/tP71ZgL7q50', // Dr. Greg Martin: Public Health Surveillance
+      videoUrl: 'https://www.youtube.com/embed?listType=search&list=epidemiological+report+writing+public+health',
       manualText: `### Outbreak Documentation Standards
 
 Accurate reporting is key to triggering early warnings and mobilizing relief. Follow these documentation standards.
@@ -278,6 +297,7 @@ When a vector-borne or waterborne outbreak is confirmed in your district, execut
     setQuizSubmitted(false);
     setQuizError(false);
     setActiveTab('video');
+    setVideoError(false);
     toast.info(`Started Course: ${mod.title}`);
   };
 
@@ -292,6 +312,7 @@ When a vector-borne or waterborne outbreak is confirmed in your district, execut
       if (!completedModules.includes(selectedModule.id)) {
         setCompletedModules(prev => [...prev, selectedModule.id]);
       }
+      if (token) trackUsage({ token, feature: 'education_module', status: 'success' }).catch(() => {});
     } else {
       setQuizError(true);
       toast.error("Validation Failed", { description: "Incorrect response. Review the course material and try again." });
@@ -458,13 +479,43 @@ When a vector-borne or waterborne outbreak is confirmed in your district, execut
                     {/* Tab Content */}
                     <div className="bg-secondary/20 rounded-2xl border border-border overflow-hidden h-[280px]">
                       {activeTab === 'video' ? (
-                        <iframe
-                          src={selectedModule.videoUrl}
-                          title={selectedModule.title}
-                          className="w-full h-full border-0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
+                        videoError ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-center p-6">
+                            <Video className="w-10 h-10 text-muted-foreground/50" />
+                            <p className="text-sm font-bold text-foreground">Video Unavailable</p>
+                            <p className="text-xs text-muted-foreground max-w-xs">This video could not be loaded. You can watch related content on YouTube or switch to the Training Manual.</p>
+                            <div className="flex gap-2 mt-2">
+                              <Button
+                                onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(selectedModule.title + ' public health training')}`, '_blank')}
+                                variant="outline"
+                                className="h-8 rounded-lg text-[10px] font-bold border-border gap-1.5"
+                              >
+                                <Video className="w-3.5 h-3.5" />
+                                Watch on YouTube
+                              </Button>
+                              <Button
+                                onClick={() => setActiveTab('text')}
+                                variant="outline"
+                                className="h-8 rounded-lg text-[10px] font-bold border-border gap-1.5"
+                              >
+                                <FileText className="w-3.5 h-3.5" />
+                                Training Manual
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <iframe
+                            src={selectedModule.videoUrl}
+                            title={selectedModule.title}
+                            className="w-full h-full border-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            onLoad={() => {
+                              if (videoTimerRef.current) clearTimeout(videoTimerRef.current);
+                            }}
+                            onError={() => setVideoError(true)}
+                          />
+                        )
                       ) : (
                         <div className="p-5 h-full overflow-y-auto scrollbar-thin text-left leading-relaxed space-y-2 prose prose-invert font-sans">
                           {renderManualText(selectedModule.manualText)}

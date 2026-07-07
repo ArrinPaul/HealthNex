@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { ConvexHttpClient } from 'convex/browser';
 import { ChatbotMessageSchema } from '@/lib/validations';
-import { api } from '../../../../../convex/_generated/api';
 
 export const runtime = 'edge';
 
@@ -67,28 +64,24 @@ function generateFallbackResponse(message: string, language: string): string {
   return responses.welcome;
 }
 
-function createConvexClient(): ConvexHttpClient | null {
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  if (!convexUrl) return null;
-  if (!convexUrl.startsWith('http://') && !convexUrl.startsWith('https://')) return null;
-  return new ConvexHttpClient(convexUrl);
-}
-
-async function trackChatbotUsage(request: NextRequest): Promise<void> {
-  const convex = createConvexClient();
-  if (!convex) return;
-
+async function trackChatbotUsage(_request: NextRequest): Promise<void> {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const { ConvexHttpClient } = await import('convex/browser');
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl || (!convexUrl.startsWith('http://') && !convexUrl.startsWith('https://'))) return;
+
+    const token = _request.cookies.get('auth-token')?.value;
     if (!token) return;
 
+    const convex = new ConvexHttpClient(convexUrl);
+    const { api } = await import('../../../../../convex/_generated/api');
     await (convex.mutation as any)(api.usage.trackUsage, {
       token,
       feature: 'chatbot',
       status: 'success',
     });
-  } catch (error) {
-    // Silently fail - usage tracking shouldn't break the main flow
+  } catch {
+    // Usage tracking is non-critical
   }
 }
 
@@ -114,14 +107,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ response: generateFallbackResponse(message, language) });
     }
 
-    const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    const prompt =
-      `You are a healthcare assistant. Respond in ${language} language. ` +
-      `User asks: "${message}". Provide concise, accurate guidance on water safety, hygiene, ` +
-      'disease prevention, and general health advice.';
+    let resultStream;
+    try {
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(geminiApiKey);
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      const prompt =
+        `You are a healthcare assistant. Respond in ${language} language. ` +
+        `User asks: "${message}". Provide concise, accurate guidance on water safety, hygiene, ` +
+        'disease prevention, and general health advice.';
 
-    const resultStream = await model.generateContentStream(prompt);
+      resultStream = await model.generateContentStream(prompt);
+    } catch (aiError) {
+      console.error('Gemini API failed, using fallback:', aiError);
+      return NextResponse.json({ response: generateFallbackResponse(message, language) });
+    }
+
     await trackChatbotUsage(request);
 
     const stream = new ReadableStream({
@@ -133,7 +134,9 @@ export async function POST(request: NextRequest) {
           }
           controller.close();
         } catch (error) {
-          controller.error(error);
+          console.error('Stream error, sending fallback:', error);
+          controller.enqueue(encoder.encode(generateFallbackResponse(message, language)));
+          controller.close();
         }
       },
     });

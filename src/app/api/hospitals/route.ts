@@ -112,11 +112,10 @@ export async function GET(request: NextRequest) {
         : '["amenity"~"hospital|pharmacy"]';
 
     const query = `
-      [out:json][timeout:15];
+      [out:json][timeout:10];
       (
         node${amenityFilter}(${bbox});
         way${amenityFilter}(${bbox});
-        relation${amenityFilter}(${bbox});
       );
       out center;
     `;
@@ -136,7 +135,7 @@ export async function GET(request: NextRequest) {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: `data=${encodeURIComponent(query)}`,
-          signal: AbortSignal.timeout(20000),
+          signal: AbortSignal.timeout(12000),
         });
         if (response.ok) break;
         lastError = `Overpass returned ${response.status}`;

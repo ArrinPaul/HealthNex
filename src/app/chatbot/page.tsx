@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSettings } from '@/contexts/SettingsContext';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -28,6 +30,7 @@ interface Message {
 export default function DedicatedChatbotPage() {
   const { user, token } = useAuth();
   const { language } = useSettings();
+  const trackUsage = useMutation(api.usage.trackUsage as any);
   
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -115,6 +118,7 @@ export default function DedicatedChatbotPage() {
             return updated;
           });
         }
+        if (token) trackUsage({ token, feature: 'chatbot', status: 'success' }).catch(() => {});
       } else {
         // Fallback JSON handling
         const data = await response.json();

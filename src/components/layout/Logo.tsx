@@ -45,11 +45,11 @@ export default function Logo({ className = "", iconOnly = false, size = 'md' }: 
             strokeLinejoin="round"
             className="text-primary"
           />
-          {/* Stylized 'H' and Pulse */}
+          {/* Heartbeat / ECG Line */}
           <path 
-            d="M35 35V65M65 35V65M35 50H65M25 50H30L35 40L45 60L55 40L65 60L70 50H75" 
+            d="M20 50H32L38 35L48 65L58 35L68 65L74 50H80" 
             stroke="currentColor" 
-            strokeWidth="6" 
+            strokeWidth="5" 
             strokeLinecap="round" 
             strokeLinejoin="round"
             className="text-primary"

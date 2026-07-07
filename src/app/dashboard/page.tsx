@@ -307,11 +307,13 @@ export default function DashboardPage() {
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const diseaseData = useDiseaseData();
   const aggregates = useDashboardAggregates();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const trackUsage = useMutation(api.usage.trackUsage as any);
 
   // Load baseline outbreaks
   useEffect(() => {
     setIsMounted(true);
+    if (token) trackUsage({ token, feature: 'dashboard_view', status: 'success' }).catch(() => {});
     
     const defaultHotspots = [
       { id: "default-1", lat: 28.6139, lng: 77.2090, cases: 45, location: 'Delhi', disease: 'COVID', severity: 'critical', timestamp: Date.now() },

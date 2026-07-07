@@ -11,11 +11,23 @@ interface WaterResultsProps {
 export default function WaterResults({ results }: WaterResultsProps) {
   const { t } = useTranslation();
 
-  const statusConfig = results.status === 'Safe' 
+  const statusConfig = results.status === 'Safe'
     ? { bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30', icon: CheckCircle }
     : results.status === 'Warning'
     ? { bg: 'bg-amber-500/10', border: 'border-amber-500/25', text: 'text-amber-400', badge: 'bg-amber-500/20 text-amber-400 border border-amber-500/30', icon: AlertTriangle }
     : { bg: 'bg-rose-500/10', border: 'border-rose-500/25', text: 'text-rose-400', badge: 'bg-rose-500/20 text-rose-400 border border-rose-500/30', icon: AlertTriangle };
+
+  const fallbackRecommendations = [];
+  const ph = results.parameters.ph;
+  const turbidity = results.parameters.turbidity;
+  if (ph < 6.5) fallbackRecommendations.push('Water is too acidic (pH below 6.5). Avoid drinking until treated.');
+  if (ph > 8.5) fallbackRecommendations.push('Water is too alkaline (pH above 8.5). Consider filtration before use.');
+  if (turbidity >= 5) fallbackRecommendations.push('High turbidity detected (≥5 NTU). Water should be filtered or boiled before consumption.');
+  if (results.status === 'Warning') fallbackRecommendations.push('Elevated health risk detected. Boil water before use or seek an alternative source.');
+  if (results.status === 'Safe') fallbackRecommendations.push('Water quality parameters are within safe limits. Regular monitoring is recommended.');
+  if (fallbackRecommendations.length === 0) fallbackRecommendations.push('No immediate action required. Continue routine monitoring.');
+
+  const recommendations = results.recommendations.length > 0 ? results.recommendations : fallbackRecommendations;
 
   const StatusIcon = statusConfig.icon;
 
@@ -80,7 +92,7 @@ export default function WaterResults({ results }: WaterResultsProps) {
         </CardHeader>
         <CardContent className="p-5">
           <div className="space-y-2.5">
-            {results.recommendations.map((rec: string, index: number) => (
+            {recommendations.map((rec: string, index: number) => (
               <div key={index} className="flex items-start gap-3 p-3 rounded-xl bg-secondary/30 border border-border/30">
                 <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-foreground">{rec}</span>

@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { useAuth } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import WaterSearch from '@/components/water/WaterSearch';
 import WaterResults from '@/components/water/WaterResults';
@@ -11,8 +14,17 @@ import { Droplet, Activity } from 'lucide-react';
 
 export default function WaterQualityPage() {
   const { t } = useTranslation();
+  const { token } = useAuth();
+  const trackUsage = useMutation(api.usage.trackUsage as any);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
+
+  const handleResults = (data: any) => {
+    setResults(data);
+    if (data && token) {
+      trackUsage({ token, feature: 'water_quality', status: 'success' }).catch(() => {});
+    }
+  };
 
   return (
     <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
@@ -40,10 +52,10 @@ export default function WaterQualityPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <WaterSearch 
-            onResults={setResults} 
-            loading={loading} 
-            setLoading={setLoading} 
+          <WaterSearch
+            onResults={handleResults}
+            loading={loading}
+            setLoading={setLoading}
           />
         </motion.div>
 

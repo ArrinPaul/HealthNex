@@ -31,10 +31,15 @@ import {
   X
 } from 'lucide-react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useSettings } from '@/contexts/SettingsContext';
 
 export default function AIFeaturesPage() {
+  const { token } = useAuth();
+  const trackUsage = useMutation(api.usage.trackUsage as any);
   const [activeProtocol, setActiveProtocol] = useState<'diagnostics' | 'predictive'>('diagnostics');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
@@ -191,6 +196,7 @@ export default function AIFeaturesPage() {
       if (response.ok) {
         setResults({ type: 'outbreak', data });
         toast.success('Epidemiological model simulation complete.');
+        if (token) trackUsage({ token, feature: 'outbreak_prediction', status: 'success' }).catch(() => {});
       } else {
         throw new Error(data.error || 'Prediction failed');
       }
@@ -224,6 +230,7 @@ export default function AIFeaturesPage() {
       if (response.ok) {
         setResults({ type: 'forecast', data });
         toast.success('Community health trend forecast updated.');
+        if (token) trackUsage({ token, feature: 'health_forecast', status: 'success' }).catch(() => {});
       } else {
         throw new Error(data.error || 'Forecast failed');
       }
@@ -648,14 +655,14 @@ export default function AIFeaturesPage() {
                     { title: 'Sim Latency', status: '12 ms', icon: Zap, color: 'text-amber-500' },
                     { title: 'Integrity', status: 'Validated', icon: Shield, color: 'text-emerald-500' }
                   ].map((stat, i) => (
-                    <Card key={i} className="backdrop-blur-xl bg-card/45 border border-border/70 p-3 flex flex-col justify-between h-[85px]">
+                    <Card key={i} className="backdrop-blur-xl bg-card/80 border border-border/70 p-4 flex flex-col justify-between min-h-[100px]">
                       <div className="flex justify-between items-center">
-                        <stat.icon className={`w-3.5 h-3.5 ${stat.color}`} />
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       </div>
-                      <div className="text-left mt-2">
-                        <span className="text-[8px] font-bold text-muted-foreground uppercase block">{stat.title}</span>
-                        <span className="text-[10px] font-mono font-bold text-foreground uppercase">{stat.status}</span>
+                      <div className="text-left mt-3">
+                        <span className="text-[11px] font-bold text-muted-foreground uppercase block">{stat.title}</span>
+                        <span className="text-xs font-mono font-bold text-foreground uppercase">{stat.status}</span>
                       </div>
                     </Card>
                   ))}

@@ -147,9 +147,17 @@ export default function ResourcesPage() {
   }, [filterType]);
 
   useEffect(() => {
-    // Priority: 1) Browser geolocation  2) Onboarding profile  3) Delhi fallback
     const profileLoc = getProfileLocation();
 
+    // If profile has valid coordinates, use them directly (most reliable)
+    if (profileLoc) {
+      setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
+      setLocationLabel(profileLoc.label);
+      fetchFacilities(profileLoc.lat, profileLoc.lng);
+      return;
+    }
+
+    // Try browser geolocation as secondary option
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -159,28 +167,18 @@ export default function ResourcesPage() {
           fetchFacilities(loc.lat, loc.lng);
         },
         () => {
-          // Geolocation failed — fall back to profile or Delhi
-          if (profileLoc) {
-            setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
-            setLocationLabel(profileLoc.label);
-            fetchFacilities(profileLoc.lat, profileLoc.lng);
-          } else {
-            const delhi = { lat: 28.6139, lng: 77.2090 };
-            setUserLocation(delhi);
-            setLocationLabel('Delhi (fallback)');
-            fetchFacilities(delhi.lat, delhi.lng);
-          }
+          // Geolocation denied — use Delhi fallback
+          const delhi = { lat: 28.6139, lng: 77.2090 };
+          setUserLocation(delhi);
+          setLocationLabel('New Delhi (default)');
+          fetchFacilities(delhi.lat, delhi.lng);
         },
-        { timeout: 5000 }
+        { timeout: 10000, maximumAge: 300000 }
       );
-    } else if (profileLoc) {
-      setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
-      setLocationLabel(profileLoc.label);
-      fetchFacilities(profileLoc.lat, profileLoc.lng);
     } else {
       const delhi = { lat: 28.6139, lng: 77.2090 };
       setUserLocation(delhi);
-      setLocationLabel('Delhi (fallback)');
+      setLocationLabel('New Delhi (default)');
       fetchFacilities(delhi.lat, delhi.lng);
     }
   }, [fetchFacilities, getProfileLocation]);
