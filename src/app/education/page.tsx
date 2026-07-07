@@ -155,7 +155,7 @@ export default function EducationHubPage() {
       desc: 'Learn the visual, biological, and chemical indicators of water source contamination.', 
       icon: Droplet, 
       color: 'text-sky-400',
-      videoUrl: 'https://www.youtube.com/embed/2mG3sFfLUVc',
+      videoUrl: 'https://www.youtube.com/embed/9iZIjfZ0rhU',
       manualText: `### Potable Water Contamination Protocols
 
 This training module details the methods required to audit local drinking water safety in rural and high-risk nodes.
@@ -187,7 +187,7 @@ This training module details the methods required to audit local drinking water 
       desc: 'How to write structured community health reports to notify central desks of outbreaks.', 
       icon: FileText, 
       color: 'text-primary',
-      videoUrl: 'https://www.youtube.com/embed?listType=search&list=epidemiological+report+writing+public+health',
+      videoUrl: 'https://www.youtube.com/embed/7jHcXPRlN1w',
       manualText: `### Outbreak Documentation Standards
 
 Accurate reporting is key to triggering early warnings and mobilizing relief. Follow these documentation standards.
@@ -299,6 +299,15 @@ When a vector-borne or waterborne outbreak is confirmed in your district, execut
     setActiveTab('video');
     setVideoError(false);
     toast.info(`Started Course: ${mod.title}`);
+  };
+
+  const navigateModule = (direction: 'prev' | 'next') => {
+    if (!selectedModule) return;
+    const currentIndex = modules.findIndex(m => m.id === selectedModule.id);
+    const newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
+    if (newIndex >= 0 && newIndex < modules.length) {
+      handleStartModule(modules[newIndex]);
+    }
   };
 
   const handleQuizSubmit = (e: React.FormEvent) => {
@@ -598,15 +607,42 @@ When a vector-borne or waterborne outbreak is confirmed in your district, execut
                 </div>
 
                 {/* Modal Footer */}
-                <div className="p-4 border-t border-border/40 bg-secondary/30 flex justify-end shrink-0">
-                  <Button 
-                    onClick={() => setSelectedModule(null)}
-                    variant="outline" 
-                    className="h-9 px-5 rounded-xl text-xs font-bold border-border"
-                  >
-                    Close Course Hub
-                  </Button>
-                </div>
+                {(() => {
+                  const currentIdx = modules.findIndex(m => m.id === selectedModule?.id);
+                  const hasPrev = currentIdx > 0;
+                  const hasNext = currentIdx < modules.length - 1;
+                  return (
+                    <div className="p-4 border-t border-border/40 bg-secondary/30 flex items-center justify-between shrink-0">
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={() => navigateModule('prev')}
+                          disabled={!hasPrev}
+                          variant="outline"
+                          className="h-9 px-3 rounded-xl text-xs font-bold border-border gap-1.5 disabled:opacity-30"
+                        >
+                          <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                          Previous
+                        </Button>
+                        <Button
+                          onClick={() => navigateModule('next')}
+                          disabled={!hasNext}
+                          variant="outline"
+                          className="h-9 px-3 rounded-xl text-xs font-bold border-border gap-1.5 disabled:opacity-30"
+                        >
+                          Next
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                      <Button
+                        onClick={() => setSelectedModule(null)}
+                        variant="outline"
+                        className="h-9 px-5 rounded-xl text-xs font-bold border-border"
+                      >
+                        Close Course Hub
+                      </Button>
+                    </div>
+                  );
+                })()}
               </motion.div>
             </div>
           )}
