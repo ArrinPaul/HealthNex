@@ -173,11 +173,20 @@ export default defineSchema({
       }).index("by_status", ["status"])
         .index("by_created", ["createdAt"]),
 
-      externalInstitutionalData: defineTable({
-        source: v.string(), // e.g., "disease.sh", "WHO"
-        type: v.string(), // e.g., "outbreak_global", "indicator_life_expectancy"
-        data: v.any(),
-        lastUpdated: v.number(),
-      }).index("by_source_and_type", ["source", "type"]),
-    });
+  externalInstitutionalData: defineTable({
+    source: v.string(), // e.g., "disease.sh", "WHO"
+    type: v.string(), // e.g., "outbreak_global", "indicator_life_expectancy"
+    data: v.any(),
+    lastUpdated: v.number(),
+  }).index("by_source_and_type", ["source", "type"]),
+
+  healthAssessments: defineTable({
+    userId: v.id("users"),
+    predictedDisease: v.string(),
+    predictionScore: v.number(), // percentage
+    symptomsProvided: v.array(v.string()),
+    timestamp: v.number(),
+    notes: v.optional(v.string()),
+  }).index("by_user", ["userId"]).index("by_timestamp", ["timestamp"]),
+});
     

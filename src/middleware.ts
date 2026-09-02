@@ -27,7 +27,7 @@ const PROTECTED_ROUTES = [
 
 // API routes that require authentication
 const PROTECTED_API_PREFIX = '/api/';
-const PUBLIC_API_ROUTES = ['/api/auth/login', '/api/auth/register', '/api/health'];
+const PUBLIC_API_ROUTES = ['/api/auth/login', '/api/auth/register', '/api/health', '/api/cron/scrape-diseases', '/api/ai/symptom-checker'];
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {

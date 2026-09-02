@@ -42,6 +42,7 @@ const allNavItems = [
   { href: '/community-reports', label: 'Community', icon: MessageSquare, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-teal-500/20 to-emerald-500/20', activeColor: 'text-teal-400' },
   { href: '/vault', label: 'My Vault', icon: Lock, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-slate-500/20 to-gray-500/20', activeColor: 'text-slate-400' },
   { href: '/resources', label: 'Health Hub', icon: Heart, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-pink-500/20 to-rose-500/20', activeColor: 'text-pink-400' },
+  { href: '/symptom-checker', label: 'Symptom Checker', icon: Activity, roles: ['admin', 'health-worker', 'community-user', 'public'], color: 'from-emerald-500/20 to-green-500/20', activeColor: 'text-emerald-400' },
   { href: '/user-management', label: 'User Mgmt', icon: Users, roles: ['super-admin', 'admin', 'health-worker'], color: 'from-indigo-500/20 to-blue-500/20', activeColor: 'text-indigo-400' },
   { href: '/admin', label: 'Admin', icon: Shield, roles: ['super-admin', 'admin'], color: 'from-red-500/20 to-orange-500/20', activeColor: 'text-red-400' },
 ];

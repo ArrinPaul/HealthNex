@@ -5,6 +5,10 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 import GlobalHUDAlert from './GlobalHUDAlert';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import SymptomCheckerModal from '../SymptomCheckerModal';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -28,6 +32,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
+  const { user, token } = useAuth();
+  const statusQuery = useQuery(api.healthAssessments.getAssessmentStatus as any, { token: token || "" });
+  const needsOnboarding = statusQuery?.needsOnboarding === true;
+  const [showModal, setShowModal] = useState(false);
+
+  // When status loads and they need onboarding, show it
+  if (needsOnboarding && !showModal) {
+    setShowModal(true);
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground relative selection:bg-primary/20">
       <div className="relative z-10 flex min-h-screen">
@@ -43,6 +57,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </main>
       </div>
+
+      <SymptomCheckerModal 
+        isOpen={showModal} 
+        onClose={() => {}} 
+        onComplete={() => setShowModal(false)}
+        forceOnboarding={true}
+      />
     </div>
   );
 }
