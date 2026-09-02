@@ -413,12 +413,23 @@ export const fetchDailyPublicDataset = internalAction({
         
         const data = await response.json();
         
-        if (data.active > 0) {
+        let activeCases = data.active;
+        let finalRecovered = data.recovered || 0;
+
+        // Epidemiological Recovery Imputation Algorithm
+        // If a country stopped reporting recoveries (e.g. India), the API defaults to 0, which balloons Active Cases.
+        // We impute a standard 99% recovery rate on non-fatal cases to estimate the true active pool.
+        if (data.recovered === 0 && data.cases > 0) {
+          finalRecovered = Math.floor((data.cases - data.deaths) * 0.99);
+          activeCases = data.cases - data.deaths - finalRecovered;
+        }
+        
+        if (activeCases > 0) {
           await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
             disease: "COVID-19 (Live)",
-            cases: data.active,
+            cases: activeCases,
             deaths: data.deaths,
-            recovered: data.recovered || 0,
+            recovered: finalRecovered,
             latitude: country.lat,
             longitude: country.lng,
             location: country.name,
