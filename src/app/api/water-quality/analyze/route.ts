@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,7 +14,25 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            recommendations: {
+              type: SchemaType.ARRAY,
+              items: { type: SchemaType.STRING },
+              description: "3-4 actionable, high-quality public health recommendations"
+            }
+          },
+          required: ["recommendations"]
+        }
+      }
+    });
 
     const prompt = `You are an expert public health and water safety AI assistant.
 Analyze the following water quality and weather metrics for a region, and provide 3-4 actionable, high-quality public health recommendations to ensure water safety. Keep each recommendation short, precise, and practical.
@@ -27,26 +45,13 @@ Water Quality Parameters:
 Weather Telemetry:
 - Temperature: ${Math.round((weather?.temperature || 298.15) - 273.15)}°C
 - Rainfall: ${weather?.rainfall || 0} mm
-- Humidity: ${weather?.humidity || 60}%
-
-Return ONLY a JSON object containing a key 'recommendations' which maps to an array of 3-4 strings (recommendations). Example output format:
-{
-  "recommendations": [
-    "First recommendation",
-    "Second recommendation",
-    "Third recommendation"
-  ]
-}
-Do not include any markdown styling like \`\`\`json or extra explanations outside the JSON structure.`;
+- Humidity: ${weather?.humidity || 60}%`;
 
     const response = await model.generateContent(prompt);
-    const text = response.response.text().trim();
-    
-    // Clean code fences if AI returned them
-    const cleanText = text.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    const text = response.response.text();
     
     try {
-      const parsedData = JSON.parse(cleanText);
+      const parsedData = JSON.parse(text);
       if (parsedData && Array.isArray(parsedData.recommendations)) {
         return NextResponse.json({ recommendations: parsedData.recommendations });
       }

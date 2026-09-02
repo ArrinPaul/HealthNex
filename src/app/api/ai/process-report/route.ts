@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -37,21 +37,36 @@ export async function POST(request: NextRequest) {
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.OBJECT,
+          properties: {
+            patientName: { type: SchemaType.STRING },
+            age: { type: SchemaType.STRING },
+            gender: { type: SchemaType.STRING },
+            symptoms: { 
+              type: SchemaType.ARRAY,
+              items: { type: SchemaType.STRING }
+            },
+            diagnosis: { type: SchemaType.STRING }
+          },
+          required: ["patientName", "age", "gender", "symptoms", "diagnosis"]
+        }
+      }
+    });
 
     // Convert file to base64
     const buffer = await image.arrayBuffer();
     const base64Image = Buffer.from(buffer).toString('base64');
 
     const prompt = `
-      Extract the following information from this medical report image:
-      1. Patient Name
-      2. Age
-      3. Gender
-      4. Key symptoms mentioned
-      5. Any diagnosis or clinical impression
-      
-      Return ONLY a JSON object with these keys: "patientName", "age", "gender", "symptoms", "diagnosis".
+      Extract the following information from this medical report image. 
+      If any field is missing, return "Unknown" for strings or an empty array for lists.
     `;
 
     const result = await model.generateContent([
@@ -65,10 +80,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     const response = await result.response;
-    let text = response.text().trim();
-    
-    if (text.startsWith('```json')) text = text.replace(/```json|```/g, '').trim();
-    if (text.startsWith('```')) text = text.replace(/```/g, '').trim();
+    const text = response.text();
 
     return NextResponse.json({ data: JSON.parse(text) });
   } catch (error) {
