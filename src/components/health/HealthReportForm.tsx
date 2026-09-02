@@ -99,87 +99,24 @@ export default function HealthReportForm() {
   };
 
   return (
-    <Card className="backdrop-blur-xl bg-card/50">
-      <CardHeader>
-        <CardTitle>{t('submitReport')}</CardTitle>
+    <Card className="backdrop-blur-xl bg-card/60 border-border/50 shadow-xl overflow-hidden relative">
+      {/* Decorative gradient blob */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+      
+      <CardHeader className="border-b border-border/40 bg-muted/20 pb-6">
+        <CardTitle className="text-xl flex items-center gap-2">
+          <Upload className="w-5 h-5 text-primary" />
+          {t('submitReport')}
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">Upload a medical report or enter details manually.</p>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="patientName">{t('patientName')}</Label>
-              <Input
-                id="patientName"
-                value={formData.patientName}
-                onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="location">{t('location')}</Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="date">{t('date')}</Label>
-              <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="age">{t('age', 'Age')}</Label>
-              <Input
-                id="age"
-                type="number"
-                value={formData.age}
-                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="gender">{t('gender', 'Gender')}</Label>
-              <Input
-                id="gender"
-                value={formData.gender}
-                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                required
-                className="mt-1"
-              />
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="symptoms">{t('symptoms')}</Label>
-            <Textarea
-              id="symptoms"
-              value={formData.symptoms}
-              onChange={(e) => setFormData({ ...formData, symptoms: e.target.value })}
-              required
-              className="mt-1"
-              rows={4}
-              placeholder="Describe symptoms in detail..."
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="upload">{t('uploadImage')} (Optional)</Label>
-            <div className="mt-2 relative border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer group">
+      
+      <CardContent className="pt-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          
+          {/* AI Upload Section - Prominently featured */}
+          <div className="bg-secondary/20 rounded-xl p-1 border border-border/50">
+            <div className="relative border-2 border-dashed border-primary/20 rounded-lg p-10 text-center hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
               <input 
                 id="upload"
                 type="file" 
@@ -187,28 +124,149 @@ export default function HealthReportForm() {
                 onChange={handleFileUpload}
                 className="absolute inset-0 opacity-0 cursor-pointer z-10"
               />
+              
+              {/* Animated scanning line effect when processing */}
+              {processing && (
+                <div className="absolute top-0 left-0 w-full h-1 bg-primary/40 animate-[scan_2s_ease-in-out_infinite]" />
+              )}
+              
               {processing ? (
-                <div className="flex flex-col items-center">
-                  <Loader2 className="w-10 h-10 animate-spin text-primary mb-2" />
-                  <p className="text-sm font-medium">AI is analyzing report...</p>
+                <div className="flex flex-col items-center justify-center space-y-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-md animate-pulse" />
+                    <Loader2 className="w-12 h-12 animate-spin text-primary relative z-10" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-base font-semibold text-foreground tracking-tight">Neural Engine is extracting data...</p>
+                    <p className="text-sm text-muted-foreground">Parsing symptoms, patient details, and severity.</p>
+                  </div>
                 </div>
               ) : (
-                <>
-                  <Upload className="w-10 h-10 mx-auto text-muted-foreground mb-2 group-hover:text-primary transition-colors" />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload or drag and drop medical report
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    AI will automatically extract data from your image
-                  </p>
-                </>
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Upload className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-base font-medium text-foreground">
+                      Auto-fill with Medical Document
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Drag & drop or click to upload a photo of the health report
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
           </div>
 
-          <Button type="submit" disabled={loading || processing} className="w-full md:w-auto">
-            {loading ? t('loading') : t('submit')}
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="h-px bg-border flex-1" />
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Or enter manually</span>
+            <div className="h-px bg-border flex-1" />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-x-6 gap-y-6">
+            <div className="space-y-2 group">
+              <Label htmlFor="patientName" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-focus-within:text-primary transition-colors">
+                {t('patientName')}
+              </Label>
+              <Input
+                id="patientName"
+                value={formData.patientName}
+                onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
+                required
+                className="bg-background/50 focus:bg-background transition-colors h-11"
+                placeholder="John Doe"
+              />
+            </div>
+
+            <div className="space-y-2 group">
+              <Label htmlFor="location" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-focus-within:text-primary transition-colors">
+                {t('location')}
+              </Label>
+              <Input
+                id="location"
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                required
+                className="bg-background/50 focus:bg-background transition-colors h-11"
+                placeholder="District or City"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2 group">
+                <Label htmlFor="age" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-focus-within:text-primary transition-colors">
+                  {t('age', 'Age')}
+                </Label>
+                <Input
+                  id="age"
+                  type="number"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  required
+                  className="bg-background/50 focus:bg-background transition-colors h-11"
+                  placeholder="34"
+                />
+              </div>
+
+              <div className="space-y-2 group">
+                <Label htmlFor="gender" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-focus-within:text-primary transition-colors">
+                  {t('gender', 'Gender')}
+                </Label>
+                <Input
+                  id="gender"
+                  value={formData.gender}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  required
+                  className="bg-background/50 focus:bg-background transition-colors h-11"
+                  placeholder="M/F/Other"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 group">
+              <Label htmlFor="date" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-focus-within:text-primary transition-colors">
+                {t('date')}
+              </Label>
+              <Input
+                id="date"
+                type="date"
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                required
+                className="bg-background/50 focus:bg-background transition-colors h-11"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 group">
+            <Label htmlFor="symptoms" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-focus-within:text-primary transition-colors">
+              {t('symptoms')}
+            </Label>
+            <Textarea
+              id="symptoms"
+              value={formData.symptoms}
+              onChange={(e) => setFormData({ ...formData, symptoms: e.target.value })}
+              required
+              className="bg-background/50 focus:bg-background transition-colors min-h-[120px] resize-none"
+              placeholder="Describe symptoms in detail..."
+            />
+          </div>
+
+          <div className="pt-2">
+            <Button 
+              type="submit" 
+              disabled={loading || processing} 
+              className="w-full h-12 text-base font-medium shadow-lg hover:shadow-primary/25 transition-all"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" /> Committing to Ledger...
+                </span>
+              ) : t('submit')}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
