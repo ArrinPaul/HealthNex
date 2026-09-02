@@ -143,103 +143,81 @@ export default function UserManagement() {
       )}
 
       {/* Grid Dashboard Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 py-4 border-b border-border/40">
         {/* Total Users */}
-        <Card className="bg-card/65 border border-border/60 hover:border-primary/20 hover:shadow-lg transition-all relative overflow-hidden group">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Total Node Connections</span>
-              <h3 className="text-3xl font-black tracking-tight">{totalUsers}</h3>
-              <p className="text-[9px] text-muted-foreground">Active nodes syncing telemetry</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-primary border border-border/50 shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <Users className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-2 group">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Users className="w-4 h-4" />
+            <span className="text-[10px] uppercase font-bold tracking-widest">Total Node Connections</span>
+          </div>
+          <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-primary">{totalUsers}</h3>
+          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Active nodes syncing telemetry</p>
+        </div>
 
         {/* Administrators */}
-        <Card className="bg-card/65 border border-border/60 hover:border-violet-500/20 hover:shadow-lg transition-all relative overflow-hidden group">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Security Officers</span>
-              <h3 className="text-3xl font-black text-violet-400 tracking-tight">{adminCount}</h3>
-              <p className="text-[9px] text-muted-foreground">{superAdminCount} super, {onlyAdminCount} standard</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 border border-violet-500/20 shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <Shield className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-2 group">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Shield className="w-4 h-4" />
+            <span className="text-[10px] uppercase font-bold tracking-widest">Security Officers</span>
+          </div>
+          <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-violet-500">{adminCount}</h3>
+          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">{superAdminCount} super, {onlyAdminCount} standard</p>
+        </div>
 
         {/* Medical Workers */}
-        <Card className="bg-card/65 border border-border/60 hover:border-emerald-500/20 hover:shadow-lg transition-all relative overflow-hidden group">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Medical Officers</span>
-              <h3 className="text-3xl font-black text-emerald-400 tracking-tight">{workerCount}</h3>
-              <p className="text-[9px] text-muted-foreground">Verifying outbreak datasets</p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 border border-emerald-500/20 shrink-0 group-hover:scale-105 transition-transform duration-300">
-              <Activity className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-2 group">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Activity className="w-4 h-4" />
+            <span className="text-[10px] uppercase font-bold tracking-widest">Medical Officers</span>
+          </div>
+          <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-emerald-500">{workerCount}</h3>
+          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Verifying outbreak datasets</p>
+        </div>
 
         {/* Node Verification Level */}
-        <Card className="bg-card/65 border border-border/60 hover:border-amber-500/20 hover:shadow-lg transition-all relative overflow-hidden group">
-          <CardContent className="p-5 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Role Requests</span>
-              <h3 className="text-3xl font-black text-amber-500 tracking-tight">{pendingRequests}</h3>
-              <p className="text-[9px] text-muted-foreground">Awaiting permission updates</p>
-            </div>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shrink-0 group-hover:scale-105 transition-transform duration-300 ${
-              pendingRequests > 0 
-                ? 'bg-amber-500/15 text-amber-400 border-amber-500/30 animate-pulse' 
-                : 'bg-secondary text-muted-foreground border-border/50'
-            }`}>
-              <Fingerprint className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-2 group">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Fingerprint className={`w-4 h-4 ${pendingRequests > 0 ? 'text-amber-500 animate-pulse' : ''}`} />
+            <span className="text-[10px] uppercase font-bold tracking-widest">Role Requests</span>
+          </div>
+          <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-amber-500">{pendingRequests}</h3>
+          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Awaiting permission updates</p>
+        </div>
       </div>
 
       {/* Role Distribution visual statistics */}
-      <Card className="bg-card/65 border border-border/60 shadow-md">
-        <CardContent className="p-5 space-y-3">
-          <div className="flex items-center justify-between text-xs">
-            <h4 className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5 text-primary" /> Role Distribution Breakdown
-            </h4>
-            <span className="font-mono text-muted-foreground/80">{totalUsers} Total Registered Nodes</span>
-          </div>
-          
-          {/* Segmented Progress Bar */}
-          <div className="h-3 w-full rounded-full bg-secondary flex overflow-hidden border border-border/40">
-            <div style={{ width: `${superAdminPercent}%` }} className="bg-rose-500 transition-all duration-500" title={`Super Admins: ${superAdminCount}`} />
-            <div style={{ width: `${adminPercent}%` }} className="bg-violet-500 transition-all duration-500" title={`Admins: ${onlyAdminCount}`} />
-            <div style={{ width: `${workerPercent}%` }} className="bg-emerald-500 transition-all duration-500" title={`Health Workers: ${workerCount}`} />
-            <div style={{ width: `${communityPercent}%` }} className="bg-sky-400 transition-all duration-500" title={`Community Users: ${communityCount}`} />
-          </div>
+      <div className="py-6 space-y-4">
+        <div className="flex items-center justify-between text-xs">
+          <h4 className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground flex items-center gap-1.5">
+            <BarChart3 className="w-3.5 h-3.5 text-primary" /> Role Distribution Breakdown
+          </h4>
+          <span className="font-mono text-muted-foreground/80">{totalUsers} Total Registered Nodes</span>
+        </div>
+        
+        {/* Segmented Progress Bar */}
+        <div className="h-2 w-full rounded-full bg-secondary flex overflow-hidden">
+          <div style={{ width: `${superAdminPercent}%` }} className="bg-rose-500 transition-all duration-500" title={`Super Admins: ${superAdminCount}`} />
+          <div style={{ width: `${adminPercent}%` }} className="bg-violet-500 transition-all duration-500" title={`Admins: ${onlyAdminCount}`} />
+          <div style={{ width: `${workerPercent}%` }} className="bg-emerald-500 transition-all duration-500" title={`Health Workers: ${workerCount}`} />
+          <div style={{ width: `${communityPercent}%` }} className="bg-sky-400 transition-all duration-500" title={`Community Users: ${communityCount}`} />
+        </div>
 
-          {/* Color Indicators Legend */}
-          <div className="flex items-center gap-4 flex-wrap pt-1 text-[10px] font-bold uppercase tracking-wide">
-            <div className="flex items-center gap-1.5 text-rose-500">
-              <div className="w-2.5 h-2.5 rounded bg-rose-500" /> Super-Admin ({superAdminCount})
-            </div>
-            <div className="flex items-center gap-1.5 text-violet-500">
-              <div className="w-2.5 h-2.5 rounded bg-violet-500" /> Admin ({onlyAdminCount})
-            </div>
-            <div className="flex items-center gap-1.5 text-emerald-400">
-              <div className="w-2.5 h-2.5 rounded bg-emerald-500" /> Health-Worker ({workerCount})
-            </div>
-            <div className="flex items-center gap-1.5 text-sky-400">
-              <div className="w-2.5 h-2.5 rounded bg-sky-400" /> Community-User ({communityCount})
-            </div>
+        {/* Color Indicators Legend */}
+        <div className="flex items-center gap-6 flex-wrap pt-2 text-[10px] font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-rose-500">
+            <div className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Super-Admin ({superAdminCount})
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-2 text-violet-500">
+            <div className="w-1.5 h-1.5 rounded-full bg-violet-500" /> Admin ({onlyAdminCount})
+          </div>
+          <div className="flex items-center gap-2 text-emerald-400">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Health-Worker ({workerCount})
+          </div>
+          <div className="flex items-center gap-2 text-sky-400">
+            <div className="w-1.5 h-1.5 rounded-full bg-sky-400" /> Community-User ({communityCount})
+          </div>
+        </div>
+      </div>
 
       {/* Main Operations Block */}
       <Card className="bg-card/65 backdrop-blur-xl border border-border shadow-xl rounded-2xl overflow-hidden">

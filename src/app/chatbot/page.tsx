@@ -249,7 +249,7 @@ export default function DedicatedChatbotPage() {
         </div>
 
         {/* Chat Interface Container */}
-        <Card className="flex-1 min-h-0 bg-card/65 backdrop-blur-xl border border-border shadow-xl rounded-2xl flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden rounded-2xl bg-transparent">
           {/* Scrollable message box */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin text-xs">
             <AnimatePresence initial={false}>
@@ -370,7 +370,7 @@ export default function DedicatedChatbotPage() {
               </span>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     </ProtectedRoute>
   );
