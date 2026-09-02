@@ -14,7 +14,7 @@ export async function GET() {
     
     const titles = [...rssText.matchAll(/<title>(.*?)<\/title>/g)].map(m => m[1]).slice(1, 25);
     
-    const diseaseRegex = /(Ebola|Measles|Cholera|Mpox|Dengue|Malaria|Polio|COVID-19|Influenza|Zika|Typhoid|Nipah|Chikungunya)/i;
+    const diseaseRegex = /(Ebola|Measles|Cholera|Mpox|Dengue|Malaria|Polio|COVID-19|Influenza|Zika|Typhoid|Nipah|Chikungunya|Tuberculosis|Yellow Fever|Rabies|Lassa Fever|Marburg|Plague|Hepatitis|HIV|Anthrax|Tetanus|Diphtheria|Pertussis|Rubella|Mumps|SARS|MERS|Avian Flu|Swine Flu|Leishmaniasis|Leprosy|Meningitis|Norovirus|Rotavirus)/i;
     const casesRegex = /([0-9,]+)\s*(cases|infections|deaths|patients)/i;
     
     // Heavily focused on all Indian States and UTs
