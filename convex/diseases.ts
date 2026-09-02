@@ -434,21 +434,43 @@ export const insertAutomatedDailyData = internalMutation({
     location: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("diseaseOutbreaks", {
-      disease: args.disease,
-      cases: args.cases,
-      confirmedCases: args.cases,
-      suspectedCases: 0,
-      deaths: args.deaths,
-      recovered: args.recovered,
-      latitude: args.latitude,
-      longitude: args.longitude,
-      location: args.location,
-      severity: args.cases > 5000 ? "critical" : args.cases > 1000 ? "high" : "medium",
-      status: "active",
-      timestamp: Date.now(),
-      reportedBy: "SYSTEM_CRON_AUTO_SYNC",
-      notes: "Auto-ingested from daily public health API dataset.",
-    });
+    const existingOutbreak = await ctx.db
+      .query("diseaseOutbreaks")
+      .filter((q) => q.eq(q.field("reportedBy"), "SYSTEM_CRON_AUTO_SYNC"))
+      .filter((q) => q.eq(q.field("disease"), args.disease))
+      .filter((q) => q.eq(q.field("status"), "active"))
+      .first();
+
+    const severity = args.cases > 5000 ? "critical" : args.cases > 1000 ? "high" : "medium";
+
+    if (existingOutbreak) {
+      // Update existing active telemetry to avoid duplicating map hotspots
+      await ctx.db.patch(existingOutbreak._id, {
+        cases: args.cases,
+        confirmedCases: args.cases,
+        deaths: args.deaths,
+        recovered: args.recovered,
+        severity: severity,
+        timestamp: Date.now(), // update the last seen timestamp
+      });
+    } else {
+      // Insert entirely new record if one doesn't exist
+      await ctx.db.insert("diseaseOutbreaks", {
+        disease: args.disease,
+        cases: args.cases,
+        confirmedCases: args.cases,
+        suspectedCases: 0,
+        deaths: args.deaths,
+        recovered: args.recovered,
+        latitude: args.latitude,
+        longitude: args.longitude,
+        location: args.location,
+        severity: severity,
+        status: "active",
+        timestamp: Date.now(),
+        reportedBy: "SYSTEM_CRON_AUTO_SYNC",
+        notes: "Auto-ingested from daily public health API dataset.",
+      });
+    }
   }
 });
