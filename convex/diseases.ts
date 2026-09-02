@@ -1,10 +1,11 @@
 // Convex functions for disease outbreak tracking
 // Run: npx convex dev to generate the server code
 
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalAction, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
 import { ROLES, ROLE_HIERARCHY, UserRole } from "./roles";
+import { internal } from "./_generated/api";
 
 // Report a disease outbreak
 export const reportDisease = mutationWithAuth({
@@ -386,5 +387,68 @@ export const seedHistoricalOutbreaks = mutation({
     }
 
     return { success: true, count: realOutbreaks.length };
+  }
+});
+
+// --- AUTOMATED DAILY PUBLIC DATASET SYNC MECHANISM ---
+
+// 1. Internal Action to fetch from a public health/government endpoint
+export const fetchDailyPublicDataset = internalAction({
+  handler: async (ctx) => {
+    try {
+      // Example public endpoint (e.g., disease.sh for worldwide/regional stats)
+      // In a real scenario, this could be a government API or a daily CSV hosted on a portal
+      const response = await fetch("https://disease.sh/v3/covid-19/countries/India");
+      if (!response.ok) throw new Error("Dataset fetch failed");
+      
+      const data = await response.json();
+      
+      // If there are new cases today, dispatch to the mutation
+      if (data.todayCases > 0 || data.todayDeaths > 0) {
+        await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
+          disease: "COVID-19 (Automated Sync)",
+          cases: data.todayCases,
+          deaths: data.todayDeaths,
+          recovered: data.todayRecovered,
+          // Mapping to a central coordinate for the region (New Delhi center)
+          latitude: 28.6139,
+          longitude: 77.2090,
+          location: "India (National Aggregation)",
+        });
+      }
+    } catch (error) {
+      console.error("Automated cron sync failed:", error);
+    }
+  }
+});
+
+// 2. Internal Mutation to safely write the fetched data to the DB
+export const insertAutomatedDailyData = internalMutation({
+  args: {
+    disease: v.string(),
+    cases: v.number(),
+    deaths: v.number(),
+    recovered: v.number(),
+    latitude: v.number(),
+    longitude: v.number(),
+    location: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("diseaseOutbreaks", {
+      disease: args.disease,
+      cases: args.cases,
+      confirmedCases: args.cases,
+      suspectedCases: 0,
+      deaths: args.deaths,
+      recovered: args.recovered,
+      latitude: args.latitude,
+      longitude: args.longitude,
+      location: args.location,
+      severity: args.cases > 5000 ? "critical" : args.cases > 1000 ? "high" : "medium",
+      status: "active",
+      timestamp: Date.now(),
+      reportedBy: "SYSTEM_CRON_AUTO_SYNC",
+      notes: "Auto-ingested from daily public health API dataset.",
+    });
   }
 });
