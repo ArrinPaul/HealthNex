@@ -403,13 +403,13 @@ export const fetchDailyPublicDataset = internalAction({
       
       const data = await response.json();
       
-      // If there are new cases today, dispatch to the mutation
-      if (data.todayCases > 0 || data.todayDeaths > 0) {
+      // Since global daily reporting has slowed, we will track the 'active' cases pool
+      if (data.active > 0) {
         await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
           disease: "COVID-19 (Automated Sync)",
-          cases: data.todayCases,
-          deaths: data.todayDeaths,
-          recovered: data.todayRecovered,
+          cases: data.active,
+          deaths: data.deaths,
+          recovered: data.recovered || 0,
           // Mapping to a central coordinate for the region (New Delhi center)
           latitude: 28.6139,
           longitude: 77.2090,
