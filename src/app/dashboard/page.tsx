@@ -863,8 +863,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Dynamic Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsGrid statsData={getDynamicStats()} />
+        <div className="bg-card/70 border border-border/80 backdrop-blur-md rounded-2xl p-5 md:p-6 shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 divide-y md:divide-y-0 md:divide-x divide-border/40">
+            <StatsGrid statsData={getDynamicStats()} />
+          </div>
         </div>
 
         {/* Main Content Layout (Map + Incident List / Detail Inspector) */}
