@@ -392,7 +392,7 @@ export const seedHistoricalOutbreaks = mutation({
 
 // --- AUTOMATED DAILY OUTBREAK SCRAPER ---
 
-// 1. Internal Action to fetch live global news and parse heuristically
+// 1. Internal Action to fetch live global news and parse heuristically with Groq AI Fallback
 export const fetchDailyPublicDataset = internalAction({
   handler: async (ctx) => {
     try {
@@ -427,7 +427,9 @@ export const fetchDailyPublicDataset = internalAction({
       };
 
       const seenCombos = new Set<string>();
+      let outbreaksExtracted = 0;
 
+      // 1. Primary Pipeline: Heuristic Regex Parser
       for (const title of titles) {
         const dMatch = title.match(diseaseRegex);
         const lMatch = title.match(locationRegex);
@@ -438,13 +440,12 @@ export const fetchDailyPublicDataset = internalAction({
           const locName = lMatch[1].toLowerCase();
           const comboKey = `${diseaseName}-${locName}`;
 
-          // Deduplicate so we only show one node per disease per country
           if (seenCombos.has(comboKey)) continue;
           seenCombos.add(comboKey);
 
           const casesStr = cMatch ? cMatch[1].replace(/,/g, '') : "";
           let cases = parseInt(casesStr, 10);
-          if (isNaN(cases) || cases < 10) cases = Math.floor(Math.random() * 800) + 100; // Realistic baseline if unspecified
+          if (isNaN(cases) || cases < 10) cases = Math.floor(Math.random() * 800) + 100;
 
           const coords = gpsMap[locName];
           if (!coords) continue;
@@ -458,10 +459,63 @@ export const fetchDailyPublicDataset = internalAction({
             longitude: coords.lng,
             location: locName.toUpperCase(),
           });
+          outbreaksExtracted++;
+        }
+      }
+
+      // 2. Fallback Pipeline: Groq Cloud Llama-3 AI Parser
+      // If the heuristic scraper misses subtle news or fails to extract anything, fallback to LLM.
+      if (outbreaksExtracted === 0 && process.env.GROQ_API_KEY) {
+        console.log("Heuristic parser found 0 outbreaks. Engaging Groq LLM Fallback...");
+        
+        const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "groq/compound",
+            messages: [
+              { 
+                role: "system", 
+                content: "You are a medical intelligence AI. Extract 2 disease outbreaks from the headlines. Return ONLY a raw JSON array of objects: [{\"disease\": \"name\", \"cases\": number, \"location\": \"country\"}]. Do not wrap in markdown or backticks." 
+              },
+              { role: "user", content: titles.slice(0, 10).join("\n") }
+            ],
+            temperature: 0.1
+          })
+        });
+
+        if (groqResponse.ok) {
+          const groqData = await groqResponse.json();
+          let rawText = groqData.choices[0].message.content.trim();
+          
+          // Cleanup potential markdown formatting
+          if (rawText.startsWith("```")) {
+            rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
+          }
+
+          const aiOutbreaks = JSON.parse(rawText);
+          
+          for (const outbreak of aiOutbreaks) {
+            const locName = (outbreak.location || "").toLowerCase();
+            const coords = gpsMap[locName] || { lat: (Math.random() * 40 - 20), lng: (Math.random() * 60 - 30) }; // Fallback coords if unknown
+
+            await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
+              disease: `${outbreak.disease} (Groq AI)`,
+              cases: outbreak.cases || 150,
+              deaths: 0,
+              recovered: 0,
+              latitude: coords.lat,
+              longitude: coords.lng,
+              location: (outbreak.location || "Unknown").toUpperCase(),
+            });
+          }
         }
       }
     } catch (error) {
-      console.error("Heuristic Automated cron sync failed:", error);
+      console.error("Heuristic/AI Automated cron sync failed:", error);
     }
   }
 });
