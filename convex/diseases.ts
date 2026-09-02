@@ -396,28 +396,51 @@ export const seedHistoricalOutbreaks = mutation({
 export const fetchDailyPublicDataset = internalAction({
   handler: async (ctx) => {
     try {
-      // Example public endpoint (e.g., disease.sh for worldwide/regional stats)
-      // In a real scenario, this could be a government API or a daily CSV hosted on a portal
-      const response = await fetch("https://disease.sh/v3/covid-19/countries/India");
-      if (!response.ok) throw new Error("Dataset fetch failed");
-      
-      const data = await response.json();
-      
-      // Since global daily reporting has slowed, we will track the 'active' cases pool
-      if (data.active > 0) {
-        await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
-          disease: "COVID-19 (Automated Sync)",
-          cases: data.active,
-          deaths: data.deaths,
-          recovered: data.recovered || 0,
-          // Mapping to a central coordinate for the region (New Delhi center)
-          latitude: 28.6139,
-          longitude: 77.2090,
-          location: "India (National Aggregation)",
-        });
+      // Clear old historical/seed data so we ONLY show live data
+      await ctx.runMutation(internal.diseases.clearHistoricalData);
+
+      const countries = [
+        { name: "India", lat: 28.6139, lng: 77.2090 },
+        { name: "USA", lat: 38.9072, lng: -77.0369 },
+        { name: "Brazil", lat: -15.7975, lng: -47.8919 },
+        { name: "UK", lat: 51.5072, lng: -0.1276 },
+        { name: "South Africa", lat: -25.7479, lng: 28.2293 }
+      ];
+
+      for (const country of countries) {
+        const response = await fetch(`https://disease.sh/v3/covid-19/countries/${country.name}`);
+        if (!response.ok) continue;
+        
+        const data = await response.json();
+        
+        if (data.active > 0) {
+          await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
+            disease: "COVID-19 (Live)",
+            cases: data.active,
+            deaths: data.deaths,
+            recovered: data.recovered || 0,
+            latitude: country.lat,
+            longitude: country.lng,
+            location: country.name,
+          });
+        }
       }
     } catch (error) {
       console.error("Automated cron sync failed:", error);
+    }
+  }
+});
+
+// Internal mutation to clear historical seed data
+export const clearHistoricalData = internalMutation({
+  handler: async (ctx) => {
+    const historicalOutbreaks = await ctx.db
+      .query("diseaseOutbreaks")
+      .filter((q) => q.eq(q.field("reportedBy"), "system"))
+      .collect();
+      
+    for (const outbreak of historicalOutbreaks) {
+      await ctx.db.delete(outbreak._id);
     }
   }
 });
