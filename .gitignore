@@ -98,3 +98,7 @@ logs/
 # Temporary files
 .tmp/
 tmp/
+
+# AI Agent Skills
+.agents/
+skills-lock.json
