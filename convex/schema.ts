@@ -91,7 +91,7 @@ export default defineSchema({
     reportedBy: v.string(), // userId
     notes: v.optional(v.string()),
     timestamp: v.number(),
-    status: v.union(v.literal("active"), v.literal("contained"), v.literal("resolved")),
+    status: v.union(v.literal("pending"), v.literal("active"), v.literal("contained"), v.literal("resolved")),
     confirmedCases: v.number(),
     suspectedCases: v.number(),
     deaths: v.number(),

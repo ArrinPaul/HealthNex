@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { Button } from '@/components/ui/button';
-import { useDiseaseData, useDashboardAggregates } from '@/services/healthDataService';
+import { useDiseaseData, useDashboardAggregates, usePendingOutbreaks, useApprovePending } from '@/services/healthDataService';
 import StatsGrid from '@/components/dashboard/StatsGrid';
 import ChartsSection from '@/components/dashboard/ChartsSection';
 import DistributionSection from '@/components/dashboard/DistributionSection';
@@ -306,6 +306,8 @@ export default function DashboardPage() {
 
   const terminalEndRef = useRef<HTMLDivElement>(null);
   const diseaseData = useDiseaseData();
+  const pendingOutbreaks = usePendingOutbreaks();
+  const approvePending = useApprovePending();
   const aggregates = useDashboardAggregates();
   const { user, token } = useAuth();
   const trackUsage = useMutation(api.usage.trackUsage as any);
@@ -453,6 +455,16 @@ export default function DashboardPage() {
     setTerminalLogs(prev => [...prev, "[SYSTEM] Threat levels nominal. 0 cases reported."]);
   };
 
+  const handleApprovePending = async (outbreakId: string) => {
+    try {
+      await approvePending({ token: token || "", outbreakId: outbreakId as any });
+      toast.success("User report approved and merged into live map data!");
+      setTerminalLogs(prev => [...prev, `[MODERATION] Approved pending user report ${outbreakId}`]);
+    } catch (err: any) {
+      toast.error("Failed to approve report: " + err.message);
+    }
+  };
+
   const simulateLiveEvent = () => {
     const allLocations = Object.entries(INDIAN_STATES_DISTRICTS).flatMap(([state, districts]) => 
       districts.map(d => ({ name: `${d.name}, ${state}`, lat: d.lat, lng: d.lng }))
@@ -482,6 +494,28 @@ export default function DashboardPage() {
     setSelectedHotspot({ lat: targetCity.lat, lng: targetCity.lng });
     toast.warning(`[SIMULATION] Spontaneous ${disease} outbreak reported in ${targetCity.name}!`);
     setTerminalLogs(prev => [...prev, `[SIM_ALERT] Ingested raw telemetry warning: ${cases} cases at ${targetCity.name}`]);
+  };
+
+  const [isScraping, setIsScraping] = useState(false);
+  const handleRunScraper = async () => {
+    try {
+      setIsScraping(true);
+      setTerminalLogs(prev => [...prev, "[SCRAPER] Triggering autonomous AI news scraper..."]);
+      const res = await fetch("/api/cron/scrape-diseases");
+      const result = await res.json();
+      if (result.success) {
+        toast.success("AI Scraper ran successfully! Outbreaks extracted and plotted.");
+        setTerminalLogs(prev => [...prev, `[SCRAPER] Successfully ingested live unstructured intelligence.`]);
+      } else {
+        toast.error("Scraper failed: " + result.error);
+        setTerminalLogs(prev => [...prev, `[SCRAPER] Failure: ${result.error}`]);
+      }
+    } catch (err: any) {
+      toast.error("Network error triggering scraper");
+      setTerminalLogs(prev => [...prev, `[SCRAPER] System connection error`]);
+    } finally {
+      setIsScraping(false);
+    }
   };
 
   const handleSeedIDSP = async () => {
@@ -745,6 +779,15 @@ export default function DashboardPage() {
               transition={{ delay: 0.15 }}
               className="flex flex-wrap items-center gap-2"
             >
+              <Button
+                onClick={handleRunScraper}
+                disabled={isScraping}
+                className="h-9 px-3 rounded-xl text-[11px] font-semibold bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-400 flex items-center gap-1.5"
+              >
+                {isScraping ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <MapIcon className="w-3.5 h-3.5" />}
+                {isScraping ? "Scraping..." : "Run AI Scraper"}
+              </Button>
+
               <Button
                 onClick={handleSeedIDSP}
                 variant="outline"
@@ -1100,6 +1143,42 @@ export default function DashboardPage() {
             </AnimatePresence>
           </div>
         </div>
+
+        {/* PENDING REPORTS QUEUE */}
+        {pendingOutbreaks && pendingOutbreaks.length > 0 && (
+          <div className="bg-card/70 border border-amber-500/30 backdrop-blur-md rounded-2xl p-5 md:p-6 shadow-sm mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldAlert className="w-5 h-5 text-amber-500" />
+              <h3 className="text-sm font-bold text-foreground">Community Moderation Queue (Pending User Reports)</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pendingOutbreaks.map((pending: any) => (
+                <div key={pending._id} className="p-4 rounded-xl border border-border/60 bg-secondary/20 relative">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-foreground">
+                      {pending.location}
+                    </span>
+                    <span className="text-[10px] font-extrabold px-1.5 py-0.25 rounded bg-amber-500/15 text-amber-500 uppercase">
+                      PENDING
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mb-3 space-y-1">
+                    <div><span className="font-semibold">Disease:</span> {pending.disease}</div>
+                    <div><span className="font-semibold">Reported Cases:</span> {pending.cases}</div>
+                    {pending.notes && <div><span className="font-semibold">Notes:</span> {pending.notes}</div>}
+                  </div>
+                  <Button 
+                    onClick={() => handleApprovePending(pending._id)}
+                    className="w-full h-8 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 text-[10px] font-bold border border-emerald-500/30"
+                  >
+                    <Check className="w-3.5 h-3.5 mr-1" />
+                    Approve & Merge to Map
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Charts & Interactive CLI terminal */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

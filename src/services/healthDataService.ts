@@ -43,3 +43,13 @@ export const useReportDisease = () => {
   const report = useMutation(api.diseases.reportDisease);
   return report;
 };
+
+export const usePendingOutbreaks = () => {
+  const data = useQuery(api.diseases.getPendingOutbreaks);
+  return data || EMPTY_ARRAY;
+};
+
+export const useApprovePending = () => {
+  const approve = useMutation(api.diseases.approvePendingOutbreak as any);
+  return approve;
+};

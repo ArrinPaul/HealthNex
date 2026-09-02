@@ -25,7 +25,7 @@ export const reportDisease = mutationWithAuth({
       ...reportArgs,
       reportedBy: userId,
       timestamp: Date.now(),
-      status: "active",
+      status: "pending",
       confirmedCases: reportArgs.cases,
       suspectedCases: 0,
       deaths: 0,
@@ -47,6 +47,8 @@ export const getDiseaseOutbreaks = query({
     
     if (args.status) {
       query = query.filter((q) => q.eq(q.field("status"), args.status));
+    } else {
+      query = query.filter((q) => q.neq(q.field("status"), "pending"));
     }
     
     if (args.region) {
@@ -342,3 +344,54 @@ export const insertAutomatedDailyData = mutation({
 });
 
 
+
+export const getPendingOutbreaks = query({
+  handler: async (ctx) => {
+    return await ctx.db
+      .query("diseaseOutbreaks")
+      .filter((q: any) => q.eq(q.field("status"), "pending"))
+      .order("desc")
+      .collect();
+  }
+});
+
+export const approvePendingOutbreak = mutationWithAuth({
+  args: {
+    outbreakId: v.id("diseaseOutbreaks"),
+  },
+  handler: async (ctx: any, args: any) => {
+    const { userId, outbreakId } = args;
+    
+    // Auth check
+    const user = await ctx.db.get(userId);
+    if (!user || (user.role !== "SUPER_ADMIN" && user.role !== "ADMIN" && user.role !== "HEALTH_WORKER")) {
+      throw new Error("Unauthorized");
+    }
+
+    const pending = await ctx.db.get(outbreakId);
+    if (!pending || pending.status !== "pending") {
+      throw new Error("Outbreak not found or not pending");
+    }
+
+    const existingActive = await ctx.db
+      .query("diseaseOutbreaks")
+      .filter((q: any) => q.eq(q.field("status"), "active"))
+      .filter((q: any) => q.eq(q.field("disease"), pending.disease))
+      .filter((q: any) => q.eq(q.field("location"), pending.location))
+      .first();
+
+    if (existingActive) {
+      await ctx.db.patch(existingActive._id, {
+        cases: existingActive.cases + pending.cases,
+        confirmedCases: existingActive.confirmedCases + pending.cases,
+        timestamp: Date.now(),
+      });
+      await ctx.db.delete(pending._id);
+    } else {
+      await ctx.db.patch(pending._id, {
+        status: "active",
+        timestamp: Date.now(),
+      });
+    }
+  }
+});
