@@ -399,31 +399,36 @@ export const fetchDailyPublicDataset = internalAction({
       // Clear old historical/seed data so we ONLY show live data
       await ctx.runMutation(internal.diseases.clearHistoricalData);
 
-      // Fetch Live Unstructured Outbreak News from Google News RSS
-      const rssResponse = await fetch("https://news.google.com/rss/search?q=disease+outbreak+cases+epidemic&hl=en-US&gl=US&ceid=US:en");
+      // Fetch Live Unstructured Outbreak News (Focused heavily on India telemetry)
+      const rssResponse = await fetch("https://news.google.com/rss/search?q=disease+outbreak+cases+India+Kerala+Maharashtra+Delhi&hl=en-IN&gl=IN&ceid=IN:en");
       if (!rssResponse.ok) throw new Error("Failed to fetch RSS feeds");
       const rssText = await rssResponse.text();
       
       const titles = [...rssText.matchAll(/<title>(.*?)<\/title>/g)].map(m => m[1]).slice(1, 25);
       
-      const diseaseRegex = /(Ebola|Measles|Cholera|Mpox|Dengue|Malaria|Polio|COVID-19|Influenza|Zika|Typhoid)/i;
+      const diseaseRegex = /(Ebola|Measles|Cholera|Mpox|Dengue|Malaria|Polio|COVID-19|Influenza|Zika|Typhoid|Nipah|Chikungunya)/i;
       const casesRegex = /([0-9,]+)\s*(cases|infections|deaths|patients)/i;
-      const locationRegex = /(Congo|USA|Uganda|Brazil|India|Kenya|Sudan|Yemen|Nigeria|Ethiopia|Haiti|Bangladesh|Rwanda)/i;
+      
+      // Heavily focused on Indian States and Metros
+      const locationRegex = /(India|Kerala|Maharashtra|Delhi|Karnataka|Tamil Nadu|Gujarat|Rajasthan|Uttar Pradesh|West Bengal|Assam|Telangana|Mumbai|Bengaluru|Chennai|Kolkata)/i;
 
       const gpsMap: Record<string, { lat: number, lng: number }> = {
-        "congo": { lat: -4.0383, lng: 21.7587 },
-        "usa": { lat: 38.9072, lng: -77.0369 },
-        "uganda": { lat: 1.3733, lng: 32.2903 },
-        "brazil": { lat: -15.7975, lng: -47.8919 },
-        "india": { lat: 28.6139, lng: 77.2090 },
-        "kenya": { lat: -1.2921, lng: 36.8219 },
-        "sudan": { lat: 15.5007, lng: 32.5599 },
-        "yemen": { lat: 15.3694, lng: 44.1910 },
-        "nigeria": { lat: 9.0820, lng: 8.6753 },
-        "ethiopia": { lat: 9.1450, lng: 38.9992 },
-        "haiti": { lat: 18.9712, lng: -72.2852 },
-        "bangladesh": { lat: 23.6850, lng: 90.3563 },
-        "rwanda": { lat: -1.9403, lng: 29.8739 }
+        "india": { lat: 22.9, lng: 79.2 }, // Central India fallback
+        "kerala": { lat: 10.8505, lng: 76.2711 },
+        "maharashtra": { lat: 19.7515, lng: 75.7139 },
+        "delhi": { lat: 28.7041, lng: 77.1025 },
+        "karnataka": { lat: 15.3173, lng: 75.7139 },
+        "tamil nadu": { lat: 11.1271, lng: 78.6569 },
+        "gujarat": { lat: 22.2587, lng: 71.1924 },
+        "rajasthan": { lat: 27.0238, lng: 74.2179 },
+        "uttar pradesh": { lat: 26.8467, lng: 80.9462 },
+        "west bengal": { lat: 22.9868, lng: 87.8550 },
+        "assam": { lat: 26.2006, lng: 92.9376 },
+        "telangana": { lat: 18.1124, lng: 79.0193 },
+        "mumbai": { lat: 19.0760, lng: 72.8777 },
+        "bengaluru": { lat: 12.9716, lng: 77.5946 },
+        "chennai": { lat: 13.0827, lng: 80.2707 },
+        "kolkata": { lat: 22.5726, lng: 88.3639 }
       };
 
       const seenCombos = new Set<string>();
