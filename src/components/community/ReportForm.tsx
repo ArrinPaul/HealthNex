@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,9 +15,17 @@ import { api } from "../../../convex/_generated/api";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
+function SubmitButton({ t }: { t: any }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending} className="w-full md:w-auto">
+      {pending ? t('loading') : t('submit')}
+    </Button>
+  );
+}
+
 export default function ReportForm() {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
   const { token } = useAuth();
   const createReport = useMutation(api.communityReports.createReport);
 
@@ -27,14 +36,12 @@ export default function ReportForm() {
     description: ''
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAction = async () => {
     if (!token) {
       toast.error('Session Expired', { description: 'Please sign in again to submit reports.' });
       return;
     }
 
-    setLoading(true);
     try {
       await (createReport as any)({
         title: formData.issueType === 'water' ? 'Unsafe Water Source' : 'Health Issue',
@@ -46,11 +53,13 @@ export default function ReportForm() {
           address: formData.location
         },
         severity: 3 as 1 | 2 | 3 | 4 | 5,
-        token: token // Pass the auth token
+        token: token
       });
+      
       toast.success('Report Transmitted', {
         description: 'Ground intelligence received by the protocol.'
       });
+      
       setFormData({
         name: '',
         location: '',
@@ -62,8 +71,6 @@ export default function ReportForm() {
       toast.error('Transmission Failed', {
         description: 'The protocol could not ingest your report. Please try again.'
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -73,12 +80,13 @@ export default function ReportForm() {
         <CardTitle>{t('reportIssue')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form action={handleAction} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="name">{t('name')}</Label>
               <Input
                 id="name"
+                name="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -91,6 +99,7 @@ export default function ReportForm() {
               <Label htmlFor="location">{t('location')}</Label>
               <Input
                 id="location"
+                name="location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 required
@@ -130,6 +139,7 @@ export default function ReportForm() {
             <Label htmlFor="description">{t('problemDescription')}</Label>
             <Textarea
               id="description"
+              name="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
@@ -149,9 +159,7 @@ export default function ReportForm() {
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full md:w-auto">
-            {loading ? t('loading') : t('submit')}
-          </Button>
+          <SubmitButton t={t} />
         </form>
       </CardContent>
     </Card>
