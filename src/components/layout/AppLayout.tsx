@@ -28,18 +28,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   
   const isPublicPage = publicRoutes.includes(pathname);
 
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
-
   const { user, token } = useAuth();
   const statusQuery = useQuery(api.healthAssessments.getAssessmentStatus as any, { token: token || "" });
   const needsOnboarding = statusQuery?.needsOnboarding === true;
   const [showModal, setShowModal] = useState(false);
 
   // When status loads and they need onboarding, show it
-  if (needsOnboarding && !showModal) {
+  // But only if we're not on a public page to avoid annoying popups on public pages
+  if (!isPublicPage && needsOnboarding && !showModal) {
     setShowModal(true);
+  }
+
+  if (isPublicPage) {
+    return <>{children}</>;
   }
 
   return (
