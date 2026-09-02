@@ -188,11 +188,14 @@ export default function ResourcesPage() {
           setLocationLabel('Your current location (GPS)');
           fetchFacilities(loc.lat, loc.lng);
         },
-        () => {
+        (error) => {
           // 3. Geolocation denied/failed — use IP Geolocation
+          if (error.code === error.PERMISSION_DENIED) {
+            toast.warning("GPS blocked by browser. Falling back to IP detection. Please enable location permissions for better accuracy.");
+          }
           fallbackToIP();
         },
-        { timeout: 5000, maximumAge: 300000 }
+        { timeout: 8000, maximumAge: 300000 }
       );
     } else {
       fallbackToIP();
