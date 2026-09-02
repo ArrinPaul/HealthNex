@@ -25,7 +25,7 @@ const FeatureCard = ({ title, desc, icon: Icon, color, delay }: any) => (
     whileInView={{ opacity: 1, y: 0 }}
     transition={{ delay, duration: 0.5 }}
     viewport={{ once: true }}
-    className="group relative p-8 rounded-3xl border border-border bg-card hover:border-primary/50 transition-all duration-300 overflow-hidden flex flex-col text-left h-full"
+    className="group relative p-6 md:p-8 bg-transparent hover:bg-secondary/40 rounded-3xl transition-all duration-500 flex flex-col text-left h-full"
   >
     <div className={`w-14 h-14 shrink-0 rounded-2xl flex items-center justify-center mb-6 bg-secondary ${color} group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300`}>
       <Icon className="w-7 h-7 transition-transform duration-300 group-hover:scale-110" />
@@ -491,9 +491,6 @@ export default function Home() {
         </div>
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-12">
-               <span>Open-Source Health Monitoring</span>
-            </div>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-8 text-foreground leading-tight">
                Better health data,<br />
                <span className="text-primary">better outcomes.</span>
@@ -534,13 +531,13 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.15, duration: 0.5 }}
                 viewport={{ once: true }}
-                className="flex flex-col p-8 bg-card border border-border rounded-3xl hover:border-primary/40 transition-all"
+                className="flex flex-col py-8 md:pr-8 bg-transparent transition-all"
               >
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6">
                   <step.icon className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold mb-3">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+                <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                <p className="text-base text-muted-foreground leading-relaxed">{step.desc}</p>
               </motion.div>
             ))}
           </div>
