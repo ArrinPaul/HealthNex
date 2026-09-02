@@ -6,6 +6,10 @@ export async function GET() {
   try {
     // Clear old historical/seed data so we ONLY show live data
     await fetchMutation(api.diseases.clearHistoricalData, {});
+    
+    // Sync global health data from disease.sh
+    const { fetchAction } = await import("convex/nextjs");
+    await fetchAction(api.externalData.syncInstitutionalData, {});
 
     // Fetch Live Unstructured Outbreak News (Focused heavily on India telemetry)
     const rssResponse = await fetch("https://news.google.com/rss/search?q=disease+outbreak+cases+India+Kerala+Maharashtra+Delhi&hl=en-IN&gl=IN&ceid=IN:en");
