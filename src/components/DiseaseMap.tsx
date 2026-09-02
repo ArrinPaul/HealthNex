@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import createGlobe from 'cobe';
+import { useTheme } from 'next-themes';
 
 interface DiseaseMapProps {
   hotspots?: Array<{
@@ -16,38 +16,25 @@ interface DiseaseMapProps {
 }
 
 export default function DiseaseMap({ hotspots = [], selectedHotspot = null }: DiseaseMapProps) {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.Marker[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pointerInteracting = useRef(null);
+  const pointerInteractionMovement = useRef(0);
+  const { resolvedTheme } = useTheme();
 
-  // Initialize Map
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    let phi = 0;
+    let width = 0;
+    let globe: any = null;
 
-    const map = L.map(mapRef.current).setView([20.5937, 78.9629], 5); // Center of India
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    mapInstanceRef.current = map;
-
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
+    const onResize = () => {
+      if (canvasRef.current) {
+        width = canvasRef.current.offsetWidth;
       }
     };
-  }, []);
+    window.addEventListener('resize', onResize);
+    onResize();
 
-  // Sync Markers when hotspots change
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map) return;
-
-    // Clear old markers
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
+    const isDark = resolvedTheme === 'dark';
 
     const defaultHotspots = hotspots.length > 0 ? hotspots : [
       { lat: 28.6139, lng: 77.2090, cases: 45, location: 'Delhi', disease: 'COVID' },
@@ -57,43 +44,73 @@ export default function DiseaseMap({ hotspots = [], selectedHotspot = null }: Di
       { lat: 26.1445, lng: 91.7362, cases: 23, location: 'Guwahati', disease: 'Malaria' }
     ];
 
-    defaultHotspots.forEach((hotspot) => {
-      const severity = hotspot.cases > 30 ? 'high' : hotspot.cases > 15 ? 'medium' : 'low';
-      const color = severity === 'high' ? '#ef4444' : severity === 'medium' ? '#f59e0b' : '#10b981';
-      
-      const icon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: ${20 + hotspot.cases / 2}px; height: ${20 + hotspot.cases / 2}px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 11px;">${hotspot.cases}</div>`,
-        iconSize: [20 + hotspot.cases / 2, 20 + hotspot.cases / 2],
+    const markers = defaultHotspots.map(h => ({
+      location: [h.lat, h.lng] as [number, number],
+      size: Math.min(0.15, 0.05 + h.cases / 500)
+    }));
+
+    if (canvasRef.current) {
+      globe = createGlobe(canvasRef.current, {
+        devicePixelRatio: 2,
+        width: width * 2,
+        height: width * 2,
+        phi: 0,
+        theta: 0.3,
+        dark: isDark ? 1 : 0,
+        diffuse: 1.2,
+        mapSamples: 16000,
+        mapBrightness: isDark ? 1.2 : 6,
+        baseColor: isDark ? [0.1, 0.1, 0.1] : [0.9, 0.9, 0.9],
+        markerColor: [0, 0.7, 0.85], // Brand Primary (Cyan)
+        glowColor: isDark ? [0, 0.2, 0.3] : [0.8, 0.9, 1],
+        markers: markers,
+        onRender: (state: Record<string, any>) => {
+          // Auto-rotate unless interacting
+          if (!pointerInteracting.current) {
+            phi += 0.005;
+          }
+          state.phi = phi + pointerInteractionMovement.current;
+        }
       });
+    }
 
-      const marker = L.marker([hotspot.lat, hotspot.lng], { icon })
-        .addTo(map)
-        .bindPopup(`<strong>${hotspot.location}</strong><br/>Category: ${hotspot.disease || 'Unknown'}<br/>Active Cases: ${hotspot.cases}`);
+    return () => {
+      if (globe) globe.destroy();
+      window.removeEventListener('resize', onResize);
+    };
+  }, [hotspots, resolvedTheme]);
 
-      markersRef.current.push(marker);
-    });
-  }, [hotspots]);
-
-  // Pan map when selectedHotspot changes
-  useEffect(() => {
-    const map = mapInstanceRef.current;
-    if (!map || !selectedHotspot) return;
-
-    map.setView([selectedHotspot.lat, selectedHotspot.lng], 9, {
-      animate: true,
-      duration: 1.2
-    });
-
-    // Find and open popup for this hotspot
-    markersRef.current.forEach(marker => {
-      const latLng = marker.getLatLng();
-      // Use small tolerance for float comparison
-      if (Math.abs(latLng.lat - selectedHotspot.lat) < 0.001 && Math.abs(latLng.lng - selectedHotspot.lng) < 0.001) {
-        marker.openPopup();
-      }
-    });
-  }, [selectedHotspot]);
-
-  return <div ref={mapRef} className="w-full h-full min-h-[400px] rounded-lg" />;
+  return (
+    <div className="w-full h-full min-h-[400px] flex items-center justify-center relative overflow-hidden rounded-lg bg-transparent">
+      <div className="absolute inset-0 z-10 pointer-events-none rounded-lg shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_0_40px_rgba(0,0,0,0.8)]" />
+      <canvas
+        ref={canvasRef}
+        className="w-full max-w-[500px] aspect-square opacity-90 transition-opacity duration-1000 cursor-grab active:cursor-grabbing"
+        onPointerDown={(e) => {
+          pointerInteracting.current = e.clientX as any;
+          canvasRef.current!.style.cursor = 'grabbing';
+        }}
+        onPointerUp={() => {
+          pointerInteracting.current = null;
+          canvasRef.current!.style.cursor = 'grab';
+        }}
+        onPointerOut={() => {
+          pointerInteracting.current = null;
+          canvasRef.current!.style.cursor = 'grab';
+        }}
+        onMouseMove={(e) => {
+          if (pointerInteracting.current !== null) {
+            const delta = e.clientX - (pointerInteracting.current as any);
+            pointerInteractionMovement.current = delta / 200;
+          }
+        }}
+        onTouchMove={(e) => {
+          if (pointerInteracting.current !== null && e.touches[0]) {
+            const delta = e.touches[0].clientX - (pointerInteracting.current as any);
+            pointerInteractionMovement.current = delta / 100;
+          }
+        }}
+      />
+    </div>
+  );
 }
