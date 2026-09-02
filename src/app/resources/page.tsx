@@ -149,7 +149,7 @@ export default function ResourcesPage() {
   useEffect(() => {
     const profileLoc = getProfileLocation();
 
-    // If profile has valid coordinates, use them directly (most reliable)
+    // 1. If profile has valid coordinates, use them directly
     if (profileLoc) {
       setUserLocation({ lat: profileLoc.lat, lng: profileLoc.lng });
       setLocationLabel(profileLoc.label);
@@ -157,29 +157,45 @@ export default function ResourcesPage() {
       return;
     }
 
-    // Try browser geolocation as secondary option
+    const fallbackToIP = async () => {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        if (data && data.latitude && data.longitude) {
+          const loc = { lat: data.latitude, lng: data.longitude };
+          setUserLocation(loc);
+          setLocationLabel(`${data.city}, ${data.region} (IP Detected)`);
+          fetchFacilities(loc.lat, loc.lng);
+          return;
+        }
+      } catch (e) {
+        console.warn("IP Geolocation failed", e);
+      }
+      
+      // Final Fallback: Delhi
+      const delhi = { lat: 28.6139, lng: 77.2090 };
+      setUserLocation(delhi);
+      setLocationLabel('New Delhi (default fallback)');
+      fetchFacilities(delhi.lat, delhi.lng);
+    };
+
+    // 2. Try browser geolocation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setUserLocation(loc);
-          setLocationLabel('Your current location');
+          setLocationLabel('Your current location (GPS)');
           fetchFacilities(loc.lat, loc.lng);
         },
         () => {
-          // Geolocation denied — use Delhi fallback
-          const delhi = { lat: 28.6139, lng: 77.2090 };
-          setUserLocation(delhi);
-          setLocationLabel('New Delhi (default)');
-          fetchFacilities(delhi.lat, delhi.lng);
+          // 3. Geolocation denied/failed — use IP Geolocation
+          fallbackToIP();
         },
-        { timeout: 10000, maximumAge: 300000 }
+        { timeout: 5000, maximumAge: 300000 }
       );
     } else {
-      const delhi = { lat: 28.6139, lng: 77.2090 };
-      setUserLocation(delhi);
-      setLocationLabel('New Delhi (default)');
-      fetchFacilities(delhi.lat, delhi.lng);
+      fallbackToIP();
     }
   }, [fetchFacilities, getProfileLocation]);
 
