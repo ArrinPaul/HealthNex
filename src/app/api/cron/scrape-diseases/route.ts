@@ -7,16 +7,31 @@ export async function GET() {
     // Clear old historical/seed data so we ONLY show live data
     await fetchMutation(api.diseases.clearHistoricalData, {});
     
-    // Sync global health data from disease.sh
-    const { fetchAction } = await import("convex/nextjs");
-    await fetchAction(api.externalData.syncInstitutionalData, {});
-
-    // Fetch Live Unstructured Outbreak News (Focused heavily on India telemetry)
-    const rssResponse = await fetch("https://news.google.com/rss/search?q=disease+outbreak+cases+India+Kerala+Maharashtra+Delhi&hl=en-IN&gl=IN&ceid=IN:en");
-    if (!rssResponse.ok) throw new Error("Failed to fetch RSS feeds");
-    const rssText = await rssResponse.text();
+    // Fetch Live Unstructured Outbreak News (Broadened telemetry)
+    const queries = [
+      "disease+outbreak+cases+India",
+      "cholera+typhoid+waterborne+outbreak+India",
+      "dengue+malaria+zika+chikungunya+India",
+      "tuberculosis+respiratory+covid+flu+India"
+    ];
     
-    const titles = [...rssText.matchAll(/<title>(.*?)<\/title>/g)].map(m => m[1]).slice(1, 25);
+    let allTitles: string[] = [];
+    
+    for (const q of queries) {
+      try {
+        const res = await fetch(`https://news.google.com/rss/search?q=${q}&hl=en-IN&gl=IN&ceid=IN:en`);
+        if (res.ok) {
+          const text = await res.text();
+          const titles = [...text.matchAll(/<title>(.*?)<\/title>/g)].map(m => m[1]).slice(1, 15); // Top 15 from each
+          allTitles = [...allTitles, ...titles];
+        }
+      } catch (e) {
+        console.error("RSS fetch failed for", q, e);
+      }
+    }
+    
+    // Deduplicate titles
+    const titles = [...new Set(allTitles)];
     
     const diseaseRegex = /(Ebola|Measles|Cholera|Mpox|Dengue|Malaria|Polio|COVID-19|Influenza|Zika|Typhoid|Nipah|Chikungunya|Tuberculosis|Yellow Fever|Rabies|Lassa Fever|Marburg|Plague|Hepatitis|HIV|Anthrax|Tetanus|Diphtheria|Pertussis|Rubella|Mumps|SARS|MERS|Avian Flu|Swine Flu|Leishmaniasis|Leprosy|Meningitis|Norovirus|Rotavirus)/i;
     const casesRegex = /([0-9,]+)\s*(cases|infections|deaths|patients)/i;

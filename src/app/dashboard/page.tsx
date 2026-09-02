@@ -19,7 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import InstitutionalTrust from '@/components/dashboard/InstitutionalTrust';
+
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
@@ -1244,11 +1244,7 @@ export default function DashboardPage() {
 
         {/* Global Distribution details + Hardware Node Toggles */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg">
-             <InstitutionalTrust />
-          </div>
-
-          <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col h-[300px]">
+          <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col h-[300px]">
              <div className="flex items-center gap-2 mb-4 border-b border-border/40 pb-3">
                <Activity className="w-4.5 h-4.5 text-violet-400" />
                <h3 className="text-sm font-bold text-foreground">Incidents Ratio</h3>
@@ -1259,7 +1255,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Node Controllers (HUD switches / WHO Feed) */}
-          <div className="lg:col-span-4 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col justify-between text-left min-h-[300px]">
+          <div className="lg:col-span-6 bg-card border border-border rounded-2xl p-6 shadow-lg flex flex-col justify-between text-left min-h-[300px]">
             <div>
               <div className="flex items-center gap-2.5 mb-3 border-b border-border/40 pb-3 justify-between">
                 <div className="flex gap-3 text-xs">
