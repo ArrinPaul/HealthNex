@@ -276,143 +276,8 @@ export const seedHistoricalOutbreaks = mutation({
   }
 });
 
-// --- AUTOMATED DAILY OUTBREAK SCRAPER ---
-
-// 1. Internal Action to fetch live global news and parse heuristically with Groq AI Fallback
-export const fetchDailyPublicDataset = internalAction({
-  handler: async (ctx) => {
-    try {
-      // Clear old historical/seed data so we ONLY show live data
-      await ctx.runMutation(internal.diseases.clearHistoricalData);
-
-      // Fetch Live Unstructured Outbreak News (Focused heavily on India telemetry)
-      const rssResponse = await fetch("https://news.google.com/rss/search?q=disease+outbreak+cases+India+Kerala+Maharashtra+Delhi&hl=en-IN&gl=IN&ceid=IN:en");
-      if (!rssResponse.ok) throw new Error("Failed to fetch RSS feeds");
-      const rssText = await rssResponse.text();
-      
-      const titles = [...rssText.matchAll(/<title>(.*?)<\/title>/g)].map(m => m[1]).slice(1, 25);
-      
-      const diseaseRegex = /(Ebola|Measles|Cholera|Mpox|Dengue|Malaria|Polio|COVID-19|Influenza|Zika|Typhoid|Nipah|Chikungunya)/i;
-      const casesRegex = /([0-9,]+)\s*(cases|infections|deaths|patients)/i;
-      
-      // Heavily focused on Indian States and Metros
-      const locationRegex = /(India|Kerala|Maharashtra|Delhi|Karnataka|Tamil Nadu|Gujarat|Rajasthan|Uttar Pradesh|West Bengal|Assam|Telangana|Mumbai|Bengaluru|Chennai|Kolkata)/i;
-
-      const gpsMap: Record<string, { lat: number, lng: number }> = {
-        "india": { lat: 22.9, lng: 79.2 }, // Central India fallback
-        "kerala": { lat: 10.8505, lng: 76.2711 },
-        "maharashtra": { lat: 19.7515, lng: 75.7139 },
-        "delhi": { lat: 28.7041, lng: 77.1025 },
-        "karnataka": { lat: 15.3173, lng: 75.7139 },
-        "tamil nadu": { lat: 11.1271, lng: 78.6569 },
-        "gujarat": { lat: 22.2587, lng: 71.1924 },
-        "rajasthan": { lat: 27.0238, lng: 74.2179 },
-        "uttar pradesh": { lat: 26.8467, lng: 80.9462 },
-        "west bengal": { lat: 22.9868, lng: 87.8550 },
-        "assam": { lat: 26.2006, lng: 92.9376 },
-        "telangana": { lat: 18.1124, lng: 79.0193 },
-        "mumbai": { lat: 19.0760, lng: 72.8777 },
-        "bengaluru": { lat: 12.9716, lng: 77.5946 },
-        "chennai": { lat: 13.0827, lng: 80.2707 },
-        "kolkata": { lat: 22.5726, lng: 88.3639 }
-      };
-
-      const seenCombos = new Set<string>();
-      let outbreaksExtracted = 0;
-
-      // 1. Primary Pipeline: Heuristic Regex Parser
-      for (const title of titles) {
-        const dMatch = title.match(diseaseRegex);
-        const lMatch = title.match(locationRegex);
-        const cMatch = title.match(casesRegex);
-        
-        if (dMatch && lMatch) {
-          const diseaseName = dMatch[1].charAt(0).toUpperCase() + dMatch[1].slice(1).toLowerCase();
-          const locName = lMatch[1].toLowerCase();
-          const comboKey = `${diseaseName}-${locName}`;
-
-          if (seenCombos.has(comboKey)) continue;
-          seenCombos.add(comboKey);
-
-          const casesStr = cMatch ? cMatch[1].replace(/,/g, '') : "";
-          let cases = parseInt(casesStr, 10);
-          if (isNaN(cases) || cases < 10) cases = Math.floor(Math.random() * 800) + 100;
-
-          const coords = gpsMap[locName];
-          if (!coords) continue;
-
-          await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
-            disease: `${diseaseName} (Verified News)`,
-            cases: cases,
-            deaths: 0,
-            recovered: 0,
-            latitude: coords.lat,
-            longitude: coords.lng,
-            location: locName.toUpperCase(),
-          });
-          outbreaksExtracted++;
-        }
-      }
-
-      // 2. Fallback Pipeline: Groq Cloud Llama-3 AI Parser
-      // If the heuristic scraper misses subtle news or fails to extract anything, fallback to LLM.
-      if (outbreaksExtracted === 0 && process.env.GROQ_API_KEY) {
-        console.log("Heuristic parser found 0 outbreaks. Engaging Groq LLM Fallback...");
-        
-        const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: "groq/compound",
-            messages: [
-              { 
-                role: "system", 
-                content: "You are a medical intelligence AI. Extract 2 disease outbreaks from the headlines. Return ONLY a raw JSON array of objects: [{\"disease\": \"name\", \"cases\": number, \"location\": \"country\"}]. Do not wrap in markdown or backticks." 
-              },
-              { role: "user", content: titles.slice(0, 10).join("\n") }
-            ],
-            temperature: 0.1
-          })
-        });
-
-        if (groqResponse.ok) {
-          const groqData = await groqResponse.json();
-          let rawText = groqData.choices[0].message.content.trim();
-          
-          // Cleanup potential markdown formatting
-          if (rawText.startsWith("```")) {
-            rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-          }
-
-          const aiOutbreaks = JSON.parse(rawText);
-          
-          for (const outbreak of aiOutbreaks) {
-            const locName = (outbreak.location || "").toLowerCase();
-            const coords = gpsMap[locName] || { lat: (Math.random() * 40 - 20), lng: (Math.random() * 60 - 30) }; // Fallback coords if unknown
-
-            await ctx.runMutation(internal.diseases.insertAutomatedDailyData, {
-              disease: `${outbreak.disease} (Groq AI)`,
-              cases: outbreak.cases || 150,
-              deaths: 0,
-              recovered: 0,
-              latitude: coords.lat,
-              longitude: coords.lng,
-              location: (outbreak.location || "Unknown").toUpperCase(),
-            });
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Heuristic/AI Automated cron sync failed:", error);
-    }
-  }
-});
-
 // Internal mutation to clear historical seed data
-export const clearHistoricalData = internalMutation({
+export const clearHistoricalData = mutation({
   handler: async (ctx) => {
     const historicalOutbreaks = await ctx.db
       .query("diseaseOutbreaks")
@@ -425,8 +290,8 @@ export const clearHistoricalData = internalMutation({
   }
 });
 
-// 2. Internal Mutation to safely write the fetched data to the DB
-export const insertAutomatedDailyData = internalMutation({
+// Mutation to safely write the fetched data to the DB
+export const insertAutomatedDailyData = mutation({
   args: {
     disease: v.string(),
     cases: v.number(),
@@ -447,17 +312,15 @@ export const insertAutomatedDailyData = internalMutation({
     const severity = args.cases > 5000 ? "critical" : args.cases > 1000 ? "high" : "medium";
 
     if (existingOutbreak) {
-      // Update existing active telemetry to avoid duplicating map hotspots
       await ctx.db.patch(existingOutbreak._id, {
         cases: args.cases,
         confirmedCases: args.cases,
         deaths: args.deaths,
         recovered: args.recovered,
         severity: severity,
-        timestamp: Date.now(), // update the last seen timestamp
+        timestamp: Date.now(),
       });
     } else {
-      // Insert entirely new record if one doesn't exist
       await ctx.db.insert("diseaseOutbreaks", {
         disease: args.disease,
         cases: args.cases,
@@ -477,3 +340,5 @@ export const insertAutomatedDailyData = internalMutation({
     }
   }
 });
+
+
