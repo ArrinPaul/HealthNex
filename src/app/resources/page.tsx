@@ -207,6 +207,33 @@ export default function ResourcesPage() {
 
   const openCount = facilities.filter(f => f.isOpen === true).length;
 
+  const handleManualLocation = async () => {
+    const city = window.prompt("Enter your city name (e.g., Bangalore, Mumbai):");
+    if (!city || city.trim() === '') return;
+
+    setLoading(true);
+    setLocationLabel(`Searching for ${city}...`);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`);
+      const data = await res.json();
+      
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        setUserLocation({ lat, lng });
+        setLocationLabel(`${data[0].display_name.split(',')[0]} (Manual)`);
+        fetchFacilities(lat, lng);
+      } else {
+        toast.error("City not found. Please try another name.");
+        setLocationLabel(locationLabel); // revert
+        setLoading(false);
+      }
+    } catch (e) {
+      toast.error("Failed to find location");
+      setLoading(false);
+    }
+  };
+
   return (
     <ProtectedRoute>
       <div className="space-y-6 pb-6">
@@ -240,9 +267,17 @@ export default function ResourcesPage() {
         </div>
 
         {/* Location badge */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary/50 px-3 py-2 rounded-xl border border-border/50 w-fit">
-          <MapPinned className="w-3.5 h-3.5 text-primary" />
-          <span>Showing results for: <span className="font-medium text-foreground">{locationLabel}</span></span>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground bg-secondary/50 px-3 py-2 rounded-xl border border-border/50 w-fit">
+          <div className="flex items-center gap-2">
+            <MapPinned className="w-3.5 h-3.5 text-primary" />
+            <span>Showing results for: <span className="font-medium text-foreground">{locationLabel}</span></span>
+          </div>
+          <button 
+            onClick={handleManualLocation}
+            className="text-[10px] uppercase font-bold text-primary hover:text-primary-foreground hover:bg-primary px-2 py-1 rounded transition-colors"
+          >
+            Change
+          </button>
         </div>
 
         {/* Filter Tabs */}
