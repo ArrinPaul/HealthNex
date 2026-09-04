@@ -175,26 +175,52 @@ npm run dev
 # Required — Server Side
 JWT_SECRET=your_super_secret_jwt_key_at_least_32_characters
 GOOGLE_AI_API_KEY=your_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
 CONVEX_DEPLOYMENT=your_convex_deployment_name
 
 # Required — Client Side
 NEXT_PUBLIC_CONVEX_URL=your_convex_url
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api
+
+# Required in production — protects the /api/cron/scrape-diseases trigger endpoint.
+# Set the same value on your cron scheduler (e.g. Vercel Cron) as an
+# `Authorization: Bearer <CRON_SECRET>` header.
+CRON_SECRET=your_cron_trigger_secret
 ```
+
+See `.env.example` for the full list, including optional feature flags.
 
 ### Available Scripts
 
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start development server |
-| `npm run build` | Production build |
+| `npm run build` | Production build (runs Convex codegen, then `next build`) |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
-| `npm test` | Run test suite |
+| `npm run typecheck` | Run `tsc --noEmit` |
+| `npm test` | Run the Vitest unit test suite |
 | `npm run convex:dev` | Start Convex dev server |
 | `npm run convex:deploy` | Deploy Convex functions |
 | `npm run deploy` | Deploy to Vercel |
+
+### CI/CD
+
+`.github/workflows/ci.yml` runs on every pull request and push to `main`:
+
+1. `npm ci` (installs from the committed lockfile)
+2. `npm run lint`
+3. `npm run typecheck`
+4. `npm test`
+5. `npm run build`
+6. A separate, non-blocking `npm audit --audit-level=high` job
+
+The build step uses placeholder environment values (not real secrets) so the
+pipeline can validate the production build without access to live Convex or
+AI-provider credentials. There is currently no automated deployment job —
+deploys are triggered manually via `npm run deploy` / `npm run deploy:full`,
+or via Vercel's Git integration if the repo is connected to a Vercel project.
 
 ---
 

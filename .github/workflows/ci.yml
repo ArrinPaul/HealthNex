@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Dummy values sufficient to satisfy required-env checks during lint/typecheck/build.
+  # No real secrets are used or required for this job.
+  JWT_SECRET: ci-placeholder-secret-not-used-in-production-00000000
+  GOOGLE_AI_API_KEY: ci-placeholder-key
+  GROQ_API_KEY: ci-placeholder-key
+  CONVEX_DEPLOYMENT: ci-placeholder
+  NEXT_PUBLIC_CONVEX_URL: https://ci-placeholder.convex.cloud
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+  NEXT_PUBLIC_API_BASE_URL: http://localhost:3000/api
+  NODE_ENV: test
+
+jobs:
+  validate:
+    name: Lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  security:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies (locked)
+        run: npm ci
+
+      - name: npm audit (high+ only, non-blocking)
+        run: npm audit --audit-level=high || true

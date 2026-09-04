@@ -1,9 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchMutation } from "convex/nextjs";
 import { api } from "../../../../../convex/_generated/api";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const cronSecret = process.env.CRON_SECRET;
+    if (cronSecret) {
+      const authHeader = request.headers.get("authorization");
+      if (authHeader !== `Bearer ${cronSecret}`) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+    } else if (process.env.NODE_ENV === "production") {
+      console.error("CRON_SECRET is not set; refusing to run scrape-diseases in production");
+      return NextResponse.json({ error: "Cron endpoint not configured" }, { status: 503 });
+    }
+
     // Clear old historical/seed data so we ONLY show live data
     await fetchMutation(api.diseases.clearHistoricalData, {});
     

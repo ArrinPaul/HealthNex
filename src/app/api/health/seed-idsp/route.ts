@@ -3,9 +3,19 @@ import fs from 'fs';
 import path from 'path';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../../../../convex/_generated/api';
+import { JWTService } from '@/lib/jwt';
 
 export async function POST(request: NextRequest) {
   try {
+    const token = JWTService.extractTokenFromRequest(request);
+    const payload = token ? JWTService.verifyToken(token) : null;
+    if (!payload || payload.role !== 'admin') {
+      return NextResponse.json(
+        { success: false, error: 'Admin privileges required' },
+        { status: 403 }
+      );
+    }
+
     const csvPath = path.join(process.cwd(), 'public', 'docs', 'idsp_historical_data.csv');
     if (!fs.existsSync(csvPath)) {
       throw new Error(`CSV seed file not found at: ${csvPath}`);
