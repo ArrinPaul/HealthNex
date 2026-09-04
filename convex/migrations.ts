@@ -43,23 +43,3 @@ export const mergeRoles = mutation({
     return { totalUsers: users.length, updated };
   },
 });
-
-// One-time cleanup: wipe every row in the users table (and their audit logs)
-// so the app can be reseeded with a clean set of accounts. Irreversible —
-// run only against a deployment you intend to fully reset.
-export const wipeAllUsers = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const users = await ctx.db.query("users").collect();
-    for (const user of users) {
-      await ctx.db.delete(user._id);
-    }
-
-    const auditLogs = await ctx.db.query("auditLogs").collect();
-    for (const log of auditLogs) {
-      await ctx.db.delete(log._id);
-    }
-
-    return { deletedUsers: users.length, deletedAuditLogs: auditLogs.length };
-  },
-});
