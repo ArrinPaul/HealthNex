@@ -521,8 +521,8 @@ graph TD
 
 ### Permission Matrix
 
-| Feature | Admin | Health Worker | Public User (verified) | Public User (unverified) |
-|---------|:-----:|:-------------:|:-----------------------:|:-------------------------:|
+| Feature | Admin | Health Worker | Public User | Public User (awaiting health-worker approval) |
+|---------|:-----:|:-------------:|:-----------:|:----------------------------------------------:|
 | View Dashboard | ✅ | ✅ | ✅ | ❌ |
 | Submit Reports | ✅ | ✅ | ✅ | ✅ |
 | Submit Health Data | ✅ | ✅ | ✅ | ❌ |
@@ -541,19 +541,21 @@ graph TD
 
 - **Admin** is the top tier — an admin can modify anyone, including other admins
 - Every other role can only modify users with a strictly lower role level, and cannot promote anyone to their own level or higher
-- Access for a `public-user` account (dashboard, health data, AI features) additionally requires `verificationStatus === "verified"`, since `public-user` covers both freshly registered and admin-approved accounts
+- Public users get immediate access to their feature set on registration — `verificationStatus` does not gate a plain `public-user` account. It only gates an outstanding **request to become a health worker**: while that request is `pending` (not yet `verified` or `rejected`), the account is held back from the dashboard and other gated features
 - All role changes are logged in the immutable audit trail with admin identity and timestamp
 - Frontend dynamically filters available roles based on the current user's hierarchy level
 
 ### Verification Flow
 
+Verification only applies to health-worker requests, not to plain public-user accounts.
+
 ```mermaid
 stateDiagram-v2
-    [*] --> None: User Registers
-    None --> Pending: Request Elevated Role
+    [*] --> None: User Registers (public-user)
+    None --> Pending: Request Health Worker Role
     Pending --> Verified: Admin Approves
     Pending --> Rejected: Admin Rejects
-    Verified --> [*]: Role Promoted
+    Verified --> [*]: Role Promoted to Health Worker
     Rejected --> [*]: Stays as Public User
 
     note right of Pending
