@@ -4,6 +4,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { ROLES, type UserRole } from "../../convex/roles";
 
 const EMPTY_ARRAY: any[] = [];
 
@@ -23,9 +24,14 @@ export const useAlerts = () => {
   return data || EMPTY_ARRAY;
 };
 
-// Roles the backend accepts for stats.getDashboardAggregates. Querying with any
-// other role makes Convex throw, which surfaces as a full-page client exception.
-const DASHBOARD_AGGREGATE_ROLES = ["super-admin", "admin", "health-worker", "community-user"];
+// Mirrors the role check in convex/stats.ts:getDashboardAggregates. Querying with
+// any other role makes Convex throw, which surfaces as a full-page client exception.
+const DASHBOARD_AGGREGATE_ROLES: UserRole[] = [
+  ROLES.SUPER_ADMIN,
+  ROLES.ADMIN,
+  ROLES.HEALTH_WORKER,
+  ROLES.COMMUNITY_USER,
+];
 
 export const useDashboardAggregates = () => {
   const { token, user } = useAuth();

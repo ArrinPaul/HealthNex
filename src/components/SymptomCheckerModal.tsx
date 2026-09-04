@@ -59,15 +59,20 @@ export default function SymptomCheckerModal({ isOpen, onClose, onComplete, force
           const prediction = JSON.parse(jsonMatch[0]);
           if (prediction.prediction && prediction.score) {
             setResult(prediction);
-            // Save to DB
-            await saveAssessment({
-              token: token || "",
-              predictedDisease: prediction.prediction,
-              predictionScore: prediction.score,
-              symptomsProvided: prediction.symptoms || [],
-              notes: prediction.reasoning
-            });
-            toast.success("Health assessment saved successfully!");
+            // Save to DB. Without a token the backend rejects the write, so show
+            // the result but tell the user it wasn't kept.
+            if (token) {
+              await saveAssessment({
+                token,
+                predictedDisease: prediction.prediction,
+                predictionScore: prediction.score,
+                symptomsProvided: prediction.symptoms || [],
+                notes: prediction.reasoning
+              });
+              toast.success("Health assessment saved successfully!");
+            } else {
+              toast.warning("Assessment complete, but not saved — please sign in again.");
+            }
             setIsLoading(false);
             return;
           }

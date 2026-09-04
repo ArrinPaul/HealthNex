@@ -36,15 +36,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     token && !isPublicPage ? { token } : "skip"
   );
   const needsOnboarding = statusQuery?.needsOnboarding === true;
-  const [showModal, setShowModal] = useState(false);
-  // Once dismissed, don't re-open for the rest of the session.
-  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  // Set once the user dismisses or completes the check, so it doesn't re-open
+  // for the rest of the session.
+  const [onboardingResolved, setOnboardingResolved] = useState(false);
 
-  // When status loads and they need onboarding, show it
-  // But only if we're not on a public page to avoid annoying popups on public pages
-  if (!isPublicPage && needsOnboarding && !showModal && !onboardingDismissed) {
-    setShowModal(true);
-  }
+  // Visibility is derived, never assigned during render: show the check when the
+  // status query says it's needed, we're not on a public page, and the user
+  // hasn't already dealt with it.
+  const showModal = !isPublicPage && needsOnboarding && !onboardingResolved;
 
   if (isPublicPage) {
     return <>{children}</>;
@@ -68,8 +67,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <SymptomCheckerModal 
         isOpen={showModal} 
-        onClose={() => { setOnboardingDismissed(true); setShowModal(false); }}
-        onComplete={() => setShowModal(false)}
+        onClose={() => setOnboardingResolved(true)}
+        onComplete={() => setOnboardingResolved(true)}
         forceOnboarding={true}
       />
     </div>

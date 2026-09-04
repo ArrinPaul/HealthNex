@@ -459,8 +459,12 @@ export default function DashboardPage() {
   };
 
   const handleApprovePending = async (outbreakId: string) => {
+    if (!token) {
+      toast.error("Your session has expired. Please sign in again.");
+      return;
+    }
     try {
-      await approvePending({ token: token || "", outbreakId: outbreakId as any });
+      await approvePending({ token, outbreakId: outbreakId as any });
       toast.success("User report approved and merged into live map data!");
       setTerminalLogs(prev => [...prev, `[MODERATION] Approved pending user report ${outbreakId}`]);
     } catch (err: any) {
