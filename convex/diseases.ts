@@ -160,20 +160,29 @@ export const getOutbreaksNearLocation = query({
   },
 });
 
-// Seed real historical outbreaks from IDSP report bulletins
-export const seedHistoricalOutbreaks = mutation({
+// Seed real historical outbreaks from IDSP report bulletins (admin only)
+export const seedHistoricalOutbreaks = mutationWithAuth({
   args: {
     force: v.optional(v.boolean()),
     csvData: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
+    const userId: string = args.userId;
+    const force: boolean | undefined = args.force;
+    const csvData: string | undefined = args.csvData;
+
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser || currentUser.role !== ROLES.ADMIN) {
+      throw new Error("Unauthorized: Only admins can seed historical outbreaks");
+    }
+
     const existingCount = (await ctx.db.query("diseaseOutbreaks").collect()).length;
-    if (existingCount > 0 && !args.force) {
+    if (existingCount > 0 && !force) {
       return { success: false, message: "Outbreaks already seeded. Use force: true to overwrite." };
     }
 
     // Clear existing outbreaks if force is set
-    if (args.force) {
+    if (force) {
       const allOutbreaks = await ctx.db.query("diseaseOutbreaks").collect();
       for (const outbreak of allOutbreaks) {
         await ctx.db.delete(outbreak._id);
@@ -182,9 +191,9 @@ export const seedHistoricalOutbreaks = mutation({
 
     let realOutbreaks: any[] = [];
 
-    if (args.csvData) {
+    if (csvData) {
       // Parse CSV Data
-      const lines = args.csvData.trim().split("\n");
+      const lines = csvData.trim().split("\n");
       if (lines.length > 1) {
         const headers = lines[0].split(",").map(h => h.trim().replace(/^["']|["']$/g, ''));
         for (let i = 1; i < lines.length; i++) {
@@ -278,23 +287,38 @@ export const seedHistoricalOutbreaks = mutation({
   }
 });
 
-// Internal mutation to clear historical seed data
+function requireCronSecret(secret: string | undefined) {
+  const expected = process.env.CRON_SECRET;
+  if (!expected) {
+    throw new Error("CRON_SECRET is not configured on this Convex deployment");
+  }
+  if (secret !== expected) {
+    throw new Error("Unauthorized: invalid cron secret");
+  }
+}
+
+// Cron-only mutation to clear historical seed data. Requires CRON_SECRET
+// (set via `npx convex env set CRON_SECRET <value>`) to match the value the
+// scraper route sends, so it can't be called by an arbitrary Convex client.
 export const clearHistoricalData = mutation({
-  handler: async (ctx) => {
+  args: { secret: v.string() },
+  handler: async (ctx, args) => {
+    requireCronSecret(args.secret);
     const historicalOutbreaks = await ctx.db
       .query("diseaseOutbreaks")
       .filter((q) => q.eq(q.field("reportedBy"), "system") || q.eq(q.field("reportedBy"), "SYSTEM_CRON_AUTO_SYNC"))
       .collect();
-      
+
     for (const outbreak of historicalOutbreaks) {
       await ctx.db.delete(outbreak._id);
     }
   }
 });
 
-// Mutation to safely write the fetched data to the DB
+// Cron-only mutation to safely write the fetched data to the DB
 export const insertAutomatedDailyData = mutation({
   args: {
+    secret: v.string(),
     disease: v.string(),
     cases: v.number(),
     deaths: v.number(),
@@ -304,6 +328,7 @@ export const insertAutomatedDailyData = mutation({
     location: v.string(),
   },
   handler: async (ctx, args) => {
+    requireCronSecret(args.secret);
     const existingOutbreak = await ctx.db
       .query("diseaseOutbreaks")
       .filter((q) => q.eq(q.field("reportedBy"), "SYSTEM_CRON_AUTO_SYNC"))

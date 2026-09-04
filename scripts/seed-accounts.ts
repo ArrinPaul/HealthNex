@@ -2,21 +2,14 @@
  * Seed 3 test accounts with different roles.
  *
  * Usage: npx tsx scripts/seed-accounts.ts
+ *
+ * seedUserWithRole is an internalMutation, so it can only be invoked via
+ * `npx convex run` (your authenticated Convex CLI session), never from a
+ * public client — see convex/users.ts.
  */
 
-import { ConvexHttpClient } from "convex/browser";
+import { execFileSync } from "child_process";
 import bcrypt from "bcryptjs";
-
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-const isValidUrl = convexUrl && (convexUrl.startsWith('http://') || convexUrl.startsWith('https://'));
-const convex = new ConvexHttpClient(isValidUrl ? convexUrl : 'https://placeholder.convex.cloud');
-
-const api = {
-  users: {
-    getUserByEmail: "users:getUserByEmail" as any,
-    seedUserWithRole: "users:seedUserWithRole" as any,
-  }
-};
 
 const accounts = [
   { email: "admin@healthnex.com", name: "Admin User", role: "admin" },
@@ -31,26 +24,25 @@ async function seed() {
   const hashedPassword = await bcrypt.hash(PASSWORD, salt);
 
   for (const acct of accounts) {
-    try {
-      const existing = await convex.query(api.users.getUserByEmail, { email: acct.email });
-      if (existing) {
-        console.log(`[SKIP] ${acct.email} already exists`);
-        continue;
-      }
-    } catch {
-      // User doesn't exist, proceed
-    }
+    const args = JSON.stringify({
+      email: acct.email,
+      name: acct.name,
+      passwordHash: hashedPassword,
+      role: acct.role,
+    });
 
     try {
-      await convex.mutation(api.users.seedUserWithRole, {
-        email: acct.email,
-        name: acct.name,
-        passwordHash: hashedPassword,
-        role: acct.role,
+      execFileSync("npx", ["convex", "run", "users:seedUserWithRole", args], {
+        encoding: "utf8",
       });
       console.log(`[OK]   ${acct.email} (${acct.role})`);
-    } catch (err: any) {
-      console.error(`[FAIL] ${acct.email}: ${err.message}`);
+    } catch (error: any) {
+      const output = String(error?.stdout || "") + String(error?.stderr || "");
+      if (output.includes("already exists")) {
+        console.log(`[SKIP] ${acct.email} already exists`);
+      } else {
+        console.error(`[FAIL] ${acct.email}: ${output || error?.message}`);
+      }
     }
   }
 

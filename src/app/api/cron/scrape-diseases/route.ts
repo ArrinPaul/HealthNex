@@ -15,8 +15,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Cron endpoint not configured" }, { status: 503 });
     }
 
-    // Clear old historical/seed data so we ONLY show live data
-    await fetchMutation(api.diseases.clearHistoricalData, {});
+    // Clear old historical/seed data so we ONLY show live data.
+    // The Convex mutations themselves also enforce CRON_SECRET (set via
+    // `npx convex env set CRON_SECRET <value>` on the Convex deployment) so
+    // they can't be invoked by a client that bypasses this Next.js route.
+    await fetchMutation(api.diseases.clearHistoricalData, { secret: cronSecret ?? "" });
     
     // Fetch Live Unstructured Outbreak News (Broadened telemetry)
     const queries = [
@@ -118,6 +121,7 @@ export async function GET(request: NextRequest) {
         if (!coords) continue;
 
         await fetchMutation(api.diseases.insertAutomatedDailyData, {
+          secret: cronSecret ?? "",
           disease: `${diseaseName} (Verified News)`,
           cases: cases,
           deaths: 0,
@@ -168,6 +172,7 @@ export async function GET(request: NextRequest) {
           const coords = gpsMap[locName] || { lat: 22.9, lng: 79.2 }; // India fallback
 
           await fetchMutation(api.diseases.insertAutomatedDailyData, {
+            secret: cronSecret ?? "",
             disease: `${outbreak.disease} (Groq AI)`,
             cases: outbreak.cases || 150,
             deaths: 0,

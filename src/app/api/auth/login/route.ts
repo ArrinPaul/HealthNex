@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
@@ -37,7 +36,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await convex.query(api.users.getUserByEmail, { email });
+    // Password verification happens inside Convex — the hash never leaves
+    // the deployment (see convex/users.ts: verifyCredentials).
+    const user = await convex.action(api.users.verifyCredentials, { email, password });
 
     if (!user) {
       return NextResponse.json(
@@ -46,22 +47,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-    
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
-      );
-    }
-
-    await convex.mutation(api.users.updateLastLogin, { userId: user._id });
-
     const token = JWTService.generateToken({
       userId: user._id,
       email: user.email,
       role: user.role
     });
+
+    await convex.mutation(api.users.updateLastLogin, { token });
 
     const response = NextResponse.json({
       success: true,

@@ -1,7 +1,9 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation, internalQuery, action } from "./_generated/server";
 import { v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
 import { ROLES, ROLE_HIERARCHY, VERIFICATION_STATUS, UserRole } from "./roles";
+import { internal } from "./_generated/api";
+import bcrypt from "bcryptjs";
 
 const VALID_ROLES = Object.values(ROLES);
 
@@ -55,9 +57,10 @@ export const createUser = mutation({
 
 // Trusted seeding path for dev/test accounts (scripts/seed-accounts.ts,
 // scripts/seed-admin.ts). Unlike createUser, this sets the role directly and
-// marks the account pre-approved — it must never be reachable from the public
-// registration flow, only from local seed scripts run by a developer.
-export const seedUserWithRole = mutation({
+// marks the account pre-approved. internalMutation so it is only reachable
+// via `npx convex run` (deploy-key CLI auth) or another Convex function —
+// never from a public client, since that would let anyone self-grant admin.
+export const seedUserWithRole = internalMutation({
   args: {
     email: v.string(),
     name: v.string(),
@@ -178,7 +181,9 @@ export const verifyUser = mutationWithAuth({
 });
 
 // One-time migration: set onboardingCompleted for existing users
-export const migrateOnboarding = mutation({
+// One-off migration utility (scripts/migrate-accounts.ts). internalMutation
+// so it's only reachable via `npx convex run`, never from a public client.
+export const migrateOnboarding = internalMutation({
   args: {
     email: v.string(),
     onboardingCompleted: v.boolean(),
@@ -253,8 +258,10 @@ export const getAuditLogs = queryWithAuth({
   }
 });
 
-// Get user by email for login (public but returns minimal fields only)
-export const getUserByEmail = query({
+// Look up a user by email including the password hash. internalQuery so the
+// hash is never reachable by any external client — only verifyCredentials
+// below (and other Convex functions) can call this.
+export const getUserByEmail = internalQuery({
   args: { email: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -278,6 +285,32 @@ export const getUserByEmail = query({
   },
 });
 
+// Public login entry point. Verifies the password inside Convex so the
+// password hash never leaves the deployment — returns the safe user object
+// on success, or null on any failure (unknown email or wrong password).
+export const verifyCredentials = action({
+  args: { email: v.string(), password: v.string() },
+  handler: async (ctx, args): Promise<{
+    _id: string;
+    email: string;
+    name: string;
+    role?: string;
+    requestedRole?: string;
+    isActive?: boolean;
+    verificationStatus?: string;
+    onboardingCompleted?: boolean;
+  } | null> => {
+    const user = await ctx.runQuery(internal.users.getUserByEmail, { email: args.email });
+    if (!user) return null;
+
+    const isValid = await bcrypt.compare(args.password, user.passwordHash);
+    if (!isValid) return null;
+
+    const { passwordHash: _passwordHash, ...safeUser } = user;
+    return safeUser;
+  },
+});
+
 // Get user by email (admin only - returns full profile)
 export const getUserByEmailFull = queryWithAuth({
   args: { email: v.string() },
@@ -296,10 +329,10 @@ export const getUserByEmailFull = queryWithAuth({
   },
 });
 
-// Update last login (public - called during login flow)
-export const updateLastLogin = mutation({
-  args: { userId: v.id("users") },
-  handler: async (ctx, args) => {
+// Update last login for the calling (token-verified) user
+export const updateLastLogin = mutationWithAuth({
+  args: {},
+  handler: async (ctx: any, args: any) => {
     await ctx.db.patch(args.userId, {
       lastLoginAt: Date.now(),
     });
@@ -330,10 +363,10 @@ export const getSelf = queryWithAuth({
   },
 });
 
-// Complete onboarding — saves all profile fields at once
-export const completeOnboarding = mutation({
+// Complete onboarding — saves all profile fields at once for the calling
+// (token-verified) user
+export const completeOnboarding = mutationWithAuth({
   args: {
-    userId: v.id("users"),
     dateOfBirth: v.string(),
     gender: v.string(),
     location: v.object({
@@ -347,7 +380,7 @@ export const completeOnboarding = mutation({
     medicalConditions: v.array(v.string()),
     occupation: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const user = await ctx.db.get(args.userId);
     if (!user) throw new Error("User not found");
 

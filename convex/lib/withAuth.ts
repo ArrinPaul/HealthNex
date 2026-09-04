@@ -1,25 +1,21 @@
 import { mutation, query } from "../_generated/server";
-import { v } from "convex/values";
+import { GenericValidator, v } from "convex/values";
 import { verifyJWT } from "./jwt";
 
-// Helper to merge args with token
-const mergeArgs = (args: Record<string, any>) => {
-  return {
-    ...args,
-    token: v.string(),
-  };
-};
-
-export const queryWithAuth = ({ args, handler }: {
-  args: Record<string, any>;
+// Generic over the caller's args shape so the merged { ...args, token }
+// object keeps its specific keys in the generated api types, instead of
+// collapsing to a bare `Record<string, any>` (which made every field but
+// `token` look unknown to typed callers like ConvexHttpClient).
+export const queryWithAuth = <ArgsValidator extends Record<string, GenericValidator>>({ args, handler }: {
+  args: ArgsValidator;
   handler: (ctx: any, args: any) => Promise<any>;
 }) => {
   return query({
-    args: mergeArgs(args),
-    handler: async (ctx, allArgs) => {
+    args: { ...args, token: v.string() },
+    handler: async (ctx, allArgs: any) => {
       const { token, ...restArgs } = allArgs;
       const user = await verifyJWT(token);
-      
+
       if (!user) {
         throw new Error("Unauthorized: Invalid or expired token");
       }
@@ -29,16 +25,16 @@ export const queryWithAuth = ({ args, handler }: {
   });
 };
 
-export const mutationWithAuth = ({ args, handler }: {
-  args: Record<string, any>;
+export const mutationWithAuth = <ArgsValidator extends Record<string, GenericValidator>>({ args, handler }: {
+  args: ArgsValidator;
   handler: (ctx: any, args: any) => Promise<any>;
 }) => {
   return mutation({
-    args: mergeArgs(args),
-    handler: async (ctx, allArgs) => {
+    args: { ...args, token: v.string() },
+    handler: async (ctx, allArgs: any) => {
       const { token, ...restArgs } = allArgs;
       const user = await verifyJWT(token);
-      
+
       if (!user) {
         throw new Error("Unauthorized: Invalid or expired token");
       }

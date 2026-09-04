@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const token = JWTService.extractTokenFromRequest(request);
     const payload = token ? JWTService.verifyToken(token) : null;
-    if (!payload || payload.role !== 'admin') {
+    if (!token || !payload || payload.role !== 'admin') {
       return NextResponse.json(
         { success: false, error: 'Admin privileges required' },
         { status: 403 }
@@ -29,7 +29,10 @@ export async function POST(request: NextRequest) {
     }
 
     const convex = new ConvexHttpClient(convexUrl);
+    // Convex itself re-verifies the token and the admin role (see
+    // diseases.ts) so this mutation can't be reached by bypassing this route.
     const result = await convex.mutation(api.diseases.seedHistoricalOutbreaks, {
+      token,
       force: true,
       csvData: csvData
     });
