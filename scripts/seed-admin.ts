@@ -18,7 +18,7 @@ const convex = new ConvexHttpClient(isValidUrl ? convexUrl : 'https://placeholde
 const api = {
   users: {
     getUserByEmail: "users:getUserByEmail" as any,
-    createUser: "users:createUser" as any,
+    seedUserWithRole: "users:seedUserWithRole" as any,
   }
 };
 
@@ -47,7 +47,7 @@ async function seedAdmin() {
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
-    await convex.mutation(api.users.createUser as any, {
+    await convex.mutation(api.users.seedUserWithRole as any, {
       email: adminEmail,
       name: adminName,
       passwordHash: hashedPassword,

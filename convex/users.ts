@@ -53,6 +53,47 @@ export const createUser = mutation({
   },
 });
 
+// Trusted seeding path for dev/test accounts (scripts/seed-accounts.ts,
+// scripts/seed-admin.ts). Unlike createUser, this sets the role directly and
+// marks the account pre-approved — it must never be reachable from the public
+// registration flow, only from local seed scripts run by a developer.
+export const seedUserWithRole = mutation({
+  args: {
+    email: v.string(),
+    name: v.string(),
+    passwordHash: v.string(),
+    role: v.string(),
+  },
+  handler: async (ctx, args) => {
+    if (!VALID_ROLES.includes(args.role as UserRole)) {
+      throw new Error(`Invalid role: ${args.role}. Valid roles: ${VALID_ROLES.join(', ')}`);
+    }
+
+    const existingUser = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .first();
+
+    if (existingUser) {
+      throw new Error("User with this email already exists");
+    }
+
+    const userId = await ctx.db.insert("users", {
+      email: args.email,
+      name: args.name,
+      passwordHash: args.passwordHash,
+      role: args.role,
+      requestedRole: args.role,
+      verificationStatus: VERIFICATION_STATUS.VERIFIED,
+      createdAt: Date.now(),
+      isActive: true,
+      onboardingCompleted: true,
+    });
+
+    return userId;
+  },
+});
+
 export const getAllUsers = queryWithAuth({
   args: {},
   handler: async (ctx: any, args: any) => {
