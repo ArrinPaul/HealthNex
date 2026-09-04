@@ -16,7 +16,7 @@ export const broadcastAlert = mutationWithAuth({
     
     // Check if user is health-worker or above
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
+    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized to broadcast alerts");
     }
 
@@ -63,7 +63,7 @@ export const deactivateAlert = mutationWithAuth({
     const { userId, alertId } = args;
     
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
+    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized to resolve alerts");
     }
 
@@ -96,7 +96,7 @@ export const updateAlert = mutationWithAuth({
     const { userId, alertId, title, message, type, severity, radius } = args;
     
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN && user.role !== ROLES.SUPER_ADMIN)) {
+    if (!user || (user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized to edit alerts");
     }
 

@@ -22,7 +22,7 @@ export default function SymptomCheckerPage() {
   );
 
   return (
-    <ProtectedRoute allowedRoles={["admin", "health-worker", "community-user", "public"]}>
+    <ProtectedRoute allowedRoles={["admin", "health-worker", "public-user"]}>
       <AppLayout>
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

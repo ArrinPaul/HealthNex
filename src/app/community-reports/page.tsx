@@ -11,7 +11,7 @@ export default function CommunityReportsPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   
-  const canSubmit = user && user.role !== 'public';
+  const canSubmit = !!user;
 
   return (
     <ProtectedRoute>

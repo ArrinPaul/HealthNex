@@ -27,7 +27,7 @@ export default function WaterQualityPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
       <div className="flex flex-col gap-6 animate-in fade-in duration-500 relative">
         {/* Ambient background */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />

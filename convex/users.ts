@@ -26,16 +26,24 @@ export const createUser = mutation({
 
     const requestedRole = (args.role && VALID_ROLES.includes(args.role as UserRole))
       ? args.role as UserRole
-      : ROLES.PUBLIC;
+      : ROLES.PUBLIC_USER;
+
+    // Public users get immediate access, so the account's actual role starts
+    // (and stays) at public-user. A health-worker request only takes effect
+    // once an admin verifies it (see verifyUser) — it must never be granted
+    // up front, so it's tracked separately in verificationStatus/pending queue.
+    const initialVerificationStatus = requestedRole === ROLES.HEALTH_WORKER
+      ? VERIFICATION_STATUS.PENDING
+      : VERIFICATION_STATUS.NONE;
 
     const userId = await ctx.db.insert("users", {
       email: args.email,
       name: args.name,
       passwordHash: args.passwordHash,
-      role: requestedRole,
+      role: ROLES.PUBLIC_USER,
       requestedRole: requestedRole,
       verificationDocUrl: args.verificationDocUrl,
-      verificationStatus: VERIFICATION_STATUS.NONE,
+      verificationStatus: initialVerificationStatus,
       createdAt: Date.now(),
       isActive: true,
       onboardingCompleted: false,
@@ -51,7 +59,7 @@ export const getAllUsers = queryWithAuth({
     const { userId } = args;
     const currentUser = await ctx.db.get(userId);
     
-    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+    if (!currentUser || (currentUser.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized: Only admins can view all users");
     }
 
@@ -65,7 +73,7 @@ export const getPendingVerifications = queryWithAuth({
     const { userId } = args;
     const currentUser = await ctx.db.get(userId);
     
-    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+    if (!currentUser || (currentUser.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized: Only admins can view pending verifications");
     }
 
@@ -99,7 +107,7 @@ export const verifyUser = mutationWithAuth({
     const currentUser = await ctx.db.get(userId);
     const targetUser = await ctx.db.get(targetUserId);
 
-    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+    if (!currentUser || (currentUser.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized: Only admins can verify users");
     }
 
@@ -110,7 +118,7 @@ export const verifyUser = mutationWithAuth({
     };
 
     if (status === VERIFICATION_STATUS.VERIFIED) {
-      patch.role = targetUser.requestedRole || ROLES.COMMUNITY_USER;
+      patch.role = targetUser.requestedRole || ROLES.PUBLIC_USER;
     }
 
     await ctx.db.patch(targetUserId, patch);
@@ -167,20 +175,16 @@ export const updateUserRole = mutationWithAuth({
 
     if (!currentUser || !targetUser) throw new Error("User not found");
 
-    if (targetUser.role === ROLES.SUPER_ADMIN) {
-      throw new Error("Cannot modify a super-admin");
-    }
-
-    // Role Hierarchy check
+    // Role Hierarchy check — Admin is the top tier and can modify anyone, including other admins.
     const currentUserLevel = ROLE_HIERARCHY[currentUser.role as UserRole] || 0;
     const targetUserLevel = ROLE_HIERARCHY[targetUser.role as UserRole] || 0;
     const newRoleLevel = ROLE_HIERARCHY[newRole as UserRole] || 0;
 
-    if (currentUserLevel <= targetUserLevel && currentUser.role !== ROLES.SUPER_ADMIN) {
+    if (currentUserLevel <= targetUserLevel && currentUser.role !== ROLES.ADMIN) {
       throw new Error("You can only modify users with a lower role than yours");
     }
 
-    if (newRoleLevel >= currentUserLevel && currentUser.role !== ROLES.SUPER_ADMIN) {
+    if (newRoleLevel >= currentUserLevel && currentUser.role !== ROLES.ADMIN) {
       throw new Error("You cannot promote someone to your level or higher");
     }
 
@@ -200,7 +204,7 @@ export const getAuditLogs = queryWithAuth({
     const { userId } = args;
     const currentUser = await ctx.db.get(userId);
     
-    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+    if (!currentUser || (currentUser.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized: Only admins can view audit logs");
     }
 
@@ -225,6 +229,7 @@ export const getUserByEmail = query({
       name: user.name,
       passwordHash: user.passwordHash,
       role: user.role,
+      requestedRole: user.requestedRole,
       isActive: user.isActive,
       verificationStatus: user.verificationStatus,
       onboardingCompleted: user.onboardingCompleted,
@@ -239,7 +244,7 @@ export const getUserByEmailFull = queryWithAuth({
     const { userId, email } = args;
 
     const currentUser = await ctx.db.get(userId);
-    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+    if (!currentUser || (currentUser.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized: Only admins can look up users by email");
     }
 
@@ -267,7 +272,7 @@ export const getUser = queryWithAuth({
     const { userId, targetUserId } = args;
 
     const currentUser = await ctx.db.get(userId);
-    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN)) {
+    if (!currentUser || (currentUser.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized: Only admins can look up users by ID");
     }
 

@@ -64,50 +64,44 @@ export default function UserManagement() {
   };
 
   const getAvailableRoles = (targetUser: any) => {
-    if (targetUser.role === ROLES.SUPER_ADMIN) return [];
-    
-    const currentUserLevel = ROLE_HIERARCHY[currentUser.role as UserRole] || 0;
-
-    if (currentUser.role === ROLES.SUPER_ADMIN) {
-      return Object.values(ROLES).filter(r => r !== ROLES.SUPER_ADMIN);
+    // Admin is the top tier — an admin can reassign anyone, including other admins.
+    if (currentUser.role === ROLES.ADMIN) {
+      return Object.values(ROLES);
     }
 
+    const currentUserLevel = ROLE_HIERARCHY[currentUser.role as UserRole] || 0;
+
     return Object.entries(ROLE_HIERARCHY)
-      .filter(([role, level]) => level < currentUserLevel && role !== ROLES.SUPER_ADMIN)
+      .filter(([, level]) => level < currentUserLevel)
       .map(([role]) => role);
   };
 
   const getRoleIcon = (role: string) => {
     switch(role) {
-      case ROLES.SUPER_ADMIN: return <Shield className="w-4 h-4 text-rose-500" />;
       case ROLES.ADMIN: return <Shield className="w-4 h-4 text-violet-500" />;
       case ROLES.HEALTH_WORKER: return <Activity className="w-4 h-4 text-emerald-500" />;
-      case ROLES.COMMUNITY_USER: return <UserIcon className="w-4 h-4 text-sky-400" />;
+      case ROLES.PUBLIC_USER: return <UserIcon className="w-4 h-4 text-sky-400" />;
       default: return <Globe className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
   const getRoleBadgeStyle = (role: string) => {
     switch(role) {
-      case ROLES.SUPER_ADMIN: return 'bg-rose-500/10 text-rose-500 border-rose-500/30';
       case ROLES.ADMIN: return 'bg-violet-500/10 text-violet-500 border-violet-500/30';
       case ROLES.HEALTH_WORKER: return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
-      case ROLES.COMMUNITY_USER: return 'bg-sky-500/10 text-sky-400 border-sky-500/30';
+      case ROLES.PUBLIC_USER: return 'bg-sky-500/10 text-sky-400 border-sky-500/30';
       default: return 'bg-secondary text-muted-foreground border-border/80';
     }
   };
 
   // Metric aggregates
   const totalUsers = users.length;
-  const superAdminCount = users.filter((u: any) => u.role === ROLES.SUPER_ADMIN).length;
-  const onlyAdminCount = users.filter((u: any) => u.role === ROLES.ADMIN).length;
-  const adminCount = superAdminCount + onlyAdminCount;
+  const adminCount = users.filter((u: any) => u.role === ROLES.ADMIN).length;
   const workerCount = users.filter((u: any) => u.role === ROLES.HEALTH_WORKER).length;
-  const communityCount = users.filter((u: any) => u.role === ROLES.COMMUNITY_USER).length;
+  const communityCount = users.filter((u: any) => u.role === ROLES.PUBLIC_USER).length;
   const pendingRequests = users.filter((u: any) => u.requestedRole && u.requestedRole !== u.role).length;
 
-  const superAdminPercent = totalUsers ? (superAdminCount / totalUsers) * 100 : 0;
-  const adminPercent = totalUsers ? (onlyAdminCount / totalUsers) * 100 : 0;
+  const adminPercent = totalUsers ? (adminCount / totalUsers) * 100 : 0;
   const workerPercent = totalUsers ? (workerCount / totalUsers) * 100 : 0;
   const communityPercent = totalUsers ? (communityCount / totalUsers) * 100 : 0;
 
@@ -161,7 +155,7 @@ export default function UserManagement() {
             <span className="text-[10px] uppercase font-bold tracking-widest">Security Officers</span>
           </div>
           <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-violet-500">{adminCount}</h3>
-          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">{superAdminCount} super, {onlyAdminCount} standard</p>
+          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Full system authority</p>
         </div>
 
         {/* Medical Workers */}
@@ -196,25 +190,21 @@ export default function UserManagement() {
         
         {/* Segmented Progress Bar */}
         <div className="h-2 w-full rounded-full bg-secondary flex overflow-hidden">
-          <div style={{ width: `${superAdminPercent}%` }} className="bg-rose-500 transition-all duration-500" title={`Super Admins: ${superAdminCount}`} />
-          <div style={{ width: `${adminPercent}%` }} className="bg-violet-500 transition-all duration-500" title={`Admins: ${onlyAdminCount}`} />
+          <div style={{ width: `${adminPercent}%` }} className="bg-violet-500 transition-all duration-500" title={`Admins: ${adminCount}`} />
           <div style={{ width: `${workerPercent}%` }} className="bg-emerald-500 transition-all duration-500" title={`Health Workers: ${workerCount}`} />
-          <div style={{ width: `${communityPercent}%` }} className="bg-sky-400 transition-all duration-500" title={`Community Users: ${communityCount}`} />
+          <div style={{ width: `${communityPercent}%` }} className="bg-sky-400 transition-all duration-500" title={`Public Users: ${communityCount}`} />
         </div>
 
         {/* Color Indicators Legend */}
         <div className="flex items-center gap-6 flex-wrap pt-2 text-[10px] font-bold uppercase tracking-wider">
-          <div className="flex items-center gap-2 text-rose-500">
-            <div className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Super-Admin ({superAdminCount})
-          </div>
           <div className="flex items-center gap-2 text-violet-500">
-            <div className="w-1.5 h-1.5 rounded-full bg-violet-500" /> Admin ({onlyAdminCount})
+            <div className="w-1.5 h-1.5 rounded-full bg-violet-500" /> Admin ({adminCount})
           </div>
           <div className="flex items-center gap-2 text-emerald-400">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Health-Worker ({workerCount})
           </div>
           <div className="flex items-center gap-2 text-sky-400">
-            <div className="w-1.5 h-1.5 rounded-full bg-sky-400" /> Community-User ({communityCount})
+            <div className="w-1.5 h-1.5 rounded-full bg-sky-400" /> Public-User ({communityCount})
           </div>
         </div>
       </div>
@@ -286,14 +276,14 @@ export default function UserManagement() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRoleFilter(ROLES.COMMUNITY_USER)}
+                  onClick={() => setRoleFilter(ROLES.PUBLIC_USER)}
                   className={`px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-wider rounded-md transition-all ${
-                    roleFilter === ROLES.COMMUNITY_USER
+                    roleFilter === ROLES.PUBLIC_USER
                       ? 'bg-primary text-primary-foreground shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
-                  Community ({communityCount})
+                  Public ({communityCount})
                 </button>
               </div>
             </div>

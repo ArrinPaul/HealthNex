@@ -3,7 +3,7 @@
  * 
  * Usage: npx tsx scripts/seed-admin.ts
  * 
- * This creates the super-admin account in Convex.
+ * This creates the admin account in Convex.
  * Run this once during initial setup, NOT on every login.
  */
 
@@ -51,13 +51,13 @@ async function seedAdmin() {
       email: adminEmail,
       name: adminName,
       passwordHash: hashedPassword,
-      role: "super-admin",
+      role: "admin",
     });
 
     console.log(`[SEED] Admin user created successfully:`);
     console.log(`[SEED]   Email:    ${adminEmail}`);
     console.log(`[SEED]   Name:     ${adminName}`);
-    console.log(`[SEED]   Role:     super-admin`);
+    console.log(`[SEED]   Role:     admin`);
     console.log(`[SEED]`);
     console.log(`[SEED] IMPORTANT: Change the default password after first login!`);
   } catch (error: any) {

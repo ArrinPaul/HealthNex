@@ -340,8 +340,8 @@ flowchart TD
 
     B --> O[broadcastAlert mutation]
     O --> P{RBAC Check}
-    P -->|health-worker / admin / super-admin| Q[Insert to alerts table]
-    P -->|community-user| R[Throw Error]
+    P -->|health-worker / admin| Q[Insert to alerts table]
+    P -->|public-user| R[Throw Error]
     Q --> S[Audit Log Created]
     Q --> T[Real-time Broadcast]
     T --> U[All Connected Nodes]
@@ -423,7 +423,7 @@ graph TD
 
 ### 7. Admin Panel
 
-Comprehensive administration interface with hierarchy-enforced role management. New users register as **public** and must complete onboarding before admin approval grants dashboard access.
+Comprehensive administration interface with hierarchy-enforced role management. New users register as **public-user** and must complete onboarding before admin approval grants full dashboard access.
 
 ```mermaid
 graph TD
@@ -511,41 +511,37 @@ First-time users complete a 4-step profile (location with geolocation, personal 
 
 ```mermaid
 graph TD
-    SA["Super Admin<br/>Level 4"] -->|Can Promote/Demote| AD["Admin<br/>Level 3"]
-    AD -->|Can Verify/Manage| HW["Health Worker<br/>Level 2"]
-    HW -->|Can View| CU["Community User<br/>Level 1"]
-    CU -->|Limited Access| PB["Public<br/>Level 0"]
+    AD["Admin<br/>Level 2"] -->|Can Verify/Manage/Promote & Demote| HW["Health Worker<br/>Level 1"]
+    HW -->|Can View| PU["Public User<br/>Level 0"]
 
-    style SA fill:#ef4444,color:#fff,stroke:#ef4444
     style AD fill:#8b5cf6,color:#fff,stroke:#8b5cf6
     style HW fill:#10b981,color:#fff,stroke:#10b981
-    style CU fill:#0ea5e9,color:#fff,stroke:#0ea5e9
-    style PB fill:#6b7280,color:#fff,stroke:#6b7280
+    style PU fill:#0ea5e9,color:#fff,stroke:#0ea5e9
 ```
 
 ### Permission Matrix
 
-| Feature | Super Admin | Admin | Health Worker | Community User | Public |
-|---------|:-----------:|:-----:|:-------------:|:--------------:|:------:|
-| View Dashboard | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Submit Reports | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Submit Health Data | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Broadcast Alerts | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Update Outbreak Status | ✅ | ✅ | ✅ | ❌ | ❌ |
-| View All Users | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Change User Roles | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Verify Users | ✅ | ✅ | ❌ | ❌ | ❌ |
-| View Audit Logs | ✅ | ✅ | ❌ | ❌ | ❌ |
-| View Support Tickets | ✅ | ✅ | ❌ | ❌ | ❌ |
-| View Usage Stats | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Use AI Features | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Access Admin Panel | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Feature | Admin | Health Worker | Public User (verified) | Public User (unverified) |
+|---------|:-----:|:-------------:|:-----------------------:|:-------------------------:|
+| View Dashboard | ✅ | ✅ | ✅ | ❌ |
+| Submit Reports | ✅ | ✅ | ✅ | ✅ |
+| Submit Health Data | ✅ | ✅ | ✅ | ❌ |
+| Broadcast Alerts | ✅ | ✅ | ❌ | ❌ |
+| Update Outbreak Status | ✅ | ✅ | ❌ | ❌ |
+| View All Users | ✅ | ❌ | ❌ | ❌ |
+| Change User Roles | ✅ | ❌ | ❌ | ❌ |
+| Verify Users | ✅ | ❌ | ❌ | ❌ |
+| View Audit Logs | ✅ | ❌ | ❌ | ❌ |
+| View Support Tickets | ✅ | ❌ | ❌ | ❌ |
+| View Usage Stats | ✅ | ❌ | ❌ | ❌ |
+| Use AI Features | ✅ | ✅ | ❌ | ❌ |
+| Access Admin Panel | ✅ | ❌ | ❌ | ❌ |
 
 ### Enforcement Rules
 
-- **Super Admin** is immutable — no other admin can modify a super admin account
-- **Admin** can only modify users with a strictly lower role level
-- **Admin** cannot promote anyone to their level or higher
+- **Admin** is the top tier — an admin can modify anyone, including other admins
+- Every other role can only modify users with a strictly lower role level, and cannot promote anyone to their own level or higher
+- Access for a `public-user` account (dashboard, health data, AI features) additionally requires `verificationStatus === "verified"`, since `public-user` covers both freshly registered and admin-approved accounts
 - All role changes are logged in the immutable audit trail with admin identity and timestamp
 - Frontend dynamically filters available roles based on the current user's hierarchy level
 
@@ -558,11 +554,11 @@ stateDiagram-v2
     Pending --> Verified: Admin Approves
     Pending --> Rejected: Admin Rejects
     Verified --> [*]: Role Promoted
-    Rejected --> [*]: Stays as Community User
+    Rejected --> [*]: Stays as Public User
 
     note right of Pending
-        Health Worker / Admin roles
-        require credential verification
+        Health Worker role requires
+        credential verification
     end note
 
     note right of Verified
@@ -743,7 +739,7 @@ erDiagram
 
 | Route | Method | Auth | Description |
 |-------|--------|------|-------------|
-| `/api/auth/register` | POST | Public | Create new account (default: public, requires admin approval) |
+| `/api/auth/register` | POST | Public | Create new account (default: public-user, requires admin approval) |
 | `/api/auth/login` | POST | Public | Authenticate and receive JWT |
 | `/api/auth/me` | GET | Protected | Get current user profile |
 | `/api/auth/logout` | POST | Protected | Clear session cookie |
@@ -776,7 +772,7 @@ erDiagram
 
 | Function | Type | Auth | Description |
 |----------|------|------|-------------|
-| `users.createUser` | Mutation | Public | Register new user (default: public) |
+| `users.createUser` | Mutation | Public | Register new user (default: public-user) |
 | `users.getUserByEmail` | Query | Public | Login lookup (limited fields) |
 | `users.getSelf` | Query | Authenticated | Get own profile |
 | `users.completeOnboarding` | Mutation | Authenticated | Save onboarding data |

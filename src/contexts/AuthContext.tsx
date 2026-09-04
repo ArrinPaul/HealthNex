@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-import { UserRole as ConvexUserRole } from '../../convex/roles';
+import { UserRole as ConvexUserRole, ROLES } from '../../convex/roles';
 export type UserRole = ConvexUserRole;
 
 export interface User {
@@ -26,6 +26,22 @@ export interface User {
   bloodGroup?: string;
   medicalConditions?: string[];
   occupation?: string;
+}
+
+// Public users get immediate access to their (limited) feature set — no admin
+// approval needed. Only a request to become a health worker is gated: while
+// that request is outstanding (not yet verified or rejected), the account is
+// treated as unapproved and held on the pending-approval screen.
+export function isAccountApproved(user: Pick<User, 'role' | 'requestedRole' | 'verificationStatus'> | null | undefined): boolean {
+  if (!user) return false;
+  if (user.role === ROLES.ADMIN || user.role === ROLES.HEALTH_WORKER) return true;
+
+  const awaitingHealthWorkerApproval =
+    user.requestedRole === ROLES.HEALTH_WORKER &&
+    user.verificationStatus !== 'verified' &&
+    user.verificationStatus !== 'rejected';
+
+  return !awaitingHealthWorkerApproval;
 }
 
 interface AuthContextType {

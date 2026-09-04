@@ -8,7 +8,7 @@ import { Menu, X, Zap, ChevronRight } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import Logo from './Logo';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, isAccountApproved } from '@/contexts/AuthContext';
 
 export default function LandingHeader() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function LandingHeader() {
             {isAuthenticated ? (
               <Button 
                 onClick={() => {
-                  if (user?.role === 'public') {
+                  if (!isAccountApproved(user)) {
                     router.push('/education');
                   } else {
                     router.push('/dashboard');
@@ -41,7 +41,7 @@ export default function LandingHeader() {
                 }} 
                 className="h-11 px-8 rounded-xl font-bold bg-primary text-primary-foreground hover:shadow-xl hover:shadow-primary/20 transition-all"
               >
-                {user?.role === 'public' ? 'Education' : 'Dashboard'}
+                {!isAccountApproved(user) ? 'Education' : 'Dashboard'}
               </Button>
             ) : (
               <>
@@ -73,7 +73,7 @@ export default function LandingHeader() {
             {isAuthenticated ? (
               <Button 
                 onClick={() => { 
-                  if (user?.role === 'public') {
+                  if (!isAccountApproved(user)) {
                     router.push('/education');
                   } else {
                     router.push('/dashboard');
@@ -82,7 +82,7 @@ export default function LandingHeader() {
                 }} 
                 className="w-full h-11 rounded-xl font-bold bg-primary text-primary-foreground"
               >
-                {user?.role === 'public' ? 'Education' : 'Dashboard'}
+                {!isAccountApproved(user) ? 'Education' : 'Dashboard'}
               </Button>
             ) : (
               <>

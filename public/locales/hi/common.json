@@ -9,7 +9,7 @@
   "selectRole": "भूमिका चुनें",
   "admin": "व्यवस्थापक",
   "healthWorker": "स्वास्थ्य कार्यकर्ता",
-  "communityUser": "सामुदायिक उपयोगकर्ता",
+  "publicUser": "सार्वजनिक उपयोगकर्ता",
   "signIn": "साइन इन करें",
   "signUp": "साइन अप करें",
   "alreadyHaveAccount": "पहले से खाता है?",

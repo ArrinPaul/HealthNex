@@ -1,5 +1,5 @@
 /**
- * Seed 5 test accounts with different roles.
+ * Seed 3 test accounts with different roles.
  *
  * Usage: npx tsx scripts/seed-accounts.ts
  */
@@ -19,11 +19,9 @@ const api = {
 };
 
 const accounts = [
-  { email: "superadmin@healthnex.com", name: "Super Admin", role: "super-admin" },
   { email: "admin@healthnex.com", name: "Admin User", role: "admin" },
   { email: "worker@healthnex.com", name: "Health Worker", role: "health-worker" },
-  { email: "user@healthnex.com", name: "Community Member", role: "community-user" },
-  { email: "public@healthnex.com", name: "Public User", role: "public" },
+  { email: "user@healthnex.com", name: "Public User", role: "public-user" },
 ];
 
 const PASSWORD = "TestPass123!";

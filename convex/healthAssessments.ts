@@ -55,7 +55,7 @@ export const getAssessmentStatus = queryWithAuth({
       .first();
 
     return {
-      needsOnboarding: user.role !== "super-admin" && !latestAssessment,
+      needsOnboarding: user.role !== "admin" && !latestAssessment,
       latestAssessment,
     };
   }

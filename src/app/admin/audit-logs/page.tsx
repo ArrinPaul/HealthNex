@@ -29,7 +29,7 @@ export default function AuditLogPage() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['super-admin', 'admin']}>
+    <ProtectedRoute allowedRoles={['admin']}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Audit Logs</h1>

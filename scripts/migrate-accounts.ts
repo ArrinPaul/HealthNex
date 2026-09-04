@@ -1,8 +1,7 @@
 /**
  * Migrate existing accounts: set onboardingCompleted based on role.
- * - super-admin / admin → onboardingCompleted: true (skip onboarding)
- * - health-worker / community-user → onboardingCompleted: true (already had access)
- * - public → onboardingCompleted: false (must complete onboarding)
+ * - admin / health-worker → onboardingCompleted: true (already had access)
+ * - public-user → onboardingCompleted: false (must complete onboarding)
  *
  * Usage: npx tsx scripts/migrate-accounts.ts
  */
@@ -21,11 +20,9 @@ const api = {
 };
 
 const accounts = [
-  { email: "superadmin@healthnex.com", onboardingCompleted: true },
   { email: "admin@healthnex.com", onboardingCompleted: true },
   { email: "worker@healthnex.com", onboardingCompleted: true },
-  { email: "user@healthnex.com", onboardingCompleted: true },
-  { email: "public@healthnex.com", onboardingCompleted: false },
+  { email: "user@healthnex.com", onboardingCompleted: false },
 ];
 
 async function migrate() {

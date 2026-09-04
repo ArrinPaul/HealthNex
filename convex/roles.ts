@@ -1,19 +1,15 @@
 export const ROLES = {
-  SUPER_ADMIN: "super-admin",
   ADMIN: "admin",
   HEALTH_WORKER: "health-worker",
-  COMMUNITY_USER: "community-user",
-  PUBLIC: "public",
+  PUBLIC_USER: "public-user",
 } as const;
 
 export type UserRole = (typeof ROLES)[keyof typeof ROLES];
 
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
-  [ROLES.SUPER_ADMIN]: 4,
-  [ROLES.ADMIN]: 3,
-  [ROLES.HEALTH_WORKER]: 2,
-  [ROLES.COMMUNITY_USER]: 1,
-  [ROLES.PUBLIC]: 0,
+  [ROLES.ADMIN]: 2,
+  [ROLES.HEALTH_WORKER]: 1,
+  [ROLES.PUBLIC_USER]: 0,
 };
 
 export const VERIFICATION_STATUS = {

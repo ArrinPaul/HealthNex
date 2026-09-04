@@ -32,19 +32,19 @@ import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
 
 const allNavItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['super-admin', 'admin', 'health-worker', 'community-user'], color: 'from-blue-500/20 to-cyan-500/20', activeColor: 'text-blue-400' },
-  { href: '/health-data', label: 'Health Data', icon: FileText, roles: ['super-admin', 'admin', 'health-worker'], color: 'from-emerald-500/20 to-teal-500/20', activeColor: 'text-emerald-400' },
-  { href: '/water-quality', label: 'Water Quality', icon: Droplet, roles: ['super-admin', 'admin', 'health-worker'], color: 'from-cyan-500/20 to-blue-500/20', activeColor: 'text-cyan-400' },
-  { href: '/ai-features', label: 'AI Insights', icon: Activity, roles: ['super-admin', 'admin', 'health-worker'], color: 'from-purple-500/20 to-pink-500/20', activeColor: 'text-purple-400' },
-  { href: '/chatbot', label: 'Health AI', icon: Bot, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-violet-500/20 to-purple-500/20', activeColor: 'text-violet-400' },
-  { href: '/alerts', label: 'Alerts', icon: Bell, roles: ['super-admin', 'admin', 'health-worker'], color: 'from-rose-500/20 to-orange-500/20', activeColor: 'text-rose-400' },
-  { href: '/education', label: 'Education', icon: BookOpen, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-amber-500/20 to-yellow-500/20', activeColor: 'text-amber-400' },
-  { href: '/community-reports', label: 'Community', icon: MessageSquare, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-teal-500/20 to-emerald-500/20', activeColor: 'text-teal-400' },
-  { href: '/vault', label: 'My Vault', icon: Lock, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-slate-500/20 to-gray-500/20', activeColor: 'text-slate-400' },
-  { href: '/resources', label: 'Health Hub', icon: Heart, roles: ['super-admin', 'admin', 'health-worker', 'community-user', 'public'], color: 'from-pink-500/20 to-rose-500/20', activeColor: 'text-pink-400' },
-  { href: '/symptom-checker', label: 'Symptom Checker', icon: Activity, roles: ['admin', 'health-worker', 'community-user', 'public'], color: 'from-emerald-500/20 to-green-500/20', activeColor: 'text-emerald-400' },
-  { href: '/user-management', label: 'User Mgmt', icon: Users, roles: ['super-admin', 'admin', 'health-worker'], color: 'from-indigo-500/20 to-blue-500/20', activeColor: 'text-indigo-400' },
-  { href: '/admin', label: 'Admin', icon: Shield, roles: ['super-admin', 'admin'], color: 'from-red-500/20 to-orange-500/20', activeColor: 'text-red-400' },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'health-worker', 'public-user'], color: 'from-blue-500/20 to-cyan-500/20', activeColor: 'text-blue-400' },
+  { href: '/health-data', label: 'Health Data', icon: FileText, roles: ['admin', 'health-worker'], color: 'from-emerald-500/20 to-teal-500/20', activeColor: 'text-emerald-400' },
+  { href: '/water-quality', label: 'Water Quality', icon: Droplet, roles: ['admin', 'health-worker'], color: 'from-cyan-500/20 to-blue-500/20', activeColor: 'text-cyan-400' },
+  { href: '/ai-features', label: 'AI Insights', icon: Activity, roles: ['admin', 'health-worker'], color: 'from-purple-500/20 to-pink-500/20', activeColor: 'text-purple-400' },
+  { href: '/chatbot', label: 'Health AI', icon: Bot, roles: ['admin', 'health-worker', 'public-user'], color: 'from-violet-500/20 to-purple-500/20', activeColor: 'text-violet-400' },
+  { href: '/alerts', label: 'Alerts', icon: Bell, roles: ['admin', 'health-worker'], color: 'from-rose-500/20 to-orange-500/20', activeColor: 'text-rose-400' },
+  { href: '/education', label: 'Education', icon: BookOpen, roles: ['admin', 'health-worker', 'public-user'], color: 'from-amber-500/20 to-yellow-500/20', activeColor: 'text-amber-400' },
+  { href: '/community-reports', label: 'Community', icon: MessageSquare, roles: ['admin', 'health-worker', 'public-user'], color: 'from-teal-500/20 to-emerald-500/20', activeColor: 'text-teal-400' },
+  { href: '/vault', label: 'My Vault', icon: Lock, roles: ['admin', 'health-worker', 'public-user'], color: 'from-slate-500/20 to-gray-500/20', activeColor: 'text-slate-400' },
+  { href: '/resources', label: 'Health Hub', icon: Heart, roles: ['admin', 'health-worker', 'public-user'], color: 'from-pink-500/20 to-rose-500/20', activeColor: 'text-pink-400' },
+  { href: '/symptom-checker', label: 'Symptom Checker', icon: Activity, roles: ['admin', 'health-worker', 'public-user'], color: 'from-emerald-500/20 to-green-500/20', activeColor: 'text-emerald-400' },
+  { href: '/user-management', label: 'User Mgmt', icon: Users, roles: ['admin', 'health-worker'], color: 'from-indigo-500/20 to-blue-500/20', activeColor: 'text-indigo-400' },
+  { href: '/admin', label: 'Admin', icon: Shield, roles: ['admin'], color: 'from-red-500/20 to-orange-500/20', activeColor: 'text-red-400' },
 ];
 
 const allBottomNavItems = [

@@ -31,7 +31,7 @@ export default function HealthDataDetailPage() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
       <div className="max-w-4xl mx-auto space-y-8">
         <Button variant="ghost" onClick={() => router.back()} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> Back to Records

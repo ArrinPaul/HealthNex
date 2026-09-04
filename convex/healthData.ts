@@ -58,7 +58,7 @@ export const getHealthDataById = queryWithAuth({
     const { userId, id } = args;
 
     const currentUser = await ctx.db.get(userId);
-    if (!currentUser || (currentUser.role !== ROLES.SUPER_ADMIN && currentUser.role !== ROLES.ADMIN && currentUser.role !== ROLES.HEALTH_WORKER)) {
+    if (!currentUser || (currentUser.role !== ROLES.ADMIN && currentUser.role !== ROLES.HEALTH_WORKER)) {
       throw new Error("Unauthorized: Only admins and health workers can view health data by ID");
     }
 
@@ -103,7 +103,7 @@ export const updateHealthData = mutationWithAuth({
     }
 
     const currentUser = await ctx.db.get(userId);
-    const isAdmin = currentUser && (currentUser.role === ROLES.SUPER_ADMIN || currentUser.role === ROLES.ADMIN);
+    const isAdmin = currentUser && (currentUser.role === ROLES.ADMIN);
     
     if (record.userId !== userId && !isAdmin) {
       throw new Error("Unauthorized: You cannot edit another user's health records");
@@ -143,7 +143,7 @@ export const getAllHealthData = queryWithAuth({
       throw new Error("User not found");
     }
 
-    const isAdmin = currentUser.role === ROLES.SUPER_ADMIN || currentUser.role === ROLES.ADMIN;
+    const isAdmin = currentUser.role === ROLES.ADMIN;
     
     let query;
     if (isAdmin) {

@@ -30,7 +30,7 @@ export const getTickets = queryWithAuth({
     const { userId } = args;
 
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN)) {
+    if (!user || (user.role !== ROLES.ADMIN)) {
       throw new Error("Unauthorized: Only admins can view all tickets");
     }
 

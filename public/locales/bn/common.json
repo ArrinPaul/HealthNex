@@ -9,7 +9,7 @@
   "selectRole": "ভূমিকা নির্বাচন করুন",
   "admin": "প্রশাসক",
   "healthWorker": "স্বাস্থ্যকর্মী",
-  "communityUser": "সম্প্রদায় ব্যবহারকারী",
+  "publicUser": "পাবলিক ব্যবহারকারী",
   "signIn": "সাইন ইন করুন",
   "signUp": "সাইন আপ করুন",
   "alreadyHaveAccount": "ইতিমধ্যে অ্যাকাউন্ট আছে?",

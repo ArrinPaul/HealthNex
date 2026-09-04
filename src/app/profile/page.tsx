@@ -56,14 +56,12 @@ export default function ProfilePage() {
 
   const getRoleBadge = () => {
     switch (user?.role) {
-      case 'super-admin':
-        return <Badge className="bg-red-500/15 text-red-400 border border-red-500/25 text-[10px] font-bold uppercase tracking-wider">Super Admin</Badge>;
       case 'admin':
         return <Badge className="bg-violet-500/15 text-violet-400 border border-violet-500/25 text-[10px] font-bold uppercase tracking-wider">Admin</Badge>;
       case 'health-worker':
         return <Badge className="bg-sky-500/15 text-sky-400 border border-sky-500/25 text-[10px] font-bold uppercase tracking-wider">Health Worker</Badge>;
-      case 'community-user':
-        return <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-[10px] font-bold uppercase tracking-wider">Community User</Badge>;
+      case 'public-user':
+        return <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-[10px] font-bold uppercase tracking-wider">Public User</Badge>;
       default:
         return <Badge className="bg-muted text-muted-foreground border border-border text-[10px] font-bold uppercase tracking-wider">User</Badge>;
     }

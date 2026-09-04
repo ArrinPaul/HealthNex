@@ -10,7 +10,7 @@ import { BarChart3, Users, ShieldCheck, MessageSquare } from 'lucide-react';
 
 export default function AdminPage() {
   return (
-    <ProtectedRoute allowedRoles={['super-admin', 'admin']}>
+    <ProtectedRoute allowedRoles={['admin']}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Admin Panel</h1>

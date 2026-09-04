@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth, UserRole } from '@/contexts/AuthContext';
+import { useAuth, UserRole, isAccountApproved } from '@/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -13,10 +13,10 @@ interface ProtectedRouteProps {
 const PUBLIC_PATHS = ['/login', '/register', '/onboarding', '/education', '/pending-approval'];
 
 // Admin roles that skip onboarding
-const ADMIN_ROLES = ['super-admin', 'admin'];
+const ADMIN_ROLES = ['admin'];
 
-// Roles that can access the main app (non-public)
-const APP_ROLES = ['super-admin', 'admin', 'health-worker', 'community-user'];
+// Roles that can access the main app
+const APP_ROLES = ['admin', 'health-worker', 'public-user'];
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isAuthenticated } = useAuth();
@@ -50,8 +50,8 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
       return; // Allow onboarding page
     }
 
-    // Step 2: If onboarding is done but role is still "public" → pending approval
-    if (!isAdmin && user.onboardingCompleted && user.role === 'public') {
+    // Step 2: If onboarding is done but the account isn't approved yet → pending approval
+    if (!isAdmin && user.onboardingCompleted && !isAccountApproved(user)) {
       if (!pathname.startsWith('/pending-approval')) {
         router.push('/pending-approval');
         return;
@@ -67,7 +67,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
     // Step 4: Role-based access for protected routes
     if (allowedRolesString && !allowedRoles?.includes(user.role)) {
-      if (user.role === 'public') {
+      if (!isAccountApproved(user)) {
         router.push('/pending-approval');
       } else {
         router.push('/dashboard');
@@ -85,7 +85,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   // Block rendering for users waiting for approval
-  if (user && !ADMIN_ROLES.includes(user.role) && user.onboardingCompleted && user.role === 'public' && !pathname.startsWith('/pending-approval')) {
+  if (user && !ADMIN_ROLES.includes(user.role) && user.onboardingCompleted && !isAccountApproved(user) && !pathname.startsWith('/pending-approval')) {
     return null;
   }
 

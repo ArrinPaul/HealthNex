@@ -4,6 +4,9 @@ import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { ROLES } from '../../../../../convex/roles';
+
+const REQUESTABLE_ROLES = [ROLES.PUBLIC_USER, ROLES.HEALTH_WORKER];
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const isValidUrl = convexUrl && (convexUrl.startsWith('http://') || convexUrl.startsWith('https://'));
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password, name, location, verificationDoc } = await request.json();
+    const { email, password, name, role, location, verificationDoc } = await request.json();
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -47,15 +50,15 @@ export async function POST(request: NextRequest) {
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const requestedRole = REQUESTABLE_ROLES.includes(role) ? role : ROLES.PUBLIC_USER;
+
     let userId;
     try {
-      const finalRole = 'public';
-      
       userId = await convex.mutation(api.users.createUser, {
         email,
         name,
         passwordHash: hashedPassword,
-        role: finalRole,
+        role: requestedRole,
         verificationDocUrl: verificationDoc,
       });
     } catch (dbError: any) {
@@ -65,8 +68,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const assignedRole = 'public'; 
-    
+    // The account's actual role always starts at public-user — a health-worker
+    // request only takes effect once an admin approves it (see users.verifyUser).
+    const assignedRole = ROLES.PUBLIC_USER;
+
     const token = JWTService.generateToken({
       userId,
       email,
@@ -75,13 +80,15 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      user: { 
-        id: userId, 
-        email, 
-        name, 
+      token,
+      user: {
+        id: userId,
+        email,
+        name,
         role: assignedRole,
+        requestedRole,
         location: location || 'Unknown',
-        verificationStatus: 'none',
+        verificationStatus: requestedRole === ROLES.HEALTH_WORKER ? 'pending' : 'none',
         onboardingCompleted: false,
       }
     });

@@ -125,7 +125,7 @@ export const updateOutbreakStatus = mutationWithAuth({
     const { userId, outbreakId, ...updates } = args;
 
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
+    if (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
       throw new Error("Unauthorized: Only admins and health workers can update outbreak status");
     }
 
@@ -364,7 +364,7 @@ export const approvePendingOutbreak = mutationWithAuth({
     
     // Auth check
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== "SUPER_ADMIN" && user.role !== "ADMIN" && user.role !== "HEALTH_WORKER")) {
+    if (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
       throw new Error("Unauthorized");
     }
 

@@ -79,7 +79,7 @@ export const updateReportStatus = mutationWithAuth({
     
     // Auth check
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
+    if (!user || (user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER)) {
       throw new Error("Unauthorized to update reports");
     }
 

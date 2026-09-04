@@ -50,7 +50,7 @@ const MetricCard = ({ label, value, unit, icon: Icon, color, subtext }: any) => 
 
 export default function HealthVaultPage() {
   const { user, token } = useAuth();
-  const isAdmin = user && (user.role === 'admin' || user.role === 'super-admin');
+  const isAdmin = user && user.role === 'admin';
 
   // Convex endpoints
   const healthRecords = useQuery(api.healthData.getAllHealthData, token ? { token } : "skip");

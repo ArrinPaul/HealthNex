@@ -13,7 +13,7 @@ export default function HealthDataPage() {
   const { t } = useTranslation();
 
   return (
-    <ProtectedRoute allowedRoles={['super-admin', 'admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
       <div className="space-y-8 pb-10">
         <motion.div 
           initial={{ opacity: 0, y: -10 }}

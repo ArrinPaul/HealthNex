@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
         email: user.email,
         name: user.name,
         role: user.role,
+        requestedRole: user.requestedRole,
         location: user.location?.address || '',
         verificationStatus: user.verificationStatus || 'none',
         onboardingCompleted: user.onboardingCompleted || false,

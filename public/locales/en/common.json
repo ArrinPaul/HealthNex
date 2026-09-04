@@ -9,7 +9,7 @@
   "selectRole": "Select Role",
   "admin": "Admin",
   "healthWorker": "Health Worker",
-  "communityUser": "Community User",
+  "publicUser": "Public User",
   "signIn": "Sign In",
   "signUp": "Sign Up",
   "alreadyHaveAccount": "Already have an account?",

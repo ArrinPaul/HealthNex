@@ -1,7 +1,7 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { queryWithAuth } from "./lib/withAuth";
-import { ROLES } from "./roles";
+import { ROLES, VERIFICATION_STATUS } from "./roles";
 
 export const getLandingPageStats = query({
   handler: async (ctx) => {
@@ -28,8 +28,15 @@ export const getDashboardAggregates = queryWithAuth({
     const { userId } = args;
 
     const user = await ctx.db.get(userId);
-    if (!user || (user.role !== ROLES.SUPER_ADMIN && user.role !== ROLES.ADMIN && user.role !== ROLES.HEALTH_WORKER && user.role !== ROLES.COMMUNITY_USER)) {
-      throw new Error("Unauthorized: Only admins, health workers and community users can view dashboard aggregates");
+    // Public users get immediate access; only an outstanding health-worker
+    // request holds an account back from viewing the dashboard.
+    const awaitingHealthWorkerApproval =
+      user?.role === ROLES.PUBLIC_USER &&
+      user?.requestedRole === ROLES.HEALTH_WORKER &&
+      user?.verificationStatus !== VERIFICATION_STATUS.VERIFIED &&
+      user?.verificationStatus !== VERIFICATION_STATUS.REJECTED;
+    if (!user || awaitingHealthWorkerApproval) {
+      throw new Error("Unauthorized: Your account is pending admin approval");
     }
 
     const outbreaks = await ctx.db.query("diseaseOutbreaks").take(500);

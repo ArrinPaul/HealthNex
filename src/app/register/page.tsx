@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Stethoscope, MapPin, CheckCircle2, Upload, FileText, Globe } from 'lucide-react';
+import { Users, Stethoscope, MapPin, CheckCircle2, Upload, FileText } from 'lucide-react';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import Logo from '@/components/layout/Logo';
 import { PasswordInput } from '@/components/ui/PasswordInput';
@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('public');
+  const [role, setRole] = useState<UserRole>('public-user');
   const [location, setLocation] = useState('');
   const [verificationFile, setVerificationFile] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -68,8 +68,7 @@ export default function RegisterPage() {
   };
 
   const roles = [
-    { value: 'public', label: 'Public Visitor', icon: Globe, desc: 'View global trends & education' },
-    { value: 'community-user', label: 'Community User', icon: Users, desc: 'Decentralized reporting & alerts' },
+    { value: 'public-user', label: 'Public User', icon: Users, desc: 'View trends, education & decentralized reporting' },
     { value: 'health-worker', label: 'Health Professional', icon: Stethoscope, desc: 'Medical verification & response' }
   ];
 

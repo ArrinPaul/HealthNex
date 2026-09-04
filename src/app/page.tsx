@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, isAccountApproved } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { 
   Activity, Users, ArrowRight, CheckCircle2, 
@@ -464,7 +464,7 @@ export default function Home() {
   useEffect(() => {
     setMounted(true);
     if (isAuthenticated) {
-      if (user?.role === 'public') {
+      if (!isAccountApproved(user)) {
         router.push('/education');
       } else {
         router.push('/dashboard');
