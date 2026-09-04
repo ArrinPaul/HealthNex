@@ -20,7 +20,12 @@ export function convexRun(functionName: string, args: unknown): string {
   // join the CLI's known relative path onto it instead of importing it.
   const pkgRoot = dirname(require.resolve("convex/package.json"));
   const mainJs = join(pkgRoot, "bin", "main.js");
-  return execFileSync(process.execPath, [mainJs, "run", functionName, JSON.stringify(args)], {
+  const cliArgs = [mainJs, "run", functionName, JSON.stringify(args)];
+  // Set CONVEX_RUN_PROD=1 to target the production deployment instead of dev.
+  if (process.env.CONVEX_RUN_PROD === "1") {
+    cliArgs.push("--prod");
+  }
+  return execFileSync(process.execPath, cliArgs, {
     encoding: "utf8",
   });
 }
