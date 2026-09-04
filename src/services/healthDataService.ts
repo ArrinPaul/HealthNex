@@ -23,9 +23,17 @@ export const useAlerts = () => {
   return data || EMPTY_ARRAY;
 };
 
+// Roles the backend accepts for stats.getDashboardAggregates. Querying with any
+// other role makes Convex throw, which surfaces as a full-page client exception.
+const DASHBOARD_AGGREGATE_ROLES = ["super-admin", "admin", "health-worker", "community-user"];
+
 export const useDashboardAggregates = () => {
-  const { token } = useAuth();
-  const data = useQuery(api.stats.getDashboardAggregates, token ? { token } : "skip");
+  const { token, user } = useAuth();
+  const canView = !!user && DASHBOARD_AGGREGATE_ROLES.includes(user.role);
+  const data = useQuery(
+    api.stats.getDashboardAggregates,
+    token && canView ? { token } : "skip"
+  );
   return data;
 };
 

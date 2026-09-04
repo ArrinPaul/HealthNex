@@ -16,7 +16,10 @@ export default function SymptomCheckerPage() {
   
   // Use query directly because we can't use our hook properly due to the `any` workaround.
   // Wait, I can just use getAssessmentStatus or similar.
-  const assessments = useQuery(api.healthAssessments.getUserAssessments as any, { token: token || "" });
+  const assessments = useQuery(
+    api.healthAssessments.getUserAssessments as any,
+    token ? { token } : "skip"
+  );
 
   return (
     <ProtectedRoute allowedRoles={["admin", "health-worker", "community-user", "public"]}>

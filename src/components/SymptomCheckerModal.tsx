@@ -100,11 +100,14 @@ export default function SymptomCheckerModal({ isOpen, onClose, onComplete, force
             <Activity className="w-5 h-5 text-primary" />
             <h2 className="font-bold">AI Symptom Assessor</h2>
           </div>
-          {!forceOnboarding && (
-            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            aria-label={forceOnboarding ? "Skip symptom check" : "Close"}
+            title={forceOnboarding ? "Skip for now" : "Close"}
+            className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         {forceOnboarding && (
