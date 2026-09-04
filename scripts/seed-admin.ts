@@ -12,8 +12,8 @@
  * than the public deployment URL.
  */
 
-import { execFileSync } from "child_process";
 import bcrypt from "bcryptjs";
+import { convexRun } from "./_convexRun";
 
 async function seedAdmin() {
   const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@healthnex.com";
@@ -23,19 +23,17 @@ async function seedAdmin() {
   const salt = await bcrypt.genSalt(12);
   const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
-  const args = JSON.stringify({
+  const args = {
     email: adminEmail,
     name: adminName,
     passwordHash: hashedPassword,
     role: "admin",
-  });
+  };
 
   console.log(`[SEED] Creating admin user: ${adminEmail}`);
 
   try {
-    const output = execFileSync("npx", ["convex", "run", "users:seedUserWithRole", args], {
-      encoding: "utf8",
-    });
+    const output = convexRun("users:seedUserWithRole", args);
     console.log(output);
     console.log(`[SEED] Admin user created successfully:`);
     console.log(`[SEED]   Email:    ${adminEmail}`);

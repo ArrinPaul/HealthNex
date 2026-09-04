@@ -10,7 +10,7 @@
  * convex/users.ts.
  */
 
-import { execFileSync } from "child_process";
+import { convexRun } from "./_convexRun";
 
 const accounts = [
   { email: "admin@healthnex.com", onboardingCompleted: true },
@@ -20,15 +20,13 @@ const accounts = [
 
 async function migrate() {
   for (const acct of accounts) {
-    const args = JSON.stringify({
+    const args = {
       email: acct.email,
       onboardingCompleted: acct.onboardingCompleted,
-    });
+    };
 
     try {
-      execFileSync("npx", ["convex", "run", "users:migrateOnboarding", args], {
-        encoding: "utf8",
-      });
+      convexRun("users:migrateOnboarding", args);
       console.log(`[OK] ${acct.email} -> onboardingCompleted: ${acct.onboardingCompleted}`);
     } catch (error: any) {
       const output = String(error?.stdout || "") + String(error?.stderr || "");

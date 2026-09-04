@@ -8,8 +8,8 @@
  * public client — see convex/users.ts.
  */
 
-import { execFileSync } from "child_process";
 import bcrypt from "bcryptjs";
+import { convexRun } from "./_convexRun";
 
 const accounts = [
   { email: "admin@healthnex.com", name: "Admin User", role: "admin" },
@@ -24,17 +24,15 @@ async function seed() {
   const hashedPassword = await bcrypt.hash(PASSWORD, salt);
 
   for (const acct of accounts) {
-    const args = JSON.stringify({
+    const args = {
       email: acct.email,
       name: acct.name,
       passwordHash: hashedPassword,
       role: acct.role,
-    });
+    };
 
     try {
-      execFileSync("npx", ["convex", "run", "users:seedUserWithRole", args], {
-        encoding: "utf8",
-      });
+      convexRun("users:seedUserWithRole", args);
       console.log(`[OK]   ${acct.email} (${acct.role})`);
     } catch (error: any) {
       const output = String(error?.stdout || "") + String(error?.stderr || "");
