@@ -29,13 +29,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isPublicPage = publicRoutes.includes(pathname);
 
   const { user, token } = useAuth();
-  const statusQuery = useQuery(api.healthAssessments.getAssessmentStatus as any, { token: token || "" });
+  // Skip the query entirely when there's no token — the backend rejects an empty
+  // token and the thrown error would surface as a full-page failure.
+  const statusQuery = useQuery(
+    api.healthAssessments.getAssessmentStatus as any,
+    token && !isPublicPage ? { token } : "skip"
+  );
   const needsOnboarding = statusQuery?.needsOnboarding === true;
   const [showModal, setShowModal] = useState(false);
+  // Once dismissed, don't re-open for the rest of the session.
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
 
   // When status loads and they need onboarding, show it
   // But only if we're not on a public page to avoid annoying popups on public pages
-  if (!isPublicPage && needsOnboarding && !showModal) {
+  if (!isPublicPage && needsOnboarding && !showModal && !onboardingDismissed) {
     setShowModal(true);
   }
 
@@ -61,7 +68,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <SymptomCheckerModal 
         isOpen={showModal} 
-        onClose={() => {}} 
+        onClose={() => { setOnboardingDismissed(true); setShowModal(false); }}
         onComplete={() => setShowModal(false)}
         forceOnboarding={true}
       />
