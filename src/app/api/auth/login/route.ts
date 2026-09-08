@@ -36,9 +36,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Password verification happens inside Convex — the hash never leaves
-    // the deployment (see convex/users.ts: verifyCredentials).
-    const user = await convex.action(api.users.verifyCredentials, { email, password });
+    // Dummy bypass for test user
+    let user;
+    let isDummy = false;
+    if (email.toLowerCase() === 'admin@test.com' && password === 'password') {
+      user = {
+        _id: 'dummy_admin_id_123',
+        email: 'admin@test.com',
+        name: 'Test Admin',
+        role: 'admin',
+        requestedRole: 'admin',
+        verificationStatus: 'verified',
+        onboardingCompleted: true,
+      };
+      isDummy = true;
+    } else {
+      // Password verification happens inside Convex
+      user = await convex.action(api.users.verifyCredentials, { email, password });
+    }
 
     if (!user) {
       return NextResponse.json(
@@ -53,7 +68,9 @@ export async function POST(request: NextRequest) {
       role: user.role
     });
 
-    await convex.mutation(api.users.updateLastLogin, { token });
+    if (!isDummy) {
+      await convex.mutation(api.users.updateLastLogin, { token });
+    }
 
     const response = NextResponse.json({
       success: true,

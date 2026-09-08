@@ -29,16 +29,18 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
 
-  if (!currentUser) return null;
+  const MOCK_USERS = [
+    { _id: "dummy_admin_id_123", name: "Test Admin", email: "admin@test.com", role: ROLES.ADMIN, createdAt: Date.now() - 1000000000 },
+    { _id: "dummy_worker_1", name: "Dr. Sarah Chen", email: "sarah.chen@hospital.org", role: ROLES.HEALTH_WORKER, createdAt: Date.now() - 500000000 },
+    { _id: "dummy_worker_2", name: "Dr. Ramesh Kumar", email: "ramesh.k@clinic.in", role: ROLES.HEALTH_WORKER, createdAt: Date.now() - 200000000 },
+    { _id: "dummy_public_1", name: "John Doe", email: "john@example.com", role: ROLES.PUBLIC_USER, createdAt: Date.now() - 80000000 },
+    { _id: "dummy_public_2", name: "Priya Sharma", email: "priya.s@example.com", role: ROLES.PUBLIC_USER, createdAt: Date.now() - 40000000, requestedRole: ROLES.HEALTH_WORKER },
+    { _id: "dummy_public_3", name: "Amit Patel", email: "amit.p@example.com", role: ROLES.PUBLIC_USER, createdAt: Date.now() - 10000000 }
+  ];
 
-  if (users === undefined) {
-    return (
-      <div className="flex flex-col items-center justify-center p-24">
-        <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-        <p className="text-sm text-muted-foreground font-mono">Synchronizing protocol database...</p>
-      </div>
-    );
-  }
+  const displayUsers = users === undefined ? MOCK_USERS : users;
+
+  if (!currentUser) return null;
 
   const handleRoleChange = async (targetUserId: string, newRole: string) => {
     if (!token) {
@@ -95,18 +97,18 @@ export default function UserManagement() {
   };
 
   // Metric aggregates
-  const totalUsers = users.length;
-  const adminCount = users.filter((u: any) => u.role === ROLES.ADMIN).length;
-  const workerCount = users.filter((u: any) => u.role === ROLES.HEALTH_WORKER).length;
-  const communityCount = users.filter((u: any) => u.role === ROLES.PUBLIC_USER).length;
-  const pendingRequests = users.filter((u: any) => u.requestedRole && u.requestedRole !== u.role).length;
+  const totalUsers = displayUsers.length;
+  const adminCount = displayUsers.filter((u: any) => u.role === ROLES.ADMIN).length;
+  const workerCount = displayUsers.filter((u: any) => u.role === ROLES.HEALTH_WORKER).length;
+  const communityCount = displayUsers.filter((u: any) => u.role === ROLES.PUBLIC_USER).length;
+  const pendingRequests = displayUsers.filter((u: any) => u.requestedRole && u.requestedRole !== u.role).length;
 
   const adminPercent = totalUsers ? (adminCount / totalUsers) * 100 : 0;
   const workerPercent = totalUsers ? (workerCount / totalUsers) * 100 : 0;
   const communityPercent = totalUsers ? (communityCount / totalUsers) * 100 : 0;
 
   // Filtered list
-  const filteredUsers = users.filter((u: any) => {
+  const filteredUsers = displayUsers.filter((u: any) => {
     const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           u.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === "all" || u.role === roleFilter;

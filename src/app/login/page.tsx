@@ -13,8 +13,8 @@ import ThemeToggle from '@/components/layout/ThemeToggle';
 import Logo from '@/components/layout/Logo';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@test.com');
+  const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       const loggedInUser = await login(email, password);
       // ProtectedRoute handles onboarding/pending-approval/dashboard routing
-      router.push('/dashboard');
+      window.location.href = '/dashboard';
     } catch (error) {
       console.error('Login failed:', error);
     } finally {

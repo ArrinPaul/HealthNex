@@ -68,9 +68,13 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
     // Step 4: Role-based access for protected routes
     if (allowedRolesString && !allowedRoles?.includes(user.role)) {
       if (!isAccountApproved(user)) {
-        router.push('/pending-approval');
+        if (!pathname.startsWith('/pending-approval')) {
+          router.push('/pending-approval');
+        }
       } else {
-        router.push('/dashboard');
+        if (!pathname.startsWith('/dashboard')) {
+          router.push('/dashboard');
+        }
       }
     }
   }, [isAuthenticated, user, allowedRolesString, allowedRoles, router, pathname]);
