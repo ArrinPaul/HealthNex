@@ -2,8 +2,15 @@
 ## Institutional Decision & Authorization Document
 
 > [!IMPORTANT]  
-> **STATUS: PENDING INSTITUTIONAL DECISION & APPROVAL**  
-> This is a formal governance decision document prepared for the authorized institutional authority. **It is NOT an approved policy or authorization to execute deletions.** No automated deletion, schema changes, or background cleanup jobs may be implemented or activated until this document is formally executed, signed, and approved by the responsible institutional authority.
+> **STATUS: OPEN — AWAITING INSTITUTIONAL AUTHORISATION**  
+> This is a formal governance decision document prepared for the authorized institutional authority. **It is NOT an approved policy or authorization to execute deletions.**  
+> - SEC-CRED-01 status: `OPEN — AWAITING INSTITUTIONAL AUTHORISATION`.  
+> - The 30-day rejected-credential window is a proposal, not an approved policy.  
+> - No automatic credential deletion is authorized.  
+> - Technical implementation is blocked pending executed institutional approval.  
+> - Staging rehearsal remains a separate release gate prior to any production deployment.  
+> - No test result is represented as newly verified unless the command was actually run.  
+> No automated deletion, schema changes, or background cleanup jobs may be implemented or activated until this document is formally executed, signed, and approved by the responsible institutional authority.
 
 ---
 
@@ -141,9 +148,11 @@ Please complete each decision field below. **Do not leave any section blank.**
 
 Implementation of automated or scheduled deletion for `SEC-CRED-01` in the HealthNex codebase **must not begin** until all of the following conditions are met:
 
-1. **Executed Approval:** Sections 1 and 2 of this document are completed and signed by an authorized institutional representative.
+1. **Executed Approval:** Sections 1 and 2 of this document are completed and signed by an authorized institutional representative. Technical implementation remains strictly blocked until executed approval is on file.
 2. **Legal Alignment:** The selected periods are confirmed by institutional counsel to comply with the DPDP Act, 2023 and relevant healthcare licensing regulations.
-3. **Dedicated Implementation Task:** A separately authorized implementation phase is scheduled to:
+3. **No Automatic Credential Deletion Authorized:** Until this approval is signed, no automatic credential deletion or purge routine is authorized in any environment.
+4. **Staging Rehearsal Release Gate:** A full end-to-end dry-run and migration rehearsal in a non-production staging environment is required as a separate release gate before any production enablement.
+5. **Dedicated Implementation Task:** A separately authorized implementation phase is scheduled to:
    - Add schema tracking for `verificationRejectedAt` and `legalHold` flags.
    - Implement reference-verified deletion integrated with `pendingStorageDeletions`.
    - Implement comprehensive boundary tests (covering before, at, and after the approved retention window).

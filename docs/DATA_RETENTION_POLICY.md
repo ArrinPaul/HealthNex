@@ -20,7 +20,7 @@ This document establishes the operational data retention, archival, and deletion
 | **User Account Credentials** | `users` | Name, email, salted bcrypt password hash, role assignments. | Retained for the lifetime of the active account. Deleted upon verified user account erasure request. | **Active / Implemented** |
 | **User Profile & Demographics** | `users` | DOB, gender, blood group, medical history, location coordinates. | Retained for active user profile usage. Deleted upon user removal or account deletion. | **Active / Implemented** |
 | **Approved Health Worker Credentials** | `users` (`verificationDocStorageId`) | Professional medical licenses, institutional ID cards. | Retained during active verified affiliation to support clinical auditing and authenticity verification. | **Active / Implemented** |
-| **Rejected Health Worker Credentials** | `users` (`verificationDocStorageId`) | Credentials submitted by applicants whose verification was rejected by an administrator. | **Pending Institutional Decision:** Proposed retention window is 30 days from rejection timestamp to permit appeal review before deletion. | **PENDING APPROVAL (SEC-CRED-01)** |
+| **Rejected Health Worker Credentials** | `users` (`verificationDocStorageId`) | Credentials submitted by applicants whose verification was rejected by an administrator. | **Pending Institutional Decision:** Proposed retention window is 30 days from rejection timestamp to permit appeal review before deletion (proposal only, not an approved policy). | **OPEN — AWAITING INSTITUTIONAL AUTHORISATION (SEC-CRED-01)** |
 | **Health Vault Records** | `healthData` | Self-reported vitals, symptoms, medications, water tests, and associated files. | Retained until user deletes the record or account. On record deletion, binary files are purged via reference-verified cleanup. | **Active / Implemented** |
 | **Community Disease Reports** | `communityReports` | Outbreak summaries, coordinates, severity, categories, and photo attachments. | Retained for public health surveillance and epidemiological trend modeling. Deleted on reporter or admin request. | **Active / Implemented** |
 | **Support Inquiries** | `supportTickets` | User inquiries, ticket messages, name, email. | Retained for 180 days following ticket resolution for customer support quality and reference. | **Active / Implemented** |
@@ -73,9 +73,10 @@ The following retention policy remains open and requires authorized institutiona
 
 1. **Rejected Health Worker Credential Binary Retention (SEC-CRED-01)**:
    - **Candidate Rule:** Delete rejected credential binaries (`verificationDocStorageId`) after 30 days, measured from the administrative rejection timestamp.
-   - **Current Status:** **Unapproved / Pending Institutional Decision**.
-   - **Reason for Suspension:** Requires sign-off from the HealthNex Legal / Hospital Directorate to balance candidate appeal rights against data minimization principles under the DPDP Act, 2023.
-   - **Safety Assurance:** The system currently retains rejected credentials in private storage until this decision is formally executed.
+   - **Current Status:** **OPEN — AWAITING INSTITUTIONAL AUTHORISATION**.
+   - **Governance Safeguard:** The 30-day rejected-credential window is strictly a proposal, not an approved policy. No automatic credential deletion is authorized.
+   - **Implementation Gate:** Technical implementation is blocked pending executed institutional approval. Staging rehearsal remains a separate release gate prior to any production activation.
+   - **Safety Assurance:** The system currently retains rejected credentials in private storage until this decision is formally executed and signed by the responsible authority.
 
 2. **Metadata Retention Upon Binary Deletion**:
    - Once a credential binary is purged, user verification metadata (such as applicant name, email, submission date, rejection reason notes, and audit log entries) will be permanently retained in the database for compliance and anti-fraud verification.
