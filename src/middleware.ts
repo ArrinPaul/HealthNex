@@ -17,12 +17,6 @@ const PROTECTED_ROUTES = [
   '/vault',
   '/resources',
   '/language-settings',
-  '/surveillance',
-  '/neural-engine',
-  '/documentation',
-  '/privacy-code',
-  '/mission-state',
-  '/organization',
 ];
 
 // API routes that require authentication
@@ -143,7 +137,13 @@ export async function middleware(request: NextRequest) {
       if (!isValidToken) {
         return NextResponse.json(
           { error: 'Authentication required' },
-          { status: 401 }
+          {
+            status: 401,
+            headers: {
+              'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+              'Pragma': 'no-cache',
+            }
+          }
         );
       }
     }
