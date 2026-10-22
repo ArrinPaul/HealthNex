@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Settings as SettingsIcon, Globe, Sun, Moon, Type, Eye, Palette, Languages, Bell, Shield, Volume2, Monitor } from 'lucide-react';
+import { Settings as SettingsIcon, Globe, Sun, Moon, Type, Eye, Palette, Languages, Bell, Shield, Volume2, Monitor, ExternalLink, FileText } from 'lucide-react';
+import Link from 'next/link';
 import ProtectedRoute from '@/components/layout/ProtectedRoute';
 import { motion } from 'framer-motion';
 
@@ -47,7 +48,7 @@ export default function SettingsPage() {
               </span>
               <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Configuration</span>
             </div>
-            <h1 className="text-2xl font-black tracking-tight text-foreground">Settings</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Settings</h1>
             <p className="text-xs text-muted-foreground mt-1">Customize your experience and accessibility preferences</p>
           </div>
         </div>
@@ -78,7 +79,7 @@ export default function SettingsPage() {
                     variant={theme === 'light' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setTheme('light')}
-                    className={`h-9 px-4 rounded-xl text-[11px] font-semibold transition-all ${theme === 'light' ? 'bg-gradient-to-r from-primary to-cyan-500 text-white shadow-lg shadow-primary/20' : 'border-border/60 hover:bg-secondary/80'}`}
+                    className={`h-9 px-4 rounded-lg text-[11px] font-semibold transition-all ${theme === 'light' ? 'bg-primary text-primary-foreground shadow-sm' : 'border-border/60 hover:bg-secondary/80'}`}
                   >
                     <Sun className="w-3.5 h-3.5 mr-1.5" />
                     Light
@@ -87,7 +88,7 @@ export default function SettingsPage() {
                     variant={theme === 'dark' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setTheme('dark')}
-                    className={`h-9 px-4 rounded-xl text-[11px] font-semibold transition-all ${theme === 'dark' ? 'bg-gradient-to-r from-primary to-cyan-500 text-white shadow-lg shadow-primary/20' : 'border-border/60 hover:bg-secondary/80'}`}
+                    className={`h-9 px-4 rounded-lg text-[11px] font-semibold transition-all ${theme === 'dark' ? 'bg-primary text-primary-foreground shadow-sm' : 'border-border/60 hover:bg-secondary/80'}`}
                   >
                     <Moon className="w-3.5 h-3.5 mr-1.5" />
                     Dark
@@ -282,6 +283,17 @@ export default function SettingsPage() {
                   <p className="text-[11px] text-muted-foreground">Receive security alerts via email</p>
                 </div>
                 <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border/30 hover:border-border/50 transition-all">
+                <div className="space-y-0.5">
+                  <Label className="text-sm font-semibold text-foreground">Privacy Policy & Data Rights</Label>
+                  <p className="text-[11px] text-muted-foreground">Review your privacy protections and data processing terms</p>
+                </div>
+                <Link href="/privacy" className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline font-medium">
+                  <span>View Policy</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
               </div>
             </CardContent>
           </Card>

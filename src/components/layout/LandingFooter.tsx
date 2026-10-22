@@ -24,7 +24,8 @@ export default function LandingFooter() {
             <Link href="/organization" className="hover:opacity-80 transition-all">Organization</Link>
           </h4>
           <ul className="space-y-4 text-sm text-muted-foreground">
-            <li><Link href="/privacy-code" className="hover:text-primary transition-all">Privacy</Link></li>
+            <li><Link href="/privacy" className="hover:text-primary transition-all">Privacy Policy</Link></li>
+            <li><Link href="/privacy-code" className="hover:text-primary transition-all">Security Architecture</Link></li>
             <li><Link href="/mission-state" className="hover:text-primary transition-all">Mission</Link></li>
             <li><Link href="/help" className="hover:text-primary transition-all">Help Center</Link></li>
           </ul>
