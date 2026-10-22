@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse } from '@/lib/apiResponse';
 import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
     const rateLimitResult = checkRateLimit(`login:${clientIp}`, 5, 60000);
 
     if (!rateLimitResult.allowed) {
-      return NextResponse.json(
+      return privateJsonResponse(
         { error: 'Too many login attempts. Please try again later.' },
         { 
           status: 429,
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
     const { email, password } = await request.json();
 
     if (!email || !password) {
-      return NextResponse.json(
+      return privateJsonResponse(
         { error: 'Email and password are required' },
         { status: 400 }
       );
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     const user = await convex.action(api.users.verifyCredentials, { email, password });
 
     if (!user) {
-      return NextResponse.json(
+      return privateJsonResponse(
         { error: 'Invalid credentials' },
         { status: 401 }
       );
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     await convex.mutation(api.users.updateLastLogin, { token });
 
-    const response = NextResponse.json({
+    const response = privateJsonResponse({
       success: true,
       user: {
         id: user._id,
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    return NextResponse.json(
+    return privateJsonResponse(
       { error: 'Internal server error' },
       { status: 500 }
     );

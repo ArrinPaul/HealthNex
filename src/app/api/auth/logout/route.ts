@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse } from '@/lib/apiResponse';
 
 export async function POST(request: NextRequest) {
   try {
-    const response = NextResponse.json({
+    const response = privateJsonResponse({
       success: true,
       message: 'Logged out successfully'
     });
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Logout error:', error);
-    return NextResponse.json(
+    return privateJsonResponse(
       { error: 'Internal server error' },
       { status: 500 }
     );

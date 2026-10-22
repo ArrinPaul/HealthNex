@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse } from '@/lib/apiResponse';
 import bcrypt from 'bcryptjs';
 import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     const rateLimitResult = checkRateLimit(`register:${clientIp}`, 3, 60000);
 
     if (!rateLimitResult.allowed) {
-      return NextResponse.json(
+      return privateJsonResponse(
         { error: 'Too many registration attempts. Please try again later.' },
         { 
           status: 429,
@@ -34,14 +35,14 @@ export async function POST(request: NextRequest) {
     const { email, password, name, role, location, verificationDoc } = await request.json();
 
     if (!email || !password || !name) {
-      return NextResponse.json(
+      return privateJsonResponse(
         { error: 'Email, password, and name are required' },
         { status: 400 }
       );
     }
 
     if (password.length < 8) {
-      return NextResponse.json(
+      return privateJsonResponse(
         { error: 'Password must be at least 8 characters' },
         { status: 400 }
       );
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
         verificationDocUrl: verificationDoc,
       });
     } catch (dbError: any) {
-      return NextResponse.json(
+      return privateJsonResponse(
         { error: dbError.message || 'Failed to create user' },
         { status: 400 }
       );
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
       role: assignedRole
     });
 
-    const response = NextResponse.json({
+    const response = privateJsonResponse({
       success: true,
       token,
       user: {
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    return NextResponse.json(
+    return privateJsonResponse(
       { error: 'Internal server error' },
       { status: 500 }
     );
