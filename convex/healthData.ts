@@ -6,6 +6,7 @@ import { v } from "convex/values";
 
 import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
 import { ROLES } from "./roles";
+import { recordFailedStorageDeletion } from "./storageCleanup";
 
 // Add health data
 export const addHealthData = mutationWithAuth({
@@ -57,12 +58,106 @@ export const getHealthDataById = queryWithAuth({
   handler: async (ctx: any, args: any) => {
     const { userId, id } = args;
 
-    const currentUser = await ctx.db.get(userId);
-    if (!currentUser || (currentUser.role !== ROLES.ADMIN && currentUser.role !== ROLES.HEALTH_WORKER)) {
-      throw new Error("Unauthorized: Only admins and health workers can view health data by ID");
+    const record = await ctx.db.get(id);
+    if (!record) {
+      return null;
     }
 
-    return await ctx.db.get(id);
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser) {
+      throw new Error("User not found");
+    }
+
+    const isOwner = record.userId === userId;
+    const isPrivileged = currentUser.role === ROLES.ADMIN || currentUser.role === ROLES.HEALTH_WORKER;
+
+    if (!isOwner && !isPrivileged) {
+      throw new Error("Unauthorized: You do not have permission to view this health record");
+    }
+
+    // Resolve file storage URL if an associated storage reference exists
+    const storageId = (record as any).fileStorageId || record.data?.fileStorageId || record.data?.storageId;
+    let fileUrl: string | null = null;
+    if (storageId && typeof storageId === "string" && ctx.storage) {
+      fileUrl = await ctx.storage.getUrl(storageId);
+    }
+
+    return {
+      ...record,
+      ...(fileUrl ? { fileUrl } : {}),
+    };
+  },
+});
+
+// Delete health data record with strict ownership or admin authorization and storage cleanup
+export const deleteHealthData = mutationWithAuth({
+  args: { id: v.id("healthData") },
+  handler: async (ctx: any, args: any) => {
+    const { userId, id } = args;
+
+    const record = await ctx.db.get(id);
+    if (!record) {
+      throw new Error("Record not found");
+    }
+
+    const currentUser = await ctx.db.get(userId);
+    const isOwner = record.userId === userId;
+    const isAdmin = currentUser && (currentUser.role === ROLES.ADMIN);
+
+    if (!isOwner && !isAdmin) {
+      throw new Error("Unauthorized: You do not have permission to delete this health record");
+    }
+
+    let storageCleanupSuccess = true;
+    let pendingRetryId: any = undefined;
+
+    // Inspect if record or record.data references a Convex storage object
+    const storageId = (record as any).fileStorageId || record.data?.fileStorageId || record.data?.storageId;
+    if (storageId && typeof storageId === "string" && ctx.storage) {
+      // Check if file is shared across multiple records before deleting from storage
+      const otherRecords = await ctx.db
+        .query("healthData")
+        .filter((q: any) => q.and(
+          q.neq(q.field("_id"), id),
+          q.or(
+            q.eq(q.field("fileStorageId"), storageId),
+            q.eq(q.field("data.fileStorageId"), storageId),
+            q.eq(q.field("data.storageId"), storageId)
+          )
+        ))
+        .first();
+
+      if (!otherRecords) {
+        try {
+          await ctx.storage.delete(storageId);
+        } catch (storageErr: any) {
+          console.warn(`Failed to delete associated storage file ${storageId}:`, storageErr);
+          storageCleanupSuccess = false;
+          pendingRetryId = await recordFailedStorageDeletion(ctx, {
+            storageId,
+            originTable: "healthData",
+            originRecordId: id,
+            requestedBy: userId,
+            errorMessage: storageErr?.message,
+          });
+        }
+      }
+    }
+
+    await ctx.db.delete(id);
+
+    // AUDIT LOG
+    await ctx.db.insert("auditLogs", {
+      userId,
+      targetId: id,
+      action: "HEALTH_RECORD_DELETE",
+      details: `${currentUser?.name || "User"} (${currentUser?.role || "unknown"}) deleted health record of type ${record.type} (storageCleanup: ${storageCleanupSuccess})`,
+      timestamp: Date.now(),
+    });
+
+    return { success: true, storageCleanupSuccess, pendingRetryId };
+
+    return { success: true };
   },
 });
 

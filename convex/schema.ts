@@ -12,6 +12,8 @@ export default defineSchema({
     role: v.optional(v.string()),
     requestedRole: v.optional(v.string()),
     verificationDocUrl: v.optional(v.string()), // URL for license/ID
+    verificationDocStorageId: v.optional(v.id("_storage")), // Dedicated Convex storage reference
+    verificationDocName: v.optional(v.string()), // Sanitized document filename
     verificationStatus: v.optional(v.union(v.literal("none"), v.literal("pending"), v.literal("verified"), v.literal("rejected"))),
     createdAt: v.number(),
     lastLoginAt: v.optional(v.number()),
@@ -72,6 +74,10 @@ export default defineSchema({
     status: v.union(v.literal("open"), v.literal("investigating"), v.literal("resolved")),
     upvotes: v.number(),
     downvotes: v.number(),
+    attachmentStorageId: v.optional(v.id("_storage")),
+    attachmentName: v.optional(v.string()),
+    attachmentMimeType: v.optional(v.string()),
+    attachmentSize: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_location", ["location.latitude", "location.longitude"])
@@ -188,5 +194,23 @@ export default defineSchema({
     timestamp: v.number(),
     notes: v.optional(v.string()),
   }).index("by_user", ["userId"]).index("by_timestamp", ["timestamp"]),
+
+  // SEC-STOR-02: Durable queue for storage deletion retry tracking
+  pendingStorageDeletions: defineTable({
+    storageId: v.id("_storage"),
+    originTable: v.string(), // "healthData" | "communityReports" | "users"
+    originRecordId: v.optional(v.string()), // ID of the deleted/updated record
+    requestedBy: v.optional(v.id("users")), // User ID who initiated the operation
+    attempts: v.number(), // Number of attempted deletions
+    lastAttemptAt: v.number(),
+    lastError: v.optional(v.string()),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("exhausted"),
+      v.literal("superseded_or_referenced")
+    ),
+    createdAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_storageId", ["storageId"]),
 });
-    

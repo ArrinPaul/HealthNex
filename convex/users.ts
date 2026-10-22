@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { mutationWithAuth, queryWithAuth } from "./lib/withAuth";
 import { ROLES, ROLE_HIERARCHY, VERIFICATION_STATUS, UserRole } from "./roles";
 import { internal } from "./_generated/api";
+import { recordFailedStorageDeletion } from "./storageCleanup";
 import bcrypt from "bcryptjs";
 
 const VALID_ROLES = Object.values(ROLES);
@@ -107,7 +108,11 @@ export const getAllUsers = queryWithAuth({
       throw new Error("Unauthorized: Only admins can view all users");
     }
 
-    return await ctx.db.query("users").collect();
+    const users = await ctx.db.query("users").collect();
+    return users.map((u: any) => {
+      const { passwordHash: _hash, ...safeUser } = u;
+      return safeUser;
+    });
   },
 });
 
@@ -121,10 +126,132 @@ export const getPendingVerifications = queryWithAuth({
       throw new Error("Unauthorized: Only admins can view pending verifications");
     }
 
-    return await ctx.db
+    const pending = await ctx.db
       .query("users")
       .withIndex("by_verification_status", (q: any) => q.eq("verificationStatus", VERIFICATION_STATUS.PENDING))
       .collect();
+
+    return pending.map((u: any) => {
+      const { passwordHash: _hash, ...safeUser } = u;
+      return safeUser;
+    });
+  },
+});
+
+// Generate an authenticated Convex upload URL for health worker credentials
+export const generateCredentialUploadUrl = mutationWithAuth({
+  args: {},
+  handler: async (ctx: any, args: any) => {
+    const { userId } = args;
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser) throw new Error("User not found");
+
+    // Only allow users who are applying for health worker or are health worker / admin
+    const canUpload = currentUser.requestedRole === ROLES.HEALTH_WORKER ||
+                      currentUser.role === ROLES.HEALTH_WORKER ||
+                      currentUser.role === ROLES.ADMIN;
+
+    if (!canUpload) {
+      throw new Error("Unauthorized: Only healthcare worker applicants or personnel can upload credentials");
+    }
+
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+// Securely attach an uploaded credential document to the authenticated caller's account
+export const attachVerificationDocument = mutationWithAuth({
+  args: {
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+  },
+  handler: async (ctx: any, args: any) => {
+    const { userId, storageId, fileName } = args;
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser) throw new Error("User not found");
+
+    // Clean up superseded previous credential storage object if one existed
+    const previousStorageId = currentUser.verificationDocStorageId;
+    if (previousStorageId && previousStorageId !== storageId && ctx.storage) {
+      try {
+        await ctx.storage.delete(previousStorageId);
+      } catch (err: any) {
+        console.warn(`Failed to delete superseded credential storage object ${previousStorageId}:`, err);
+        await recordFailedStorageDeletion(ctx, {
+          storageId: previousStorageId,
+          originTable: "users",
+          originRecordId: userId,
+          requestedBy: userId,
+          errorMessage: err?.message,
+        });
+      }
+    }
+
+    // Sanitize filename — strip path traversal characters and limit length
+    const sanitizedFileName = fileName
+      .replace(/[^a-zA-Z0-9._-]/g, "_")
+      .slice(0, 120) || "credential_document";
+
+    await ctx.db.patch(userId, {
+      verificationDocStorageId: storageId,
+      verificationDocName: sanitizedFileName,
+      verificationDocUrl: sanitizedFileName, // Preserved for legacy display compatibility
+      requestedRole: ROLES.HEALTH_WORKER,
+      verificationStatus: VERIFICATION_STATUS.PENDING,
+    });
+
+    // AUDIT LOG
+    await logAction(
+      ctx,
+      userId,
+      "CREDENTIAL_DOCUMENT_ATTACHED",
+      userId,
+      `${currentUser.name} uploaded verification credential: ${sanitizedFileName}`
+    );
+
+    return { success: true };
+  },
+});
+
+// Admin-only query to resolve signed, short-lived download URL for verification documents
+export const getVerificationDocumentUrl = queryWithAuth({
+  args: { targetUserId: v.id("users") },
+  handler: async (ctx: any, args: any) => {
+    const { userId, targetUserId } = args;
+
+    const currentUser = await ctx.db.get(userId);
+    if (!currentUser || currentUser.role !== ROLES.ADMIN) {
+      throw new Error("Unauthorized: Only administrators can view verification documents");
+    }
+
+    const targetUser = await ctx.db.get(targetUserId);
+    if (!targetUser) {
+      throw new Error("Target user not found");
+    }
+
+    const storageId = targetUser.verificationDocStorageId;
+    if (!storageId) {
+      return {
+        url: null,
+        fileName: targetUser.verificationDocName || targetUser.verificationDocUrl || null,
+        isLegacy: true
+      };
+    }
+
+    let downloadUrl: string | null = null;
+    if (ctx.storage) {
+      try {
+        downloadUrl = await ctx.storage.getUrl(storageId);
+      } catch (storageErr) {
+        console.warn(`Failed to generate storage URL for ${storageId}:`, storageErr);
+      }
+    }
+
+    return {
+      url: downloadUrl,
+      fileName: targetUser.verificationDocName || "credential_document",
+      isLegacy: false
+    };
   },
 });
 
@@ -322,10 +449,14 @@ export const getUserByEmailFull = queryWithAuth({
       throw new Error("Unauthorized: Only admins can look up users by email");
     }
 
-    return await ctx.db
+    const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q: any) => q.eq("email", email))
       .first();
+
+    if (!user) return null;
+    const { passwordHash: _hash, ...safeUser } = user;
+    return safeUser;
   },
 });
 
@@ -350,16 +481,22 @@ export const getUser = queryWithAuth({
       throw new Error("Unauthorized: Only admins can look up users by ID");
     }
 
-    return await ctx.db.get(targetUserId);
+    const targetUser = await ctx.db.get(targetUserId);
+    if (!targetUser) return null;
+    const { passwordHash: _hash, ...safeUser } = targetUser;
+    return safeUser;
   },
 });
 
-// Get own profile (any authenticated user)
+// Get own profile (any authenticated user) - passwordHash is never returned
 export const getSelf = queryWithAuth({
   args: {},
   handler: async (ctx: any, args: any) => {
     const { userId } = args;
-    return await ctx.db.get(userId);
+    const user = await ctx.db.get(userId);
+    if (!user) return null;
+    const { passwordHash: _hash, ...safeUser } = user;
+    return safeUser;
   },
 });
 
@@ -394,6 +531,60 @@ export const completeOnboarding = mutationWithAuth({
       occupation: args.occupation,
     });
 
+    return { success: true };
+  },
+});
+
+// Update own profile — allows authenticated users to update their personal details
+// without escalating privileges or modifying sensitive account controls.
+export const updateProfile = mutationWithAuth({
+  args: {
+    name: v.optional(v.string()),
+    locationAddress: v.optional(v.string()),
+    newPasswordHash: v.optional(v.string()),
+    bloodGroup: v.optional(v.string()),
+    occupation: v.optional(v.string()),
+  },
+  handler: async (ctx: any, args: any) => {
+    const { userId, name, locationAddress, newPasswordHash, bloodGroup, occupation } = args;
+    const user = await ctx.db.get(userId);
+    if (!user) throw new Error("User not found");
+
+    const patch: any = {};
+    if (typeof name === "string") {
+      const trimmed = name.trim();
+      if (!trimmed || trimmed.length > 100) {
+        throw new Error("Name is required and must be under 100 characters");
+      }
+      patch.name = trimmed;
+    }
+
+    if (typeof locationAddress === "string") {
+      const trimmedLoc = locationAddress.trim().slice(0, 200);
+      patch.location = {
+        latitude: user.location?.latitude ?? 0,
+        longitude: user.location?.longitude ?? 0,
+        address: trimmedLoc,
+        state: user.location?.state,
+        district: user.location?.district,
+      };
+    }
+
+    if (typeof bloodGroup === "string") {
+      patch.bloodGroup = bloodGroup.trim().slice(0, 10);
+    }
+
+    if (typeof occupation === "string") {
+      patch.occupation = occupation.trim().slice(0, 100);
+    }
+
+    if (typeof newPasswordHash === "string" && newPasswordHash.length > 0) {
+      patch.passwordHash = newPasswordHash;
+    }
+
+    // Critical Security Invariant: NEVER permit role, requestedRole, verificationStatus,
+    // or isActive to be modified via updateProfile.
+    await ctx.db.patch(userId, patch);
     return { success: true };
   },
 });
