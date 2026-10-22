@@ -1,26 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchMutation } from "convex/nextjs";
 import { api } from "../../../../../convex/_generated/api";
+export function parseHeadlineCases(casesMatch: RegExpMatchArray | null): number | null {
+  if (!casesMatch) return null;
+  const casesStr = casesMatch[1].replace(/,/g, "");
+  const cases = parseInt(casesStr, 10);
+  if (isNaN(cases) || cases <= 0) return null;
+  return cases;
+}
 
 export async function GET(request: NextRequest) {
   try {
     const cronSecret = process.env.CRON_SECRET;
-    if (cronSecret) {
-      const authHeader = request.headers.get("authorization");
-      if (authHeader !== `Bearer ${cronSecret}`) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-    } else if (process.env.NODE_ENV === "production") {
-      console.error("CRON_SECRET is not set; refusing to run scrape-diseases in production");
-      return NextResponse.json({ error: "Cron endpoint not configured" }, { status: 503 });
+    if (!cronSecret) {
+      console.error("CRON_SECRET is not configured; refusing to run scrape-diseases");
+      return NextResponse.json({ error: "Cron secret is not configured" }, { status: 500 });
     }
 
-    // Clear old historical/seed data so we ONLY show live data.
-    // The Convex mutations themselves also enforce CRON_SECRET (set via
-    // `npx convex env set CRON_SECRET <value>` on the Convex deployment) so
-    // they can't be invoked by a client that bypasses this Next.js route.
-    await fetchMutation(api.diseases.clearHistoricalData, { secret: cronSecret ?? "" });
-    
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // Fetch Live Unstructured Outbreak News (Broadened telemetry)
     const queries = [
       "disease+outbreak+cases+India",
@@ -106,6 +107,12 @@ export async function GET(request: NextRequest) {
       const cMatch = title.match(casesRegex);
       
       if (dMatch && lMatch) {
+        const parsedCases = parseHeadlineCases(cMatch);
+        if (parsedCases === null) {
+          // Do not fabricate case counts when none are found in the headline
+          continue;
+        }
+
         const diseaseName = dMatch[1].charAt(0).toUpperCase() + dMatch[1].slice(1).toLowerCase();
         const locName = lMatch[1].toLowerCase();
         const comboKey = `${diseaseName}-${locName}`;
@@ -113,17 +120,13 @@ export async function GET(request: NextRequest) {
         if (seenCombos.has(comboKey)) continue;
         seenCombos.add(comboKey);
 
-        const casesStr = cMatch ? cMatch[1].replace(/,/g, '') : "";
-        let cases = parseInt(casesStr, 10);
-        if (isNaN(cases) || cases < 10) cases = Math.floor(Math.random() * 800) + 100;
-
         const coords = gpsMap[locName];
         if (!coords) continue;
 
         await fetchMutation(api.diseases.insertAutomatedDailyData, {
-          secret: cronSecret ?? "",
-          disease: `${diseaseName} (Verified News)`,
-          cases: cases,
+          secret: cronSecret,
+          disease: diseaseName,
+          cases: parsedCases,
           deaths: 0,
           recovered: 0,
           latitude: coords.lat,
@@ -149,7 +152,7 @@ export async function GET(request: NextRequest) {
           messages: [
             { 
               role: "system", 
-              content: "You are a medical intelligence AI. Extract 2 disease outbreaks from the headlines. Return ONLY a raw JSON array of objects: [{\"disease\": \"name\", \"cases\": number, \"location\": \"country\"}]. Do not wrap in markdown or backticks." 
+              content: "You are a medical intelligence AI. Extract disease outbreaks explicitly reported with numbers from the headlines. Return ONLY a raw JSON array of objects: [{\"disease\": \"name\", \"cases\": number, \"location\": \"country\"}]. If no explicit case count exists, do not guess or include it. Do not wrap in markdown or backticks." 
             },
             { role: "user", content: titles.slice(0, 10).join("\n") }
           ],
@@ -165,27 +168,43 @@ export async function GET(request: NextRequest) {
           rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
         }
 
-        const aiOutbreaks = JSON.parse(rawText);
-        
-        for (const outbreak of aiOutbreaks) {
-          const locName = (outbreak.location || "").toLowerCase();
-          const coords = gpsMap[locName] || { lat: 22.9, lng: 79.2 }; // India fallback
+        try {
+          const aiOutbreaks = JSON.parse(rawText);
+          
+          if (Array.isArray(aiOutbreaks)) {
+            for (const outbreak of aiOutbreaks) {
+              if (
+                !outbreak.disease ||
+                typeof outbreak.cases !== "number" ||
+                isNaN(outbreak.cases) ||
+                outbreak.cases <= 0
+              ) {
+                continue;
+              }
 
-          await fetchMutation(api.diseases.insertAutomatedDailyData, {
-            secret: cronSecret ?? "",
-            disease: `${outbreak.disease} (Groq AI)`,
-            cases: outbreak.cases || 150,
-            deaths: 0,
-            recovered: 0,
-            latitude: coords.lat,
-            longitude: coords.lng,
-            location: (outbreak.location || "Unknown").toUpperCase(),
-          });
+              const locName = (outbreak.location || "").toLowerCase();
+              const coords = gpsMap[locName] || { lat: 22.9, lng: 79.2 }; // India fallback
+
+              await fetchMutation(api.diseases.insertAutomatedDailyData, {
+                secret: cronSecret,
+                disease: String(outbreak.disease).trim(),
+                cases: Math.round(outbreak.cases),
+                deaths: 0,
+                recovered: 0,
+                latitude: coords.lat,
+                longitude: coords.lng,
+                location: (outbreak.location || "Unknown").toUpperCase(),
+              });
+              outbreaksExtracted++;
+            }
+          }
+        } catch (jsonErr) {
+          console.error("Failed to parse Groq response JSON:", jsonErr);
         }
       }
     }
 
-    return NextResponse.json({ success: true, message: "Scraped successfully" });
+    return NextResponse.json({ success: true, message: "Scraped successfully", extractedCount: outbreaksExtracted });
   } catch (error: any) {
     console.error("Scraping failed:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

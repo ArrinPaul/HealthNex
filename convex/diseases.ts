@@ -21,8 +21,26 @@ export const reportDisease = mutationWithAuth({
   },
   handler: async (ctx: any, args: any) => {
     const { userId, ...reportArgs } = args;
+
+    // Validate coordinates
+    if (typeof reportArgs.latitude !== "number" || reportArgs.latitude < -90 || reportArgs.latitude > 90) {
+      throw new Error("Invalid latitude: must be between -90 and 90");
+    }
+    if (typeof reportArgs.longitude !== "number" || reportArgs.longitude < -180 || reportArgs.longitude > 180) {
+      throw new Error("Invalid longitude: must be between -180 and 180");
+    }
+    if (typeof reportArgs.cases !== "number" || reportArgs.cases < 1 || !Number.isInteger(reportArgs.cases) || reportArgs.cases > 1000000) {
+      throw new Error("Invalid cases: must be a positive integer between 1 and 1,000,000");
+    }
+    const disease = reportArgs.disease.trim().slice(0, 150);
+    const location = reportArgs.location.trim().slice(0, 200);
+    if (!disease) throw new Error("Disease name is required");
+    if (!location) throw new Error("Location is required");
+
     const id = await ctx.db.insert("diseaseOutbreaks", {
       ...reportArgs,
+      disease,
+      location,
       reportedBy: userId,
       timestamp: Date.now(),
       status: "pending",
