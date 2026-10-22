@@ -32,9 +32,12 @@ export async function POST(request: NextRequest) {
       const aiData = await generateJSONResponse(model, prompt);
       return NextResponse.json(aiData);
     } catch (aiError) {
-      console.warn("Health Forecast: Falling back to rule-based forecast.", aiError);
-      const fallbackForecast = getFallbackForecast(healthData);
-      return NextResponse.json(fallbackForecast);
+      console.warn("Health Forecast: Provider failed, returning explicit 503 response.", aiError);
+      return NextResponse.json({
+        error: 'AI health forecast service is temporarily unavailable.',
+        status: 'unavailable',
+        message: 'District incident predictive modeling could not be completed at this time.'
+      }, { status: 503 });
     }
   } catch (error: any) {
     console.error('Health Forecast failed:', error);
@@ -43,26 +46,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-function getFallbackForecast(healthData: any[]) {
-  const highRiskAreas = healthData
-    .filter(d => Number(d.incidents ?? d.cases ?? 0) > 40)
-    .map(d => String(d.community ?? d.location ?? 'District'));
-
-  const forecastSummary = `Incidents are predicted to rise by approximately 15% across ${healthData.length} monitored sectors due to monsoon onset. ${highRiskAreas.length > 0 ? `${highRiskAreas.join(', ')} designated as critical sentinel zones.` : 'Overall hazard outlook remains stable.'}`;
-
-  const averageIncidents = healthData.reduce((sum, d) => sum + Number(d.incidents ?? d.cases ?? 0), 0) / (healthData.length || 1);
-
-  const trends = [
-    { month: 'Jul', predictedIncidents: Math.round(averageIncidents * 1.1) },
-    { month: 'Aug', predictedIncidents: Math.round(averageIncidents * 1.25) },
-    { month: 'Sep', predictedIncidents: Math.round(averageIncidents * 0.95) }
-  ];
-
-  return {
-    forecastSummary,
-    highRiskAreas,
-    trends
-  };
 }

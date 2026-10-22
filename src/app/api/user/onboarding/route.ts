@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse } from '@/lib/apiResponse';
 import { JWTService } from '@/lib/jwt';
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../../convex/_generated/api";
@@ -13,19 +14,19 @@ export async function POST(request: NextRequest) {
     const token = JWTService.extractTokenFromRequest(request);
 
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return privateJsonResponse({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const payload = JWTService.verifyToken(token);
     if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return privateJsonResponse({ error: 'Invalid token' }, { status: 401 });
     }
 
     const body = await request.json();
     const { state, district, address, latitude, longitude, dateOfBirth, gender, bloodGroup, medicalConditions, occupation } = body;
 
     if (!state || !dateOfBirth || !gender) {
-      return NextResponse.json({ error: 'State, date of birth, and gender are required' }, { status: 400 });
+      return privateJsonResponse({ error: 'State, date of birth, and gender are required' }, { status: 400 });
     }
 
     let lat = latitude || 0;
@@ -57,11 +58,11 @@ export async function POST(request: NextRequest) {
       occupation: occupation || '',
     });
 
-    return NextResponse.json({ success: true });
+    return privateJsonResponse({ success: true });
 
   } catch (error: any) {
     console.error('Onboarding error:', error);
-    return NextResponse.json(
+    return privateJsonResponse(
       { error: error.message || 'Internal server error' },
       { status: 500 }
     );
