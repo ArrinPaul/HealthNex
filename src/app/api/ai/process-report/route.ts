@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse } from '@/lib/apiResponse';
 import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
@@ -10,27 +11,27 @@ export async function POST(request: NextRequest) {
     const clientIp = getClientIp(request);
     const rateLimit = checkRateLimit(`ai-report:${clientIp}`, 5, 60000);
     if (!rateLimit.allowed) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+      return privateJsonResponse({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
     const formData = await request.formData();
     const image = formData.get('image') as File;
 
     if (!image) {
-      return NextResponse.json({ error: 'No image provided' }, { status: 400 });
+      return privateJsonResponse({ error: 'No image provided' }, { status: 400 });
     }
 
     if (!ALLOWED_TYPES.includes(image.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF' }, { status: 400 });
+      return privateJsonResponse({ error: 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF' }, { status: 400 });
     }
 
     if (image.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: 'File too large. Maximum size: 10MB' }, { status: 400 });
+      return privateJsonResponse({ error: 'File too large. Maximum size: 10MB' }, { status: 400 });
     }
 
     const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
     if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
-      return NextResponse.json({
+      return privateJsonResponse({
         error: "AI Service Not Configured",
         message: "Please configure GOOGLE_AI_API_KEY for document processing."
       }, { status: 503 });
@@ -82,9 +83,9 @@ export async function POST(request: NextRequest) {
     const response = await result.response;
     const text = response.text();
 
-    return NextResponse.json({ data: JSON.parse(text) });
+    return privateJsonResponse({ data: JSON.parse(text) });
   } catch (error) {
     console.error('OCR Error:', error);
-    return NextResponse.json({ error: 'Failed to process document' }, { status: 500 });
+    return privateJsonResponse({ error: 'Failed to process document' }, { status: 500 });
   }
 }

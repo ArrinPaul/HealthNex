@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getGeminiModel, generateJSONResponse } from '@/lib/ai';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { privateJsonResponse } from '@/lib/apiResponse';
 
 function sanitizeInput(input: string): string {
   return input.replace(/[<>{}]/g, '').slice(0, 500);
@@ -11,14 +12,14 @@ export async function POST(request: NextRequest) {
     const clientIp = getClientIp(request);
     const rateLimit = checkRateLimit(`ai-query:${clientIp}`, 10, 60000);
     if (!rateLimit.allowed) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+      return privateJsonResponse({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
     const body = await request.json();
     const { question, location } = body;
 
     if (!question) {
-      return NextResponse.json({ error: 'Question is required' }, { status: 400 });
+      return privateJsonResponse({ error: 'Question is required' }, { status: 400 });
     }
 
     const safeQuestion = sanitizeInput(question);
@@ -45,15 +46,15 @@ export async function POST(request: NextRequest) {
       `;
 
       const data = await generateJSONResponse(model, prompt);
-      return NextResponse.json(data);
+      return privateJsonResponse(data);
     } catch (aiError) {
       console.warn("Health Assistant: Falling back to rule-based response.", aiError);
       const fallbackData = getFallbackHealthQuery(safeQuestion, safeLocation);
-      return NextResponse.json(fallbackData);
+      return privateJsonResponse(fallbackData);
     }
   } catch (error: any) {
     console.error('Health Query Error:', error);
-    return NextResponse.json({ error: error.message || 'Query failed' }, { status: 500 });
+    return privateJsonResponse({ error: error.message || 'Query failed' }, { status: 500 });
   }
 }
 

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { privateJsonResponse } from '@/lib/apiResponse';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
   const clientIp = getClientIp(req);
   const rateLimit = checkRateLimit(`ai-chat:${clientIp}`, 20, 60000);
   if (!rateLimit.allowed) {
-    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    return privateJsonResponse({ error: 'Too many requests. Please try again later.' }, { status: 429 });
   }
 
   const body = await req.json();
@@ -22,14 +23,14 @@ export async function POST(req: Request) {
     const { context } = body;
     
     if (!message) {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+      return privateJsonResponse({ error: 'Message is required' }, { status: 400 });
     }
 
     // Check if Gemini API key is configured
     const geminiApiKey = process.env.GOOGLE_AI_API_KEY;
     
     if (!geminiApiKey || geminiApiKey === 'your_gemini_api_key_here') {
-      return NextResponse.json({
+      return privateJsonResponse({
         response: "AI chatbot is not configured. Please set up your Gemini API key in the environment variables.",
         timestamp: new Date().toISOString(),
         error: "API_KEY_NOT_CONFIGURED"
@@ -103,7 +104,7 @@ Please provide a comprehensive, helpful response:
     // Add helpful suggestions based on the type of query
     const suggestions = generateSuggestions(message, text);
 
-    return NextResponse.json({ 
+    return privateJsonResponse({
       response: text,
       suggestions,
       timestamp: new Date().toISOString(),
@@ -115,7 +116,7 @@ Please provide a comprehensive, helpful response:
     
     // Provide a helpful fallback response
     const fallbackResponse = getFallbackResponse(message);
-    return NextResponse.json({
+    return privateJsonResponse({
       response: fallbackResponse,
       timestamp: new Date().toISOString(),
       error: "AI_SERVICE_UNAVAILABLE",

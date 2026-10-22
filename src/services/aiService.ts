@@ -11,7 +11,7 @@ export interface ChatMessage {
 export interface ChatbotResponse {
   response: string;
   category: string;
-  confidence: number;
+  confidence?: number;
   suggestions: string[];
 }
 
@@ -50,11 +50,10 @@ class ChatbotService {
     } catch (error) {
       console.error('Chatbot API error:', error);
       
-      // Fallback response
+      // Fallback response - do not fabricate confidence scores
       return {
         response: this.generateFallbackResponse(message),
-        category: 'fallback',
-        confidence: 0.6,
+        category: 'offline_guidance',
         suggestions: [
           'Contact health helpline: 104',
           'Call emergency: 108',
