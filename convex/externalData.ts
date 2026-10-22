@@ -1,9 +1,10 @@
-import { mutation, query, action } from "./_generated/server";
+import { mutation, query, action, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
 // Internal mutation for syncing data (called by action)
-export const updateGlobalStatsInternal = mutation({
+export const updateGlobalStatsInternal = internalMutation({
   args: {
     source: v.string(),
     type: v.string(),
@@ -42,7 +43,7 @@ export const syncInstitutionalData = action({
       }
       const covidData = await covidRes.json();
 
-      await ctx.runMutation(api.externalData.updateGlobalStatsInternal, {
+      await ctx.runMutation(internal.externalData.updateGlobalStatsInternal, {
         source: "disease.sh",
         type: "outbreak_global",
         data: {
