@@ -19,7 +19,7 @@ import {
   Activity, Droplet, Heart, 
   Plus, TrendingUp, Lock, 
   FileText, Calendar, ChevronRight, Zap,
-  Pencil, Shield, MapPin, Loader2, User
+  Pencil, Shield, MapPin, Loader2, User, Trash2
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -42,7 +42,7 @@ const MetricCard = ({ label, value, unit, icon: Icon, color, subtext }: any) => 
        </div>
        <div className="space-y-1 pl-1">
           <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">{label}</p>
-          <h3 className="text-2xl font-black tracking-tight">{value} <span className="text-xs font-normal opacity-40">{unit}</span></h3>
+          <h3 className="text-2xl font-bold tracking-tight">{value} <span className="text-xs font-normal opacity-40">{unit}</span></h3>
        </div>
     </CardContent>
   </Card>
@@ -56,6 +56,18 @@ export default function HealthVaultPage() {
   const healthRecords = useQuery(api.healthData.getAllHealthData, token ? { token } : "skip");
   const addHealthData = useMutation(api.healthData.addHealthData);
   const updateHealthData = useMutation(api.healthData.updateHealthData);
+  const deleteHealthData = useMutation(api.healthData.deleteHealthData);
+
+  const handleDeleteRecord = async (recordId: string) => {
+    if (!token) return;
+    if (!window.confirm("Are you sure you want to delete this health record?")) return;
+    try {
+      await (deleteHealthData as any)({ token, id: recordId });
+      toast.success("Health record deleted successfully");
+    } catch (err: any) {
+      toast.error("Delete Failed", { description: err.message || "Failed to delete record" });
+    }
+  };
 
   // Modal Dialog states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -246,7 +258,7 @@ export default function HealthVaultPage() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
               <Lock className="w-8 h-8 text-primary" /> Health Vault
             </h1>
             <p className="text-xs text-muted-foreground mt-1">
@@ -304,9 +316,9 @@ export default function HealthVaultPage() {
                 <CardHeader className="border-b border-border/40 py-4 px-5">
                     <div className="flex items-center justify-between">
                        <div>
-                         <CardTitle className="text-sm font-bold uppercase tracking-wider text-primary">Intelligence & Vitals Logs</CardTitle>
+                         <CardTitle className="text-sm font-bold uppercase tracking-wider text-primary">Vitals & Health Logs</CardTitle>
                          <p className="text-[10px] text-muted-foreground mt-0.5">
-                           {isAdmin ? "Global administrative list (All users)" : "Your personal telemetry timeline"}
+                           {isAdmin ? "Global administrative list (All users)" : "Your personal record history"}
                          </p>
                        </div>
                        <Badge variant="outline" className="text-[8px] font-mono border-primary/20 text-primary">SECURE SYNC</Badge>
@@ -361,15 +373,26 @@ export default function HealthVaultPage() {
                                     {format(record.timestamp, 'HH:mm:ss, MMM dd')}
                                  </span>
                                  {canEdit && (
-                                   <Button 
-                                     variant="ghost" 
-                                     size="icon" 
-                                     className="h-8 w-8 rounded-lg hover:bg-secondary hover:text-primary transition-all shrink-0 border border-transparent hover:border-border/60"
-                                     onClick={() => handleOpenEditDialog(record)}
-                                     title="Edit health record"
-                                   >
-                                      <Pencil className="w-3.5 h-3.5" />
-                                   </Button>
+                                   <div className="flex items-center gap-1">
+                                     <Button 
+                                       variant="ghost" 
+                                       size="icon" 
+                                       className="h-8 w-8 rounded-lg hover:bg-secondary hover:text-primary transition-all shrink-0 border border-transparent hover:border-border/60"
+                                       onClick={() => handleOpenEditDialog(record)}
+                                       title="Edit health record"
+                                     >
+                                        <Pencil className="w-3.5 h-3.5" />
+                                     </Button>
+                                     <Button 
+                                       variant="ghost" 
+                                       size="icon" 
+                                       className="h-8 w-8 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-all shrink-0 border border-transparent hover:border-rose-500/20 text-muted-foreground"
+                                       onClick={() => handleDeleteRecord(record._id)}
+                                       title="Delete health record"
+                                     >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                     </Button>
+                                   </div>
                                  )}
                               </div>
                            </div>
@@ -394,9 +417,9 @@ export default function HealthVaultPage() {
                        <Lock className="w-5 h-5" />
                     </div>
                     <div className="space-y-1">
-                       <h4 className="font-bold text-sm tracking-wide uppercase text-foreground">Decentralized Security</h4>
+                       <h4 className="font-bold text-sm tracking-wide uppercase text-foreground">Data Security</h4>
                        <p className="text-xs text-muted-foreground leading-relaxed">
-                         Your health telemetry is linked strictly with your authorization token, verifying access cryptographically before resolving records.
+                         Your health data is linked to your account and protected by token-based authentication before any record is accessed.
                        </p>
                     </div>
                     <ul className="space-y-2">
@@ -411,7 +434,7 @@ export default function HealthVaultPage() {
 
               <Card className="bg-card/70 border border-border/80 shadow-md">
                 <CardContent className="p-5 text-center space-y-3">
-                   <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Clinical Node Export</p>
+                   <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Export Records</p>
                    <p className="text-xs text-muted-foreground leading-relaxed">
                      Compile your health record files into a temporary sharing link for doctors and verified health workers.
                    </p>
@@ -428,8 +451,8 @@ export default function HealthVaultPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md bg-card/95 border border-border backdrop-blur-xl text-left rounded-2xl shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-black tracking-tight text-foreground uppercase">
-              {editingRecordId ? "Update Telemetry Data" : "Log Health Telemetry"}
+            <DialogTitle className="text-lg font-bold tracking-tight text-foreground uppercase">
+              {editingRecordId ? "Update Health Record" : "Log Health Record"}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               Modify the configuration parameters of your clinical records. Logs will update dynamically in real time.
@@ -439,7 +462,7 @@ export default function HealthVaultPage() {
           <form onSubmit={handleSubmit} className="space-y-4 pt-2">
             {/* Record type chooser (Only on creation, read-only on edit to avoid schema pollution) */}
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase text-muted-foreground">Telemetry Type</Label>
+              <Label className="text-[10px] font-bold uppercase text-muted-foreground">Record Type</Label>
               {editingRecordId ? (
                 <div className="p-3 bg-secondary/60 rounded-xl text-xs font-bold uppercase tracking-wide border border-border/60">
                   {formType.replace('_', ' ')}

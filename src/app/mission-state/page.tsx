@@ -21,8 +21,8 @@ const CorePillar = ({ title, desc, icon: Icon, delay }: any) => (
           <h4 className="text-2xl font-bold uppercase tracking-tight">{title}</h4>
           <p className="text-muted-foreground leading-relaxed">{desc}</p>
        </div>
-       <div className="pt-6 border-t border-[var(--border-soft)] flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0">
-          <span>Explore Protocol</span>
+       <div className="pt-6 border-t border-[var(--border-soft)] flex items-center gap-2 text-primary font-semibold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0">
+          <span>Learn More</span>
           <ChevronRight className="w-3 h-3" />
        </div>
     </div>
@@ -31,10 +31,10 @@ const CorePillar = ({ title, desc, icon: Icon, delay }: any) => (
 
 const ImpactTimeline = () => {
   const events = [
-    { year: '2024', title: 'Protocol Genesis', desc: 'Initial architecture established for zero-trust health synchronization.' },
-    { year: '2025', title: 'Regional Alpha', desc: 'First successful deployment of intelligence nodes in Southeast Asia.' },
-    { year: '2026', title: 'Intelligence v2', desc: 'Gemini AI integration for real-time symptom cluster analysis.' },
-    { year: '2027', title: 'Global Grid', desc: 'Target for 100,000+ active intelligence nodes worldwide.' }
+    { year: '2024', title: 'Platform Launch', desc: 'Initial architecture established for secure, privacy-first health data sharing.' },
+    { year: '2025', title: 'Regional Rollout', desc: 'First successful deployment of monitoring in Southeast Asia.' },
+    { year: '2026', title: 'AI Insights v2', desc: 'Gemini AI integration for real-time symptom cluster analysis.' },
+    { year: '2027', title: 'Global Network', desc: 'Target for 100,000+ active monitoring sites worldwide.' }
   ];
 
   return (
@@ -56,7 +56,7 @@ const ImpactTimeline = () => {
                   <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto md:mx-0">{event.desc}</p>
                </div>
                <div className="relative z-10">
-                  <div className="w-12 h-12 rounded-full bg-background border-4 border-primary shadow-[0_0_20px_var(--primary)] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-background border-4 border-primary shadow-md flex items-center justify-center">
                      <div className="w-2 h-2 rounded-full bg-primary" />
                   </div>
                </div>
@@ -101,9 +101,9 @@ export default function MissionStatePage() {
               className="space-y-12"
             >
                <div className="space-y-6">
-                  <h2 className="text-4xl font-bold uppercase tracking-tight border-l-4 border-primary pl-8">Our Vision</h2>
+                  <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Our Vision</h2>
                   <p className="text-muted-foreground leading-relaxed text-xl">
-                    We believe that health data is a global common good. By building a zero-trust, high-fidelity intelligence protocol, we empower every regional health node to contribute to a unified global surveillance layer. 
+                    We believe that health data is a global common good. By building a secure, high-fidelity monitoring platform, we empower every regional health team to contribute to a unified global surveillance network.
                   </p>
                </div>
                
@@ -143,9 +143,9 @@ export default function MissionStatePage() {
                     />
                   </div>
                   <div className="space-y-4">
-                    <h3 className="text-3xl font-bold uppercase tracking-tight">Built for Humanity</h3>
+                    <h3 className="text-3xl font-bold tracking-tight text-foreground">Built for Humanity</h3>
                     <p className="text-muted-foreground text-lg leading-relaxed max-w-sm mx-auto">
-                      HealthNex is more than a platform; it is a collaborative protocol designed to protect communities from the future of public health challenges.
+                      HealthNex is more than a platform; it's a collaborative effort designed to protect communities from tomorrow's public health challenges.
                     </p>
                   </div>
                </div>
@@ -154,16 +154,16 @@ export default function MissionStatePage() {
 
           <div className="space-y-24 mb-48">
              <div className="text-center space-y-4">
-                <h2 className="text-4xl font-bold uppercase tracking-tight">Impact Roadmap</h2>
-                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">The evolution of the HealthNex Protocol</p>
+                <h2 className="text-4xl font-bold tracking-tight text-foreground">Impact Roadmap</h2>
+                <p className="text-muted-foreground uppercase text-[10px] font-semibold tracking-[0.3em]">The evolution of the HealthNex platform</p>
              </div>
              <ImpactTimeline />
           </div>
 
           <div className="text-center space-y-24">
              <div className="space-y-4">
-                <h2 className="text-4xl font-bold uppercase tracking-tight">Our Core Values</h2>
-                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">The pillars of the HealthNex Protocol</p>
+                <h2 className="text-4xl font-bold tracking-tight text-foreground">Our Core Values</h2>
+                <p className="text-muted-foreground uppercase text-[10px] font-semibold tracking-[0.3em]">The pillars of the HealthNex platform</p>
              </div>
              
              <div className="grid md:grid-cols-3 gap-12">

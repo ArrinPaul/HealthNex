@@ -140,10 +140,10 @@ export default function EducationHubPage() {
   }, [selectedModule, activeTab]);
 
   const categories = [
-    { title: 'Water Safety', icon: Droplet, count: 4, label: 'Potable water monitoring & filter protocols' },
+    { title: 'Water Safety', icon: Droplet, count: 4, label: 'Drinking water monitoring & filtration basics' },
     { title: 'Disease Surveillance', icon: ShieldCheck, count: 6, label: 'Outbreak tracing and case documentation' },
-    { title: 'Epidemiology AI', icon: Brain, count: 3, label: 'Deciphering neural warnings & forecasting' },
-    { title: 'Emergency Response', icon: AlertTriangle, count: 2, label: 'District containment & vector suppression' }
+    { title: 'Epidemiology AI', icon: Brain, count: 3, label: 'Reading AI health warnings & forecasts' },
+    { title: 'Emergency Response', icon: AlertTriangle, count: 2, label: 'District containment & vector control' }
   ];
 
   const modules: Module[] = [
@@ -156,9 +156,9 @@ export default function EducationHubPage() {
       icon: Droplet, 
       color: 'text-sky-400',
       videoUrl: 'https://www.youtube.com/embed/9iZIjfZ0rhU',
-      manualText: `### Potable Water Contamination Protocols
+      manualText: `### Water Contamination Guidelines
 
-This training module details the methods required to audit local drinking water safety in rural and high-risk nodes.
+This training module details the methods required to check local drinking water safety in rural and high-risk areas.
 
 #### 1. Physical Indicators
 * **Turbidity (Cloudiness):** Suspended silt and organic particles block light transmission. WHO drinking standards require water to be **less than 5 NTU**. High turbidity is heavily correlated with pathogenic breeding.
@@ -171,8 +171,8 @@ This training module details the methods required to audit local drinking water 
 
 #### 3. Immediate Countermeasures
 * Deploy activated carbon or cloth filters for preliminary filtration.
-* Distribute sodium hypochlorite (chlorine) tablets to all affected residential nodes.
-* Enforce boiling protocols (boil vigorously for at least 1-2 minutes).`,
+* Distribute sodium hypochlorite (chlorine) tablets to all affected households.
+* Enforce boiling guidance (boil vigorously for at least 1-2 minutes).`,
       quiz: {
         question: "What is the maximum turbidity level (NTU) recommended by WHO for safe drinking water?",
         options: ["1 NTU", "5 NTU", "12 NTU", "25 NTU"],
@@ -192,8 +192,8 @@ This training module details the methods required to audit local drinking water 
 
 Accurate reporting is key to triggering early warnings and mobilizing relief. Follow these documentation standards.
 
-#### 1. Spatial Telemetry
-* Always report precise GPS coordinates (Latitude and Longitude) of the primary sentinel zone. Mapping inaccurate coordinates misdirects emergency relief.
+#### 1. Location Data
+* Always report precise GPS coordinates (Latitude and Longitude) of the primary affected zone. Mapping inaccurate coordinates misdirects emergency relief.
 * Clearly specify state and district divisions to ensure administrative compliance.
 
 #### 2. Clinical Profiling
@@ -207,7 +207,7 @@ Accurate reporting is key to triggering early warnings and mobilizing relief. Fo
 * **High:** Multi-family cluster reports with high fever symptoms.
 * **Medium/Low:** Isolated, seasonal illness reports.`,
       quiz: {
-        question: "Which of the following coordinates is mandatory when reporting regional outbreak telemetry?",
+        question: "Which of the following coordinates is mandatory when reporting a regional outbreak?",
         options: ["Central hospital address", "GPS Latitude and Longitude", "State administrative office location", "IP address of the reporter"],
         correct: "GPS Latitude and Longitude"
       }
@@ -244,7 +244,7 @@ HealthNex incorporates machine learning models to analyze climate data and histo
         options: [
           "Continue routine monthly checkups only",
           "Immediately disinfect major wells and activate medical squads",
-          "Clear the cache and restart the telemetry node",
+          "Clear the cache and restart the monitoring system",
           "Wait for the peak incident window to conclude"
         ],
         correct: "Immediately disinfect major wells and activate medical squads"
@@ -263,8 +263,8 @@ HealthNex incorporates machine learning models to analyze climate data and histo
 
 When a vector-borne or waterborne outbreak is confirmed in your district, execute these containment protocols immediately.
 
-#### Step 1: Ingestion Source Isolation
-* Cut off public access to suspected water sources. Mark the node with hazard warnings.
+#### Step 1: Source Isolation
+* Cut off public access to suspected water sources. Mark the site with hazard warnings.
 * Set up temporary chlorinated water distribution hubs for the community.
 
 #### Step 2: Patient Quarantine
@@ -272,7 +272,7 @@ When a vector-borne or waterborne outbreak is confirmed in your district, execut
 * Provide healthcare workers with protective gear, and enforce strict disinfection of medical waste.
 
 #### Step 3: Broadcast Advisory Warnings
-* Dispatch a high-severity alert payload via the Broadcast Center to notify all surrounding district nodes.
+* Dispatch a high-severity alert via the Broadcast Center to notify all surrounding districts.
 * Outline symptoms, specify affected containment coordinates, and share disinfection instructions.
 
 #### Step 4: Vector Sanitation Campaigns
@@ -337,11 +337,11 @@ When a vector-borne or waterborne outbreak is confirmed in your district, execut
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/40">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
               <BookOpen className="w-8 h-8 text-primary" /> Learning Center
             </h1>
             <p className="text-xs text-muted-foreground mt-1">
-              Interactive guides, clinical training videos, and validation checkpoints to enable effective public health surveillance.
+              Interactive guides, clinical training videos, and quick checks to support effective public health monitoring.
             </p>
           </div>
           

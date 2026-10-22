@@ -54,10 +54,10 @@ export default function AlertBroadcastPage() {
   });
 
   const getRadiusDescription = (radiusVal: number) => {
-    if (radiusVal <= 15) return "Local Community Node (Immediate Proximity)";
-    if (radiusVal <= 50) return "Sub-District Hub (Block/Taluk Area)";
-    if (radiusVal <= 150) return "District Network (City & Outer Regions)";
-    return "State-Level Broadcast (Wide-Area Alert)";
+    if (radiusVal <= 15) return "Local community (immediate proximity)";
+    if (radiusVal <= 50) return "Sub-district (block/taluk area)";
+    if (radiusVal <= 150) return "District-wide (city & outer regions)";
+    return "State-level (wide-area alert)";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,7 +79,7 @@ export default function AlertBroadcastPage() {
           severity: formData.severity,
           radius: formData.radius
         });
-        toast.success("Protocol Alert Updated", { description: "The existing broadcast payload has been successfully updated." });
+        toast.success("Alert Updated", { description: "The existing broadcast has been successfully updated." });
         setEditingAlertId(null);
       } else {
         await (broadcastAlert as any)({
@@ -90,11 +90,11 @@ export default function AlertBroadcastPage() {
           severity: formData.severity,
           radius: formData.radius
         });
-        toast.success("Protocol Alert Broadcasted", { description: "Notification has been successfully transmitted to all regional nodes." });
+        toast.success("Alert Broadcasted", { description: "Notification has been sent to all users in range." });
       }
       setFormData({ title: '', message: '', type: 'health_alert', severity: 'medium', radius: 10 });
     } catch (error: any) {
-      toast.error("Broadcast Action Failed", { description: error.message || "An unexpected database validation occurred." });
+      toast.error("Broadcast Failed", { description: error.message || "An unexpected error occurred." });
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export default function AlertBroadcastPage() {
     setDeactivatingId(alertId);
     try {
       await (deactivateAlert as any)({ token, alertId });
-      toast.success("Alert Dismissed", { description: "The broadcast has been marked as resolved and cleared from active nodes." });
+      toast.success("Alert Dismissed", { description: "The broadcast has been marked as resolved." });
     } catch (error: any) {
       toast.error("Action Failed", { description: error.message || "Could not resolve alert." });
     } finally {
@@ -130,9 +130,6 @@ export default function AlertBroadcastPage() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
       <div className="flex flex-col gap-6 animate-in fade-in duration-500 relative text-left">
-        {/* Glow Backgrounds */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-rose-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
-
         {/* Header */}
         <div>
           <div className="flex items-center gap-2 mb-1.5">
@@ -140,13 +137,13 @@ export default function AlertBroadcastPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
             </span>
-            <span className="text-[10px] text-rose-500 font-bold uppercase tracking-wider font-mono">EMERGENCY BROADCAST ROUTER: ONLINE</span>
+            <span className="text-[10px] text-rose-500 font-semibold uppercase tracking-wider">Emergency Broadcast System</span>
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
-            <Radio className="w-8 h-8 text-rose-500" /> Broadcast Center
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+            <Radio className="w-7 h-7 text-rose-500" /> Alert Broadcast Center
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Regional Alert Transmission & Node Notifications — Deploy warnings and emergency advisories to community segments.
+            Send health warnings and emergency advisories to users in affected areas.
           </p>
         </div>
 
@@ -154,17 +151,17 @@ export default function AlertBroadcastPage() {
         <div className="grid lg:grid-cols-12 gap-6 items-start">
           {/* Left Column (7 Cols): Composer Form */}
           <div className="lg:col-span-7">
-            <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden">
-              <CardHeader className="border-b border-border/40 bg-rose-500/5 py-4 px-5">
-                <CardTitle className="text-sm font-bold uppercase tracking-wide text-rose-500 flex items-center gap-2.5">
-                  <Zap className="w-4.5 h-4.5" /> Compose Alert Payload
+            <Card className="bg-card border border-border shadow-sm rounded-xl overflow-hidden">
+              <CardHeader className="border-b border-border bg-rose-500/5 py-4 px-5">
+                <CardTitle className="text-sm font-semibold uppercase tracking-wide text-rose-500 flex items-center gap-2.5">
+                  <Zap className="w-4 h-4" /> Compose Alert
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-5">
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Alert Type Choice Chips */}
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Alert Ingestion Type</Label>
+                    <Label className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Alert Type</Label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                       {alertTypes.map(t => {
                         const isSelected = formData.type === t.id;
@@ -215,22 +212,22 @@ export default function AlertBroadcastPage() {
                   {/* Alert Title */}
                   <div className="space-y-1.5">
                     <Label htmlFor="title" className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Alert Headline</Label>
-                    <Input 
+                    <Input
                       id="title"
-                      placeholder="e.g., Regional Waterborne Spike Identified"
+                      placeholder="e.g., Waterborne Illness Spike in District"
                       value={formData.title}
                       onChange={(e) => setFormData({...formData, title: e.target.value})}
                       required
-                      className="h-11 rounded-xl bg-secondary/30 border-border text-xs font-bold text-foreground focus:ring-1 focus:ring-rose-500 placeholder:text-muted-foreground/60"
+                      className="h-11 rounded-lg bg-secondary/30 border-border text-xs font-semibold text-foreground focus:ring-1 focus:ring-rose-500 placeholder:text-muted-foreground/60"
                     />
                   </div>
 
-                  {/* Protocol Message */}
+                  {/* Message */}
                   <div className="space-y-1.5">
-                    <Label htmlFor="message" className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Protocol Instructions & Message</Label>
-                    <Textarea 
+                    <Label htmlFor="message" className="text-[10px] font-bold uppercase text-muted-foreground ml-1">Instructions & Message</Label>
+                    <Textarea
                       id="message"
-                      placeholder="Detail instructions for local health nodes, sanitation desks, and water containment units..."
+                      placeholder="Detail instructions for local health workers, sanitation teams, and affected residents..."
                       value={formData.message}
                       onChange={(e) => setFormData({...formData, message: e.target.value})}
                       required
@@ -238,10 +235,10 @@ export default function AlertBroadcastPage() {
                     />
                   </div>
 
-                  {/* Transmission Radius Range Input */}
+                  {/* Broadcast Radius Range Input */}
                   <div className="space-y-2">
                     <div className="flex justify-between items-center text-[10px] font-bold text-muted-foreground uppercase ml-1">
-                      <span>Transmission Broadcast Radius</span>
+                      <span>Broadcast Radius</span>
                       <span className="font-mono text-rose-400">{formData.radius} km</span>
                     </div>
                     <input 
@@ -267,12 +264,12 @@ export default function AlertBroadcastPage() {
                           setFormData({ title: '', message: '', type: 'health_alert', severity: 'medium', radius: 10 });
                           toast.info("Edit cancelled");
                         }}
-                        className="h-12 rounded-xl text-xs font-bold border-border"
+                        className="h-11 rounded-lg text-xs font-semibold border-border"
                       >
                         Cancel
                       </Button>
                     )}
-                    <Button type="submit" disabled={loading} className="flex-1 h-12 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/10 transition-all hover:scale-[1.005] flex items-center justify-center gap-2">
+                    <Button type="submit" disabled={loading} className="flex-1 h-11 rounded-lg text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-colors flex items-center justify-center gap-2">
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                       {editingAlertId ? "Update Alert Broadcast" : "Broadcast Alert Payload"}
                     </Button>
@@ -286,9 +283,9 @@ export default function AlertBroadcastPage() {
           <div className="lg:col-span-5 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2">
               <div className="flex flex-col">
-                <h3 className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">Broadcasters Stream</h3>
+                <h3 className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground">Broadcast History</h3>
                 <span className="text-[8px] font-semibold text-muted-foreground/60 tracking-wider">
-                  {showAllAlerts ? "DISPLAYING ENTIRE HISTORY" : "LIVE ACTIVE TELEMETRY"}
+                  {showAllAlerts ? "SHOWING ALL ALERTS" : "SHOWING ACTIVE ALERTS"}
                 </span>
               </div>
               <div className="flex bg-secondary/40 p-0.5 rounded-lg border border-border/60 shrink-0">
@@ -329,7 +326,7 @@ export default function AlertBroadcastPage() {
                     className={`p-4 rounded-xl border text-left cursor-default transition-all relative overflow-hidden group ${
                       !alert.isActive
                         ? 'bg-secondary/15 border-border/40 opacity-70'
-                        : alert.severity === 'critical' ? 'bg-rose-500/5 border-rose-500/40 shadow-sm animate-pulse-subtle' :
+                        : alert.severity === 'critical' ? 'bg-rose-500/5 border-rose-500/40 shadow-sm' :
                         alert.severity === 'high' ? 'bg-orange-500/5 border-orange-500/40 shadow-sm' :
                         alert.severity === 'medium' ? 'bg-amber-500/5 border-amber-500/30' : 'bg-secondary/20 border-border/75'
                     }`}
@@ -416,10 +413,10 @@ export default function AlertBroadcastPage() {
               </AnimatePresence>
               
               {alertsToDisplay?.length === 0 && (
-                <div className="text-center py-16 border-2 border-dashed border-border/60 rounded-2xl opacity-40 bg-secondary/10 flex flex-col items-center justify-center">
-                  <Globe className="w-8 h-8 mx-auto mb-3 text-muted-foreground/50 animate-pulse" />
+                <div className="text-center py-16 border-2 border-dashed border-border/60 rounded-xl bg-secondary/10 flex flex-col items-center justify-center">
+                  <Globe className="w-8 h-8 mx-auto mb-3 text-muted-foreground/50" />
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {showAllAlerts ? "No broadcasts found" : "No active network broadcasts"}
+                    {showAllAlerts ? "No broadcasts found" : "No active alerts"}
                   </p>
                 </div>
               )}

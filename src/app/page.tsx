@@ -111,11 +111,11 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
               </div>
               <div className="flex items-center gap-3 p-2 text-muted-foreground hover:bg-secondary/60 rounded-xl cursor-pointer">
                 <Brain className="w-4 h-4 shrink-0" />
-                <span className="hidden md:inline-block">Neural Insights</span>
+                <span className="hidden md:inline-block">AI Insights</span>
               </div>
               <div className="flex items-center gap-3 p-2 text-muted-foreground hover:bg-secondary/60 rounded-xl cursor-pointer">
                 <Globe2 className="w-4 h-4 shrink-0" />
-                <span className="hidden md:inline-block">Global Trust</span>
+                <span className="hidden md:inline-block">Reports</span>
               </div>
             </nav>
           </div>
@@ -141,11 +141,11 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
                 </span>
                 <span className="text-[9px] text-emerald-500 font-extrabold tracking-wider uppercase">Live Feed</span>
               </div>
-              <h4 className="text-lg font-black text-foreground">Health Surveillance Cockpit</h4>
+              <h4 className="text-lg font-bold text-foreground">Health Surveillance Dashboard</h4>
             </div>
-            
+
             <div className="text-[9px] font-mono text-muted-foreground px-2 py-0.5 border border-border/60 bg-secondary/40 rounded-lg">
-              SYSTEM_SCOPE://PUBLIC
+              Public preview
             </div>
           </div>
 
@@ -155,12 +155,12 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
               { label: "Active Cases", val: totalCases, icon: Activity, color: "text-cyan-400" },
               { label: "Active Alerts", val: activeAlerts, icon: Droplet, color: "text-amber-400" },
               { label: "Anomalies", val: anomalies, icon: TrendingUp, color: "text-violet-400" },
-              { label: "System Nodes", val: mockOutbreaks.length + 12, icon: AlertTriangle, color: "text-emerald-400" }
+              { label: "Facilities", val: mockOutbreaks.length + 12, icon: AlertTriangle, color: "text-emerald-400" }
             ].map((card, i) => (
               <div key={i} className="p-3 bg-secondary/35 border border-border/70 rounded-xl flex items-center justify-between shadow-sm">
                 <div>
                   <div className="text-[9px] font-semibold text-muted-foreground uppercase">{card.label}</div>
-                  <div className="text-base font-black text-foreground mt-0.5">{card.val}</div>
+                  <div className="text-base font-bold text-foreground mt-0.5">{card.val}</div>
                 </div>
                 <div className="w-8 h-8 rounded-lg bg-secondary border border-border/40 flex items-center justify-center shrink-0">
                   <card.icon className={`w-4 h-4 ${card.color}`} />
@@ -174,8 +174,8 @@ const InteractiveDashboardMockup = ({ stats }: { stats?: any }) => {
             {/* Mock Map panel */}
             <div className="md:col-span-8 bg-card border border-border rounded-2xl overflow-hidden flex flex-col shadow-sm relative h-full">
               <div className="p-3 border-b border-border/60 flex items-center justify-between shrink-0 bg-secondary/30 text-[10px] font-bold text-foreground">
-                <span className="flex items-center gap-1.5"><MapIcon className="w-3.5 h-3.5 text-primary" /> Spatial Hazard Map</span>
-                <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider">National Surveillance Feed</span>
+                <span className="flex items-center gap-1.5"><MapIcon className="w-3.5 h-3.5 text-primary" /> Outbreak Map</span>
+                <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider">National Coverage</span>
               </div>
               <div className="flex-1 relative bg-secondary/10 overflow-hidden">
                 {/* SVG mock map */}

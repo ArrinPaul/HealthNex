@@ -1,11 +1,11 @@
-import { mutation } from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 import { ROLES } from "./roles";
 
 // One-time migration: collapse the old 5-role system (super-admin, admin,
 // health-worker, community-user, public) into the new 3-role system
 // (admin, health-worker, public-user). Run once via `npx convex run migrations:mergeRoles`
 // after deploying the new convex/roles.ts.
-export const mergeRoles = mutation({
+export const mergeRoles = internalMutation({
   args: {},
   handler: async (ctx) => {
     const users = await ctx.db.query("users").collect();

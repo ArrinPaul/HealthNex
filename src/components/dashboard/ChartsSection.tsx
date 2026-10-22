@@ -12,7 +12,19 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
-const COLORS = ['#00d9ff', '#10b981', '#f59e0b', '#8b5cf6'];
+const COLORS = ['var(--primary)', '#10b981', '#f59e0b', '#8b5cf6'];
+const AXIS_STROKE = 'var(--border)';
+const AXIS_TICK = { fontSize: 11, fontWeight: 600, fill: 'var(--muted-foreground)' };
+const TOOLTIP_STYLE = {
+  backgroundColor: 'var(--popover)',
+  border: '1px solid var(--border)',
+  borderRadius: '0.75rem',
+  fontSize: '11px',
+  fontWeight: 600,
+  color: 'var(--popover-foreground)',
+  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+  padding: '10px 14px'
+};
 
 interface ChartsSectionProps {
   compact?: boolean;
@@ -50,7 +62,7 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
   const currentDistribution = distributionData || aggregates?.distribution || defaultDistribution;
 
   if (!isMounted) {
-    return <div className="h-full flex items-center justify-center animate-pulse bg-[var(--surface-2)] text-[8px] font-bold uppercase tracking-widest opacity-20">Syncing Telemetry...</div>;
+    return <div className="h-full flex items-center justify-center animate-pulse bg-[var(--surface-2)] text-xs font-semibold text-muted-foreground rounded-xl">Loading chart...</div>;
   }
 
   // Generate dynamic line or bar based on chartType setting
@@ -58,83 +70,59 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
     if (chartType === "bar") {
       return (
         <BarChart data={currentTrends} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#333333" strokeOpacity={0.6} vertical={false} />
-          <XAxis 
-            dataKey="month" 
-            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
-            tickLine={false} 
-            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+          <CartesianGrid strokeDasharray="3 3" stroke={AXIS_STROKE} strokeOpacity={0.6} vertical={false} />
+          <XAxis
+            dataKey="month"
+            axisLine={{ stroke: AXIS_STROKE, strokeWidth: 1 }}
+            tickLine={false}
+            tick={AXIS_TICK}
           />
-          <YAxis 
-            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
-            tickLine={false} 
-            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+          <YAxis
+            axisLine={{ stroke: AXIS_STROKE, strokeWidth: 1 }}
+            tickLine={false}
+            tick={AXIS_TICK}
           />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: '#1a1a1a', 
-              border: '1px solid #333333',
-              borderRadius: '0.75rem',
-              fontSize: '11px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              color: '#e2e8f0',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-              padding: '10px 14px'
-            }}
-            itemStyle={{ color: '#e2e8f0' }}
-            labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
-            cursor={{ stroke: '#00d9ff', strokeWidth: 1, strokeDasharray: '4 4' }}
+          <Tooltip
+            contentStyle={TOOLTIP_STYLE}
+            cursor={{ stroke: 'var(--primary)', strokeWidth: 1, strokeDasharray: '4 4' }}
           />
-          <Bar dataKey="actual" fill="#00d9ff" radius={[6, 6, 0, 0]} name="Confirmed Cases" />
+          <Bar dataKey="actual" fill="var(--primary)" radius={[6, 6, 0, 0]} name="Confirmed Cases" />
         </BarChart>
       );
     }
 
     return (
         <LineChart data={currentTrends} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#333333" strokeOpacity={0.6} vertical={false} />
-          <XAxis 
-            dataKey="month" 
-            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
-            tickLine={false} 
-            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+          <CartesianGrid strokeDasharray="3 3" stroke={AXIS_STROKE} strokeOpacity={0.6} vertical={false} />
+          <XAxis
+            dataKey="month"
+            axisLine={{ stroke: AXIS_STROKE, strokeWidth: 1 }}
+            tickLine={false}
+            tick={AXIS_TICK}
           />
-          <YAxis 
-            axisLine={{ stroke: '#333333', strokeWidth: 1 }}
-            tickLine={false} 
-            tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+          <YAxis
+            axisLine={{ stroke: AXIS_STROKE, strokeWidth: 1 }}
+            tickLine={false}
+            tick={AXIS_TICK}
           />
-        <Tooltip 
-          contentStyle={{ 
-            backgroundColor: '#1a1a1a', 
-            border: '1px solid #333333',
-            borderRadius: '0.75rem',
-            fontSize: '11px',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            color: '#e2e8f0',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-            padding: '10px 14px'
-          }}
-          itemStyle={{ color: '#e2e8f0' }}
-          labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
-          cursor={{ stroke: '#00d9ff', strokeWidth: 1, strokeDasharray: '4 4' }}
+        <Tooltip
+          contentStyle={TOOLTIP_STYLE}
+          cursor={{ stroke: 'var(--primary)', strokeWidth: 1, strokeDasharray: '4 4' }}
         />
-        <Line 
-          type="monotone" 
-          dataKey="actual" 
-          stroke="#00d9ff" 
-          strokeWidth={3} 
-          dot={{ r: 4, fill: '#00d9ff', strokeWidth: 2, stroke: '#0a0a0a' }}
+        <Line
+          type="monotone"
+          dataKey="actual"
+          stroke="var(--primary)"
+          strokeWidth={3}
+          dot={{ r: 4, fill: 'var(--primary)', strokeWidth: 2, stroke: 'var(--card)' }}
           activeDot={{ r: 6, strokeWidth: 0 }}
           name="Confirmed"
         />
-        <Line 
-          type="monotone" 
-          dataKey="predicted" 
-          stroke="#10b981" 
-          strokeWidth={2} 
+        <Line
+          type="monotone"
+          dataKey="predicted"
+          stroke="#10b981"
+          strokeWidth={2}
           strokeDasharray="5 5"
           dot={false}
           name="Predicted"
@@ -160,7 +148,7 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
         <CardHeader className="border-b border-border/60 bg-secondary/20 py-4 px-5 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="w-4.5 h-4.5 text-primary" />
-            <CardTitle className="text-sm font-bold text-foreground">{t('casesTrend', 'Epidemiological Case Trends')}</CardTitle>
+            <CardTitle className="text-sm font-bold text-foreground">{t('casesTrend', 'Case Trends')}</CardTitle>
           </div>
           
           {/* Interactive Chart Type Toggle */}
@@ -187,40 +175,26 @@ export default function ChartsSection({ compact, trendsData, distributionData }:
       {/* Distribution categories Bar Chart */}
       <Card className="bg-card border border-border/80 rounded-2xl overflow-hidden shadow-lg hover:border-primary/20 transition-all duration-300">
         <CardHeader className="border-b border-border/60 bg-secondary/20 py-4 px-5 flex flex-row items-center gap-2">
-          <BarChart2 className="w-4.5 h-4.5 text-violet-400" />
-          <CardTitle className="text-sm font-bold text-foreground">{t('waterQualityTrend', 'Regional Hazard Categories')}</CardTitle>
+          <BarChart2 className="w-4.5 h-4.5 text-primary" />
+          <CardTitle className="text-sm font-bold text-foreground">{t('waterQualityTrend', 'Cases by Category')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[300px] p-4">
           <div className="flex-1 min-h-0 w-full p-2 h-full bg-secondary/20 rounded-xl">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={currentDistribution}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333333" strokeOpacity={0.6} vertical={false} />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={{ stroke: '#333333', strokeWidth: 1 }}
-                  tickLine={false} 
-                  tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+                <CartesianGrid strokeDasharray="3 3" stroke={AXIS_STROKE} strokeOpacity={0.6} vertical={false} />
+                <XAxis
+                  dataKey="name"
+                  axisLine={{ stroke: AXIS_STROKE, strokeWidth: 1 }}
+                  tickLine={false}
+                  tick={AXIS_TICK}
                 />
-                <YAxis 
-                  axisLine={{ stroke: '#333333', strokeWidth: 1 }}
-                  tickLine={false} 
-                  tick={{ fontSize: 11, fontWeight: 'bold', fill: '#b0b0b0' }}
+                <YAxis
+                  axisLine={{ stroke: AXIS_STROKE, strokeWidth: 1 }}
+                  tickLine={false}
+                  tick={AXIS_TICK}
                 />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1a1a1a', 
-                    border: '1px solid #333333',
-                    borderRadius: '0.75rem',
-                    fontSize: '11px',
-                    fontWeight: 'bold',
-                    textTransform: 'uppercase',
-                    color: '#e2e8f0',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-                    padding: '10px 14px'
-                  }}
-                  itemStyle={{ color: '#e2e8f0' }}
-                  labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
-                />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Bar 
                   dataKey="value" 
                   radius={[6, 6, 0, 0]} 

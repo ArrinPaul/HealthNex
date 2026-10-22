@@ -10,7 +10,7 @@ export default function UsageStats() {
   const stats = useQuery(api.usage.getUsageStats as any, token ? { token, days: 30 } : "skip");
 
   if (!stats) {
-    return <div className="text-muted-foreground text-sm font-medium">Loading usage telemetry...</div>;
+    return <div className="text-muted-foreground text-sm font-medium">Loading usage statistics...</div>;
   }
 
   return (

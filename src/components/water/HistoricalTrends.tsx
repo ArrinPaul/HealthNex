@@ -34,13 +34,20 @@ export default function HistoricalTrends() {
 
   return (
     <Card className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
-      <CardHeader className="border-b border-border/60 bg-secondary/30 py-4 px-5 flex flex-row items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-cyan-500/15 flex items-center justify-center">
-          <Droplet className="w-4 h-4 text-cyan-400" />
-        </div>
-        <div>
-          <CardTitle className="text-sm font-bold text-foreground">Water Quality Trend</CardTitle>
-          <p className="text-[10px] text-muted-foreground mt-0.5">pH, Turbidity & Temperature over time</p>
+      <CardHeader className="border-b border-border/60 bg-secondary/30 py-4 px-5 flex flex-row items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-cyan-500/15 flex items-center justify-center">
+            <Droplet className="w-4 h-4 text-cyan-400" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-foreground">Water Quality Trend</CardTitle>
+              <span className="text-[9px] font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                Sample / Demo Data
+              </span>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-0.5">Sample baseline demonstration. Live sensor integration required for local station historical telemetry.</p>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-5">

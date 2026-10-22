@@ -57,15 +57,23 @@ export default function SymptomCheckerModal({ isOpen, onClose, onComplete, force
         const jsonMatch = data.reply.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const prediction = JSON.parse(jsonMatch[0]);
-          if (prediction.prediction && prediction.score) {
-            setResult(prediction);
+          if (prediction.prediction) {
+            const sanitizedScore = typeof prediction.score === 'number'
+              ? Math.min(95, Math.max(10, Math.round(prediction.score)))
+              : 70;
+            const sanitizedPrediction = {
+              ...prediction,
+              score: sanitizedScore,
+              disclaimer: prediction.disclaimer || "This is an automated educational assessment, not a clinical diagnosis. Always consult a healthcare professional."
+            };
+            setResult(sanitizedPrediction);
             // Save to DB
             await saveAssessment({
               token: token || "",
-              predictedDisease: prediction.prediction,
-              predictionScore: prediction.score,
-              symptomsProvided: prediction.symptoms || [],
-              notes: prediction.reasoning
+              predictedDisease: String(prediction.prediction).slice(0, 150),
+              predictionScore: sanitizedScore,
+              symptomsProvided: Array.isArray(prediction.symptoms) ? prediction.symptoms.slice(0, 10) : [],
+              notes: prediction.reasoning ? String(prediction.reasoning).slice(0, 500) : undefined
             });
             toast.success("Health assessment saved successfully!");
             setIsLoading(false);
@@ -126,18 +134,32 @@ export default function SymptomCheckerModal({ isOpen, onClose, onComplete, force
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-bold">Assessment Complete</h3>
-            <div className="p-4 bg-secondary/40 rounded-xl border border-border/50 w-full">
-              <div className="text-xs text-muted-foreground uppercase font-bold tracking-wide mb-1">Predicted Disease</div>
-              <div className="text-lg font-black text-primary mb-3">{result.prediction}</div>
+            <div className="p-4 bg-secondary/40 rounded-xl border border-border/50 w-full text-left">
+              <div className="text-xs text-muted-foreground uppercase font-bold tracking-wide mb-1">Possible Condition (For Discussion with Doctor)</div>
+              <div className="text-lg font-bold text-primary mb-3">{result.prediction}</div>
               
               <div className="flex items-center justify-between text-sm border-t border-border/50 pt-3 mt-3">
-                <span className="text-muted-foreground">Confidence Score</span>
+                <span className="text-muted-foreground">Symptom Correlation</span>
                 <span className="font-bold text-emerald-500">{result.score}%</span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground italic">
-              {result.reasoning}
-            </p>
+            {result.reasoning && (
+              <p className="text-xs text-muted-foreground italic text-left w-full">
+                {result.reasoning}
+              </p>
+            )}
+
+            {/* Clinical Disclaimer */}
+            <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-left text-xs text-amber-600 dark:text-amber-400 w-full space-y-1">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                <div>
+                  <strong className="block font-semibold">Clinical Disclaimer</strong>
+                  This automated assessment is provided for educational and triage guidance only. It is not a clinical diagnosis or treatment plan. Always consult a qualified medical professional for diagnosis. If you are experiencing severe symptoms or an emergency, call 108 immediately.
+                </div>
+              </div>
+            </div>
+
             <Button onClick={() => { onClose(); onComplete(); }} className="w-full mt-4 bg-primary text-primary-foreground font-bold">
               {forceOnboarding ? "Continue to Dashboard" : "Close"}
             </Button>
@@ -164,10 +186,10 @@ export default function SymptomCheckerModal({ isOpen, onClose, onComplete, force
                   <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center">
                     <Bot className="w-4 h-4" />
                   </div>
-                  <div className="p-3 rounded-xl bg-secondary/40 border border-border/40 flex gap-1 items-center">
-                    <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" />
-                    <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce delay-75" />
-                    <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce delay-150" />
+                  <div className="p-3 rounded-xl bg-secondary/40 border border-border/40 flex gap-1.5 items-center">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-pulse" style={{ animationDelay: '0ms', animationDuration: '1s' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-pulse" style={{ animationDelay: '200ms', animationDuration: '1s' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-pulse" style={{ animationDelay: '400ms', animationDuration: '1s' }} />
                   </div>
                 </div>
               )}

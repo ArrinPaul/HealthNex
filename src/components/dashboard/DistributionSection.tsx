@@ -7,7 +7,7 @@ import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer
 } from 'recharts';
 
-const COLORS = ['#00d9ff', '#10b981', '#f59e0b', '#8b5cf6'];
+const COLORS = ['var(--primary)', '#10b981', '#f59e0b', '#8b5cf6'];
 
 interface DistributionSectionProps {
   compact?: boolean;
@@ -61,26 +61,24 @@ export default function DistributionSection({ compact, distributionData }: Distr
                 />
               ))}
             </Pie>
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#1a1a1a', 
-                border: '1px solid #333333',
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'var(--popover)',
+                border: '1px solid var(--border)',
                 borderRadius: '0.75rem',
                 fontSize: '10px',
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                color: '#e2e8f0',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+                fontWeight: 600,
+                color: 'var(--popover-foreground)',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
                 padding: '10px 14px'
               }}
-              itemStyle={{ color: '#e2e8f0' }}
             />
           </PieChart>
         </ResponsiveContainer>
         {/* Center Text Indicator */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Total</span>
-          <span className="text-sm font-black text-foreground">
+          <span className="text-sm font-bold text-foreground">
             {currentData?.reduce((acc: number, item: any) => acc + (item.value || 0), 0) || 0}
           </span>
         </div>
@@ -97,7 +95,7 @@ export default function DistributionSection({ compact, distributionData }: Distr
                 <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                 <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider truncate">{d.name}</span>
               </div>
-              <span className="text-xs font-black text-foreground font-mono bg-background/50 px-2 py-0.5 rounded border border-border/20">{d.value}</span>
+              <span className="text-xs font-bold text-foreground font-mono bg-background/50 px-2 py-0.5 rounded border border-border/20">{d.value}</span>
            </div>
          ))}
       </div>

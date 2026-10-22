@@ -24,6 +24,7 @@ export default function RegisterPage() {
   const [role, setRole] = useState<UserRole>('public-user');
   const [location, setLocation] = useState('');
   const [verificationFile, setVerificationFile] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const router = useRouter();
@@ -59,6 +60,18 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(name, email, password, role, location, verificationFile || undefined);
+      if (role === 'health-worker' && selectedFile) {
+        try {
+          const credData = new FormData();
+          credData.append('file', selectedFile);
+          await fetch('/api/user/credentials', {
+            method: 'POST',
+            body: credData,
+          });
+        } catch (uploadErr) {
+          console.warn('Initial credential upload deferred:', uploadErr);
+        }
+      }
       router.push('/education');
     } catch (error) {
       console.error('Registration failed:', error);
@@ -279,7 +292,11 @@ export default function RegisterPage() {
                          <input 
                            type="file" 
                            className="absolute inset-0 opacity-0 cursor-pointer" 
-                           onChange={(e) => setVerificationFile(e.target.files?.[0]?.name || 'license.pdf')}
+                           onChange={(e) => {
+                             const file = e.target.files?.[0] || null;
+                             setSelectedFile(file);
+                             setVerificationFile(file ? file.name : null);
+                           }}
                          />
                          <Upload className="w-8 h-8 text-primary mx-auto" />
                          <div>

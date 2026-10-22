@@ -18,7 +18,7 @@ export default function HealthDataDetailPage() {
   const record = useQuery(api.healthData.getHealthDataById as any, token ? { token, id: params.id } : "skip");
 
   if (record === undefined) {
-    return <div className="p-12 text-center text-muted-foreground">Retrieving clinical record...</div>;
+    return <div className="p-12 text-center text-muted-foreground">Loading health record...</div>;
   }
 
   if (record === null) {
@@ -31,85 +31,85 @@ export default function HealthDataDetailPage() {
   }
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
+    <ProtectedRoute allowedRoles={['admin', 'health-worker', 'public-user']}>
       <div className="max-w-4xl mx-auto space-y-8">
         <Button variant="ghost" onClick={() => router.back()} className="gap-2">
           <ArrowLeft className="w-4 h-4" /> Back to Records
         </Button>
 
-        <Card className="backdrop-blur-xl bg-card/60 border border-[var(--border-soft)] shadow-2xl overflow-hidden">
-          <CardHeader className="bg-[var(--surface-2)]/50 border-b border-[var(--border-soft)] p-8 md:p-12">
+        <Card className="bg-card border border-border shadow-sm overflow-hidden">
+          <CardHeader className="bg-secondary/30 border-b border-border p-6 md:p-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-6">
-                 <div className="w-16 h-16 rounded-[1.5rem] bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20">
-                    <Stethoscope className="w-8 h-8" />
+              <div className="flex items-center gap-4">
+                 <div className="w-14 h-14 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-sm">
+                    <Stethoscope className="w-7 h-7" />
                  </div>
                  <div>
-                    <h1 className="text-3xl font-bold tracking-tight uppercase">Clinical Intelligence</h1>
-                    <p className="text-muted-foreground uppercase font-bold text-[10px] tracking-[0.3em] mt-2">Case UID: {record._id.slice(-8).toUpperCase()}</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Health Record</h1>
+                    <p className="text-muted-foreground font-mono text-xs mt-1">Record ID: {record._id.slice(-8).toUpperCase()}</p>
                  </div>
               </div>
-              <Badge variant="outline" className="h-10 px-6 rounded-full text-sm font-bold uppercase tracking-widest border-primary/30 text-primary bg-primary/5">
+              <Badge variant="outline" className="h-9 px-4 rounded-full text-xs font-semibold border-primary/30 text-primary bg-primary/5">
                 Verified
               </Badge>
             </div>
           </CardHeader>
 
-          <CardContent className="p-8 md:p-12 space-y-12">
-             <div className="grid md:grid-cols-3 gap-8">
-                <div className="space-y-2 p-6 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-soft)]">
-                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Patient Name</p>
-                   <p className="text-lg font-bold">{record.data.patientName}</p>
+          <CardContent className="p-6 md:p-8 space-y-10">
+             <div className="grid md:grid-cols-3 gap-6">
+                <div className="space-y-1.5 p-5 rounded-xl bg-secondary/30 border border-border">
+                   <p className="text-xs font-medium text-muted-foreground">Patient Name</p>
+                   <p className="text-lg font-semibold text-foreground">{record.data.patientName}</p>
                 </div>
-                <div className="space-y-2 p-6 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-soft)]">
-                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Age / Gender</p>
-                   <p className="text-lg font-bold">{record.data.age} / {record.data.gender}</p>
+                <div className="space-y-1.5 p-5 rounded-xl bg-secondary/30 border border-border">
+                   <p className="text-xs font-medium text-muted-foreground">Age / Gender</p>
+                   <p className="text-lg font-semibold text-foreground">{record.data.age} / {record.data.gender}</p>
                 </div>
-                <div className="space-y-2 p-6 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-soft)]">
-                   <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Severity Index</p>
+                <div className="space-y-1.5 p-5 rounded-xl bg-secondary/30 border border-border">
+                   <p className="text-xs font-medium text-muted-foreground">Severity</p>
                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-24 bg-[var(--surface-3)] rounded-full overflow-hidden">
+                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
                          <div className="h-full bg-primary" style={{ width: `${(record.severity || 0) * 10}%` }} />
                       </div>
-                      <span className="font-bold text-sm text-primary">{record.severity || 0}/10</span>
+                      <span className="font-semibold text-sm text-primary">{record.severity || 0}/10</span>
                    </div>
                 </div>
              </div>
 
-             <div className="space-y-6">
-                <div className="flex items-center gap-3 text-primary font-bold uppercase text-[10px] tracking-widest">
+             <div className="space-y-4">
+                <div className="flex items-center gap-2 text-primary font-semibold text-xs uppercase tracking-wide">
                    <Activity className="w-4 h-4" /> Reported Symptoms
                 </div>
-                <div className="p-8 rounded-[2.5rem] bg-[var(--surface-2)] border border-[var(--border-soft)]">
-                   <p className="text-lg leading-relaxed italic">"{record.notes}"</p>
+                <div className="p-6 rounded-xl bg-secondary/30 border border-border">
+                   <p className="text-base leading-relaxed text-foreground italic">"{record.notes}"</p>
                 </div>
              </div>
 
-             <div className="grid md:grid-cols-2 gap-8">
-                <div className="p-8 rounded-[2rem] border border-[var(--border-soft)] space-y-4">
-                   <div className="flex items-center gap-3 text-muted-foreground">
+             <div className="grid md:grid-cols-2 gap-6">
+                <div className="p-6 rounded-xl border border-border space-y-3">
+                   <div className="flex items-center gap-2 text-muted-foreground">
                       <MapPin className="w-4 h-4" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Deployment Location</span>
+                      <span className="text-xs font-medium">Location</span>
                    </div>
-                   <p className="font-bold">{record.location?.address || 'Unknown Region'}</p>
+                   <p className="font-semibold text-foreground">{record.location?.address || 'Unknown Region'}</p>
                 </div>
-                <div className="p-8 rounded-[2rem] border border-[var(--border-soft)] space-y-4">
-                   <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="p-6 rounded-xl border border-border space-y-3">
+                   <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Protocol Timestamp</span>
+                      <span className="text-xs font-medium">Reported On</span>
                    </div>
-                   <p className="font-bold">{format(record.timestamp, 'PPPP p')}</p>
+                   <p className="font-semibold text-foreground">{format(record.timestamp, 'PPPP p')}</p>
                 </div>
              </div>
 
-             <div className="pt-10 border-t border-[var(--border-soft)] flex items-center justify-between">
-                <div className="flex items-center gap-4 text-emerald-500">
+             <div className="pt-8 border-t border-border flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                    <Shield className="w-4 h-4" />
-                   <span className="text-[10px] font-bold uppercase tracking-widest">E2EE Protected Record</span>
+                   <span className="text-xs font-medium">Encrypted in Transit (TLS)</span>
                 </div>
-                <div className="flex items-center gap-4 text-muted-foreground">
+                <div className="flex items-center gap-2 text-muted-foreground">
                    <Database className="w-4 h-4" />
-                   <span className="text-[10px] font-bold uppercase tracking-widest">Convex Synchronized</span>
+                   <span className="text-xs font-medium">Synced with Convex</span>
                 </div>
              </div>
           </CardContent>

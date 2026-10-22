@@ -261,7 +261,7 @@ const AISuggestions: React.FC = () => {
         <div className="mt-10 p-6 bg-[var(--surface-2)] text-foreground border border-[var(--border-soft)] rounded-2xl theme-transition">
           <div className="flex items-center gap-4 text-xs font-semibold uppercase tracking-widest">
             <Lightbulb className="w-5 h-5" />
-            <span>Intelligence protocol refreshed every 30 minutes based on local telemetry and regional health trends.</span>
+            <span>Recommendations refresh every 30 minutes based on local health data and regional trends.</span>
           </div>
         </div>
       </CardContent>

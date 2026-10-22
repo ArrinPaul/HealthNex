@@ -20,20 +20,20 @@ export default function WaterResults({ results }: WaterResultsProps) {
   const fallbackRecommendations = [];
   const ph = results.parameters.ph;
   const turbidity = results.parameters.turbidity;
-  if (ph < 6.5) fallbackRecommendations.push('Water is too acidic (pH below 6.5). Avoid drinking until treated.');
-  if (ph > 8.5) fallbackRecommendations.push('Water is too alkaline (pH above 8.5). Consider filtration before use.');
-  if (turbidity >= 5) fallbackRecommendations.push('High turbidity detected (≥5 NTU). Water should be filtered or boiled before consumption.');
-  if (results.status === 'Warning') fallbackRecommendations.push('Elevated health risk detected. Boil water before use or seek an alternative source.');
-  if (results.status === 'Safe') fallbackRecommendations.push('Water quality parameters are within safe limits. Regular monitoring is recommended.');
-  if (fallbackRecommendations.length === 0) fallbackRecommendations.push('No immediate action required. Continue routine monitoring.');
+  if (ph < 6.5) fallbackRecommendations.push('Estimated pH indicates elevated acidity (pH below 6.5). Avoid drinking untreated runoff.');
+  if (ph > 8.5) fallbackRecommendations.push('Estimated pH indicates elevated alkalinity (pH above 8.5). Confirm with laboratory testing.');
+  if (turbidity >= 5) fallbackRecommendations.push('Modeled runoff turbidity is elevated (≥5 NTU). Filter or vigorously boil water before consumption.');
+  if (results.status === 'Warning') fallbackRecommendations.push('Elevated environmental runoff risk modeled. Boil water before use or seek a certified clean water source.');
+  if (results.status === 'Safe') fallbackRecommendations.push('Environmental baseline parameters are within typical ranges. Routine municipal testing is recommended.');
+  fallbackRecommendations.push('Public Health Notice: Modeled parameters are derived from meteorological precipitation and terrain coordinates, not certified laboratory tests. Always adhere to municipal drinking water notices.');
 
   const recommendations = results.recommendations.length > 0 ? results.recommendations : fallbackRecommendations;
 
   const StatusIcon = statusConfig.icon;
 
   const params = [
-    { label: t('ph'), value: results.parameters.ph, unit: '', icon: Droplet, safe: results.parameters.ph >= 6.5 && results.parameters.ph <= 8.5, color: 'text-blue-400', bg: 'bg-blue-500/15' },
-    { label: t('turbidity'), value: results.parameters.turbidity, unit: 'NTU', icon: Droplets, safe: results.parameters.turbidity < 5, color: 'text-amber-400', bg: 'bg-amber-500/15' },
+    { label: `${t('ph')} (Est.)`, value: results.parameters.ph, unit: '', icon: Droplet, safe: results.parameters.ph >= 6.5 && results.parameters.ph <= 8.5, color: 'text-blue-400', bg: 'bg-blue-500/15' },
+    { label: `${t('turbidity')} (Est.)`, value: results.parameters.turbidity, unit: 'NTU', icon: Droplets, safe: results.parameters.turbidity < 5, color: 'text-amber-400', bg: 'bg-amber-500/15' },
     { label: t('temperature'), value: results.parameters.temperature, unit: '°C', icon: Thermometer, safe: true, color: 'text-rose-400', bg: 'bg-rose-500/15' },
     { label: t('rainfall'), value: results.parameters.rainfall, unit: 'mm', icon: CloudRain, safe: true, color: 'text-cyan-400', bg: 'bg-cyan-500/15' },
     { label: t('humidity'), value: results.parameters.humidity, unit: '%', icon: Droplet, safe: true, color: 'text-emerald-400', bg: 'bg-emerald-500/15' },
@@ -41,22 +41,36 @@ export default function WaterResults({ results }: WaterResultsProps) {
 
   return (
     <>
+      {/* Provenance Notice */}
+      <div className="p-3.5 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-3 text-xs text-blue-400">
+        <Shield className="w-4 h-4 shrink-0 mt-0.5 text-blue-400" />
+        <div>
+          <strong className="block font-semibold uppercase tracking-wider text-[10px] text-blue-300">
+            Modeled Environmental Estimate
+          </strong>
+          These water quality metrics are mathematically modeled from meteorological precipitation and geographic coordinates. They reflect estimated runoff risk, not direct laboratory chemical assays or certified sensor readings.
+        </div>
+      </div>
+
       {/* Status Card */}
-      <Card className={`bg-card border ${statusConfig.border} rounded-2xl overflow-hidden shadow-lg`}>
+      <Card className={`bg-card border ${statusConfig.border} rounded-xl overflow-hidden shadow-sm`}>
         <div className={`${statusConfig.bg} p-5`}>
           <div className="flex items-center gap-4">
             <div className={`w-14 h-14 rounded-2xl ${statusConfig.bg} border ${statusConfig.border} flex items-center justify-center`}>
               <StatusIcon className={`w-7 h-7 ${statusConfig.text}`} />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-black text-foreground">{results.location}</h3>
+              <h3 className="text-lg font-bold text-foreground">{results.location}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Lat: {results.coordinates.lat}, Lng: {results.coordinates.lng}
               </p>
-              <div className="mt-2">
+              <div className="mt-2 flex items-center gap-2">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider ${statusConfig.badge}`}>
                   <StatusIcon className="w-3 h-3" />
-                  {results.status}
+                  Modeled Risk: {results.status}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-mono">
+                  (Estimate)
                 </span>
               </div>
             </div>
@@ -67,7 +81,7 @@ export default function WaterResults({ results }: WaterResultsProps) {
       {/* Parameters Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-3">
         {params.map((param, index) => (
-          <Card key={index} className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg hover:border-primary/20 transition-all duration-300">
+          <Card key={index} className="bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:border-primary/20 transition-all duration-300">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className={`w-8 h-8 rounded-lg ${param.bg} flex items-center justify-center`}>
@@ -75,7 +89,7 @@ export default function WaterResults({ results }: WaterResultsProps) {
                 </div>
                 {!param.safe && <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />}
               </div>
-              <div className="text-xl font-black text-foreground">{param.value}<span className="text-xs text-muted-foreground font-medium ml-0.5">{param.unit}</span></div>
+              <div className="text-xl font-bold text-foreground">{param.value}<span className="text-xs text-muted-foreground font-medium ml-0.5">{param.unit}</span></div>
               <div className="text-[11px] text-muted-foreground font-medium mt-0.5">{param.label}</div>
             </CardContent>
           </Card>
@@ -83,7 +97,7 @@ export default function WaterResults({ results }: WaterResultsProps) {
       </div>
 
       {/* Recommendations */}
-      <Card className="bg-card border border-border rounded-2xl overflow-hidden shadow-lg">
+      <Card className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
         <CardHeader className="border-b border-border/60 bg-secondary/30 py-4 px-5">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-amber-400" />

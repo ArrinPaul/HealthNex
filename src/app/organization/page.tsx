@@ -10,21 +10,21 @@ const PartnerCard = ({ name, type, desc, icon: Icon, delay }: any) => (
     whileInView={{ opacity: 1, scale: 1 }}
     transition={{ delay, duration: 0.5 }}
     viewport={{ once: true }}
-    className="p-8 rounded-[2.5rem] bg-[var(--surface-1)] border border-[var(--border-soft)] hover:border-primary/40 transition-all group"
+    className="p-8 rounded-2xl bg-[var(--surface-1)] border border-[var(--border-soft)] hover:border-primary/40 transition-all group"
   >
      <div className="flex items-start justify-between mb-6">
-        <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+        <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
            <Icon className="w-6 h-6" />
         </div>
         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{type}</span>
      </div>
-     <h4 className="text-xl font-bold mb-2 uppercase tracking-tight">{name}</h4>
+     <h4 className="text-lg font-bold mb-2 tracking-tight">{name}</h4>
      <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
   </motion.div>
 );
 
 const GlobalNetworkVisualizer = () => (
-  <div className="relative w-full h-[600px] bg-[var(--surface-2)] rounded-[4rem] border border-[var(--border-soft)] overflow-hidden group">
+  <div className="relative w-full h-[600px] bg-[var(--surface-2)] rounded-3xl border border-[var(--border-soft)] overflow-hidden group">
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_70%)] opacity-5" />
     <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:50px_50px]" />
     
@@ -89,7 +89,7 @@ export default function OrganizationPage() {
               <Building2 className="w-3.5 h-3.5" />
               Institutional Hub
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-none">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
               Organization <br />
               <span className="text-primary">& Partnerships</span>
             </h1>
@@ -100,14 +100,14 @@ export default function OrganizationPage() {
 
           <div className="mb-48 space-y-12">
              <div className="text-center space-y-4">
-                <h2 className="text-4xl font-bold uppercase tracking-tight">Global Infrastructure</h2>
-                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">The physical layer of our intelligence network</p>
+                <h2 className="text-3xl font-bold tracking-tight">Global Infrastructure</h2>
+                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.3em]">The physical layer of our data network</p>
              </div>
              <GlobalNetworkVisualizer />
              
              <div className="grid md:grid-cols-4 gap-8">
                 {[
-                  { label: 'Active Nodes', value: '1,240', desc: 'Regional surveillance units' },
+                  { label: 'Active Sites', value: '1,240', desc: 'Regional surveillance units' },
                   { label: 'Certified Labs', value: '84', desc: 'Verified testing facilities' },
                   { label: 'Partner NGOs', value: '215', desc: 'Community response teams' },
                   { label: 'Cloud Clusters', value: '12', desc: 'Distributed data synchronization' }
@@ -123,8 +123,8 @@ export default function OrganizationPage() {
 
           <div className="space-y-24 mb-48">
              <div className="text-center space-y-4">
-                <h2 className="text-4xl font-bold uppercase tracking-tight">Our Ecosystem</h2>
-                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">Strategic collaboration for global impact</p>
+                <h2 className="text-3xl font-bold tracking-tight">Our Ecosystem</h2>
+                <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.3em]">Strategic collaboration for global impact</p>
              </div>
              
              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -142,31 +142,31 @@ export default function OrganizationPage() {
                   icon={Heart}
                   delay={0.1}
                 />
-                <PartnerCard 
-                  name="TechGov Systems" 
+                <PartnerCard
+                  name="TechGov Systems"
                   type="Infrastructure"
-                  desc="Providing secure edge-computing hardware for regional intelligence node deployment."
+                  desc="Providing secure edge-computing hardware for regional data center deployment."
                   icon={Network}
                   delay={0.2}
                 />
-                <PartnerCard 
-                  name="MedSync Protocol" 
+                <PartnerCard
+                  name="MedSync Health"
                   type="Standardization"
                   desc="Developing universal health data schemas for seamless legacy system integration."
                   icon={Award}
                   delay={0.3}
                 />
-                <PartnerCard 
-                  name="CyberShield Health" 
+                <PartnerCard
+                  name="CyberShield Health"
                   type="Security"
-                  desc="Auditing zero-trust architecture and E2EE implementations across the protocol."
+                  desc="Auditing zero-trust architecture and end-to-end encryption implementations."
                   icon={ShieldCheck}
                   delay={0.4}
                 />
-                <PartnerCard 
-                  name="Unified Field Network" 
+                <PartnerCard
+                  name="Unified Field Network"
                   type="Operations"
-                  desc="Coordinating on-the-ground field worker training and node initialization protocols."
+                  desc="Coordinating on-the-ground field worker training and site onboarding."
                   icon={Users}
                   delay={0.5}
                 />
@@ -176,16 +176,16 @@ export default function OrganizationPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            className="p-12 md:p-20 rounded-[4rem] bg-primary text-primary-foreground relative overflow-hidden group shadow-2xl"
+            className="p-12 md:p-20 rounded-3xl bg-primary text-primary-foreground relative overflow-hidden group shadow-2xl"
           >
              <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent)] pointer-events-none" />
              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
                 <div className="space-y-6 max-w-xl">
-                   <h2 className="text-4xl md:text-5xl font-bold uppercase tracking-tight leading-none">Partner with the <br />Protocol.</h2>
-                   <p className="text-primary-foreground/80 text-lg">Join the world's most advanced health intelligence network. Establish visibility in your region today.</p>
+                   <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">Partner with <br />HealthNex.</h2>
+                   <p className="text-primary-foreground/80 text-lg">Join the world's most advanced health monitoring network. Establish visibility in your region today.</p>
                 </div>
-                <button className="h-20 px-12 rounded-[2rem] bg-white text-primary font-bold text-xl hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center gap-4">
-                   Initialize Integration <ArrowRight className="w-6 h-6" />
+                <button className="h-14 px-8 rounded-xl bg-white text-primary font-semibold text-base hover:bg-white/90 transition-colors shadow-sm flex items-center gap-3">
+                   Get Started <ArrowRight className="w-5 h-5" />
                 </button>
              </div>
           </motion.div>

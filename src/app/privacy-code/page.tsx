@@ -11,14 +11,14 @@ const SecurityLayerVisualizer = () => {
   const layers = [
     {
       title: 'Encryption Layer',
-      desc: 'All community reports and medical telemetry are synchronized using high-level encryption standards during transmission.',
+      desc: 'All community reports and health data are synchronized using high-level encryption standards during transmission.',
       icon: Lock,
       color: 'text-emerald-500',
       bg: 'bg-emerald-500/10'
     },
     {
       title: 'Anonymization Engine',
-      desc: 'Ground-level intelligence is stripped of personal identifiers at the node edge, ensuring privacy-first trend analysis.',
+      desc: 'Community-submitted reports are stripped of personal identifiers before analysis, ensuring privacy-first trend tracking.',
       icon: EyeOff,
       color: 'text-sky-400',
       bg: 'bg-sky-400/10'
@@ -34,13 +34,13 @@ const SecurityLayerVisualizer = () => {
 
   return (
     <div className="py-12">
-      <div className="grid lg:grid-cols-2 gap-12 items-center p-10 md:p-16 rounded-[4rem] bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-2xl relative overflow-hidden">
+      <div className="grid lg:grid-cols-2 gap-12 items-center p-10 md:p-16 rounded-3xl bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-2xl relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_70%)] opacity-5" />
         
         <div className="space-y-12 relative z-10">
           <div className="space-y-4">
-             <h3 className="text-4xl font-bold uppercase tracking-tight">Security Stack</h3>
-             <p className="text-muted-foreground">The HealthNex Intelligence Protocol utilizes a multi-layered security approach to protect every byte of regional health telemetry.</p>
+             <h3 className="text-3xl font-bold tracking-tight">Security Stack</h3>
+             <p className="text-muted-foreground">HealthNex uses a multi-layered security approach to protect every byte of regional health data.</p>
           </div>
           
           <div className="flex flex-col gap-4">
@@ -60,7 +60,7 @@ const SecurityLayerVisualizer = () => {
                         <div className={`w-10 h-10 rounded-xl ${layer.bg} ${layer.color} flex items-center justify-center`}>
                            <layer.icon className="w-5 h-5" />
                         </div>
-                        <span className="font-bold uppercase tracking-tight text-sm">{layer.title}</span>
+                        <span className="font-bold tracking-tight text-sm">{layer.title}</span>
                      </div>
                      <ChevronRight className={`w-4 h-4 transition-transform ${activeLayer === i ? 'rotate-90 text-primary' : 'text-muted-foreground'}`} />
                   </div>
@@ -93,7 +93,7 @@ const SecurityLayerVisualizer = () => {
                  rotateX: activeLayer === i ? 0 : 45,
                  zIndex: activeLayer === i ? 20 : 10 - i
                }}
-               className={`absolute w-64 h-64 rounded-[3rem] ${layer.bg} border-2 ${activeLayer === i ? 'border-primary shadow-[0_0_30px_rgba(2,132,199,0.3)]' : 'border-white/5'} backdrop-blur-xl flex items-center justify-center theme-transition`}
+               className={`absolute w-64 h-64 rounded-3xl ${layer.bg} border-2 ${activeLayer === i ? 'border-primary shadow-[0_0_30px_rgba(2,132,199,0.3)]' : 'border-white/5'} backdrop-blur-xl flex items-center justify-center theme-transition`}
              >
                 <motion.div
                   animate={{ 
@@ -108,7 +108,7 @@ const SecurityLayerVisualizer = () => {
                 {activeLayer === i && (
                   <motion.div 
                     layoutId="glow"
-                    className="absolute inset-0 rounded-[3rem] bg-primary/20 blur-2xl -z-10"
+                    className="absolute inset-0 rounded-3xl bg-primary/20 blur-2xl -z-10"
                   />
                 )}
              </motion.div>
@@ -136,7 +136,7 @@ const PrivacyCard = ({ title, desc, icon: Icon, delay }: any) => {
       transition={{ delay, duration: 0.8 }}
       viewport={{ once: true }}
       onMouseMove={handleMouseMove}
-      className="group relative p-12 rounded-[3rem] border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-xl hover:border-emerald-500/40 transition-all duration-500 overflow-hidden"
+      className="group relative p-12 rounded-3xl border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-xl hover:border-emerald-500/40 transition-all duration-500 overflow-hidden"
     >
       <motion.div
         className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -150,7 +150,7 @@ const PrivacyCard = ({ title, desc, icon: Icon, delay }: any) => {
           <Icon className="w-8 h-8" />
         </div>
         <div className="space-y-4">
-          <h3 className="text-2xl font-bold uppercase tracking-tight">{title}</h3>
+          <h3 className="text-xl font-bold tracking-tight">{title}</h3>
           <p className="text-muted-foreground leading-relaxed">{desc}</p>
         </div>
       </div>
@@ -172,29 +172,29 @@ export default function PrivacyCodePage() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-bold uppercase tracking-widest">
               <ShieldCheck className="w-3.5 h-3.5" />
-              Secure Data Protocol
+              Secure Data Handling
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-none">
-              Privacy Code <br />
-              <span className="text-emerald-500">Protocol</span>
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+              Privacy & <br />
+              <span className="text-emerald-500">Security Code</span>
             </h1>
-            <p className="text-muted-foreground text-xl leading-relaxed max-w-3xl mx-auto">
-              Medical-grade security and commitment to data privacy. At HealthNex, we prioritize the protection of regional health data through secure synchronization and distributed node management.
+            <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl mx-auto">
+              Medical-grade security and a real commitment to data privacy. At HealthNex, we prioritize the protection of regional health data through secure synchronization and distributed backups.
             </p>
           </motion.div>
 
           <SecurityLayerVisualizer />
 
           <div className="grid md:grid-cols-2 gap-8 mb-32 mt-20">
-            <PrivacyCard 
-              title="Secure Synchronization" 
-              desc="Community reports and medical telemetry are synchronized using encrypted communication channels to our distributed Convex backend, ensuring data integrity across all nodes."
+            <PrivacyCard
+              title="Secure Synchronization"
+              desc="Community reports and health data are synchronized using encrypted communication channels to our distributed Convex backend, ensuring data integrity throughout."
               icon={Lock}
               delay={0}
             />
-            <PrivacyCard 
-              title="Information Privacy" 
-              desc="The protocol is designed to handle sensitive health data with care, utilizing authorized access controls to ensure that information is only accessible to verified health leads."
+            <PrivacyCard
+              title="Information Privacy"
+              desc="The platform is designed to handle sensitive health data with care, using authorized access controls to ensure information is only accessible to verified health leads."
               icon={EyeOff}
               delay={0.1}
             />
@@ -211,12 +211,12 @@ export default function PrivacyCodePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 + i * 0.1 }}
-                className="p-8 rounded-[2.5rem] bg-[var(--surface-2)] border border-[var(--border-soft)] text-center space-y-6"
+                className="p-8 rounded-2xl bg-[var(--surface-2)] border border-[var(--border-soft)] text-center space-y-6"
               >
                  <div className="w-12 h-12 rounded-2xl bg-background border border-[var(--border-soft)] flex items-center justify-center mx-auto text-emerald-500">
                     <item.icon className="w-6 h-6" />
                  </div>
-                 <h4 className="text-lg font-bold uppercase tracking-tight">{item.title}</h4>
+                 <h4 className="text-lg font-bold tracking-tight">{item.title}</h4>
                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
@@ -225,11 +225,11 @@ export default function PrivacyCodePage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            className="p-12 md:p-20 rounded-[4rem] bg-[var(--surface-1)] border border-[var(--border-soft)] text-center space-y-12 shadow-2xl"
+            className="p-12 md:p-20 rounded-3xl bg-[var(--surface-1)] border border-[var(--border-soft)] text-center space-y-12 shadow-2xl"
           >
             <div className="space-y-4">
-               <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight">Security Standards</h2>
-               <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">Aligned with global health data protection practices</p>
+               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Security Standards</h2>
+               <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.3em]">Aligned with global health data protection practices</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
                {[

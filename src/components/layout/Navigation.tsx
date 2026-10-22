@@ -32,19 +32,19 @@ import ThemeToggle from './ThemeToggle';
 import LanguageSelector from './LanguageSelector';
 
 const allNavItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'health-worker', 'public-user'], color: 'from-blue-500/20 to-cyan-500/20', activeColor: 'text-blue-400' },
-  { href: '/health-data', label: 'Health Data', icon: FileText, roles: ['admin', 'health-worker'], color: 'from-emerald-500/20 to-teal-500/20', activeColor: 'text-emerald-400' },
-  { href: '/water-quality', label: 'Water Quality', icon: Droplet, roles: ['admin', 'health-worker'], color: 'from-cyan-500/20 to-blue-500/20', activeColor: 'text-cyan-400' },
-  { href: '/ai-features', label: 'AI Insights', icon: Activity, roles: ['admin', 'health-worker'], color: 'from-purple-500/20 to-pink-500/20', activeColor: 'text-purple-400' },
-  { href: '/chatbot', label: 'Health AI', icon: Bot, roles: ['admin', 'health-worker', 'public-user'], color: 'from-violet-500/20 to-purple-500/20', activeColor: 'text-violet-400' },
-  { href: '/alerts', label: 'Alerts', icon: Bell, roles: ['admin', 'health-worker'], color: 'from-rose-500/20 to-orange-500/20', activeColor: 'text-rose-400' },
-  { href: '/education', label: 'Education', icon: BookOpen, roles: ['admin', 'health-worker', 'public-user'], color: 'from-amber-500/20 to-yellow-500/20', activeColor: 'text-amber-400' },
-  { href: '/community-reports', label: 'Community', icon: MessageSquare, roles: ['admin', 'health-worker', 'public-user'], color: 'from-teal-500/20 to-emerald-500/20', activeColor: 'text-teal-400' },
-  { href: '/vault', label: 'My Vault', icon: Lock, roles: ['admin', 'health-worker', 'public-user'], color: 'from-slate-500/20 to-gray-500/20', activeColor: 'text-slate-400' },
-  { href: '/resources', label: 'Health Hub', icon: Heart, roles: ['admin', 'health-worker', 'public-user'], color: 'from-pink-500/20 to-rose-500/20', activeColor: 'text-pink-400' },
-  { href: '/symptom-checker', label: 'Symptom Checker', icon: Activity, roles: ['admin', 'health-worker', 'public-user'], color: 'from-emerald-500/20 to-green-500/20', activeColor: 'text-emerald-400' },
-  { href: '/user-management', label: 'User Mgmt', icon: Users, roles: ['admin', 'health-worker'], color: 'from-indigo-500/20 to-blue-500/20', activeColor: 'text-indigo-400' },
-  { href: '/admin', label: 'Admin', icon: Shield, roles: ['admin'], color: 'from-red-500/20 to-orange-500/20', activeColor: 'text-red-400' },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'health-worker', 'public-user'] },
+  { href: '/health-data', label: 'Health Data', icon: FileText, roles: ['admin', 'health-worker'] },
+  { href: '/water-quality', label: 'Water Quality', icon: Droplet, roles: ['admin', 'health-worker'] },
+  { href: '/ai-features', label: 'AI Analytics', icon: Activity, roles: ['admin', 'health-worker'] },
+  { href: '/chatbot', label: 'Health Assistant', icon: Bot, roles: ['admin', 'health-worker', 'public-user'] },
+  { href: '/alerts', label: 'Alerts & Broadcasts', icon: Bell, roles: ['admin', 'health-worker'] },
+  { href: '/education', label: 'Health Education', icon: BookOpen, roles: ['admin', 'health-worker', 'public-user'] },
+  { href: '/community-reports', label: 'Community Reports', icon: MessageSquare, roles: ['admin', 'health-worker', 'public-user'] },
+  { href: '/vault', label: 'Health Records Vault', icon: Lock, roles: ['admin', 'health-worker', 'public-user'] },
+  { href: '/resources', label: 'Resource Directory', icon: Heart, roles: ['admin', 'health-worker', 'public-user'] },
+  { href: '/symptom-checker', label: 'Symptom Triage', icon: Activity, roles: ['admin', 'health-worker', 'public-user'] },
+  { href: '/user-management', label: 'Personnel Mgmt', icon: Users, roles: ['admin'] },
+  { href: '/admin', label: 'Administration', icon: Shield, roles: ['admin'] },
 ];
 
 const allBottomNavItems = [
@@ -93,23 +93,23 @@ function NavContent({
               title={isCollapsed ? item.label : ''}
               className={`relative flex items-center gap-2.5 rounded-lg transition-all duration-200 group ${
                 isActive
-                  ? `bg-gradient-to-r ${item.color} ${item.activeColor} border border-current/20`
-                  : 'text-muted-foreground hover:bg-secondary/40 hover:text-foreground border border-transparent'
+                  ? 'bg-primary/10 text-primary font-semibold border border-primary/20 shadow-xs'
+                  : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground border border-transparent'
               } ${isCollapsed ? 'justify-center w-9 h-9 p-0 mx-auto' : 'px-3 py-2'}`}
             >
               {isActive && (
                 <div 
-                  className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-gradient-to-b from-primary to-cyan-400 rounded-r-full shadow-[0_0_8px_rgba(6,182,212,0.6)]" 
+                  className="absolute left-0 top-1.5 bottom-1.5 w-0.5 bg-primary rounded-r-full" 
                 />
               )}
               
               <div className={`relative transition-all duration-200 ${isActive ? 'scale-105' : 'group-hover:scale-105'}`}>
-                <Icon className={`w-4 h-4 shrink-0 transition-colors duration-200 ${isActive ? item.activeColor : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
+                <Icon className={`w-4 h-4 shrink-0 transition-colors duration-200 ${isActive ? 'text-primary' : 'text-muted-foreground/70 group-hover:text-foreground'}`} />
               </div>
               
               {!isCollapsed && (
                 <div className="flex-1 min-w-0">
-                  <span className={`text-[13px] font-medium transition-all ${isActive ? item.activeColor : ''}`}>
+                  <span className={`text-[13px] transition-all ${isActive ? 'text-foreground font-semibold' : 'font-medium'}`}>
                     {item.label}
                   </span>
                 </div>
@@ -117,7 +117,7 @@ function NavContent({
               
               {!isCollapsed && isActive && (
                 <div className="shrink-0">
-                  <div className={`w-1.5 h-1.5 rounded-full ${item.activeColor} shadow-[0_0_6px_currentColor] animate-pulse`} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                 </div>
               )}
               

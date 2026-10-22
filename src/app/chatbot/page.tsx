@@ -224,13 +224,13 @@ export default function DedicatedChatbotPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-black tracking-tight text-foreground">Health AI Desk</h1>
+                <h1 className="text-xl font-bold tracking-tight text-foreground">Health AI Assistant</h1>
                 <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[8px] font-bold uppercase tracking-wider">
-                  Gemini Agent
+                  AI Powered
                 </Badge>
               </div>
               <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider font-mono">
-                Decentralized Public Health Expert System
+                Public Health Guidance &amp; Symptom Support
               </p>
             </div>
           </div>
@@ -280,9 +280,9 @@ export default function DedicatedChatbotPage() {
                           <div className="whitespace-pre-wrap font-medium">{msg.text}</div>
                         ) : (
                           <div className="flex items-center gap-1.5 py-1 text-muted-foreground">
-                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-pulse" style={{ animationDelay: '0ms', animationDuration: '1s' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-pulse" style={{ animationDelay: '200ms', animationDuration: '1s' }} />
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary/70 animate-pulse" style={{ animationDelay: '400ms', animationDuration: '1s' }} />
                           </div>
                         )}
                       </div>
@@ -302,7 +302,7 @@ export default function DedicatedChatbotPage() {
 
           {/* Quick Suggestions Chips Drawer */}
           <div className="px-5 py-2.5 border-t border-border/40 bg-secondary/10 shrink-0 flex flex-col gap-1.5">
-            <span className="text-[8px] text-muted-foreground uppercase font-black tracking-wider flex items-center gap-1">
+            <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider flex items-center gap-1">
               <HelpCircle className="w-3 h-3 text-primary" /> Suggested Inquiries
             </span>
             <div className="flex flex-wrap gap-1.5">

@@ -46,6 +46,11 @@ export const useAddHealthData = () => {
   return addData;
 };
 
+export const useDeleteHealthData = () => {
+  const deleteData = useMutation(api.healthData.deleteHealthData);
+  return deleteData;
+};
+
 export const useReportDisease = () => {
   const report = useMutation(api.diseases.reportDisease);
   return report;

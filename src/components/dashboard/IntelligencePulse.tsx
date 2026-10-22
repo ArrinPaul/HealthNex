@@ -6,17 +6,17 @@ import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 
 const initialEvents = [
-  { id: 1, type: 'VERIFICATION', text: 'Regional Node HN-ZONE-04 Verified', time: new Date(), icon: ShieldCheck, color: 'text-emerald-500' },
-  { id: 2, type: 'REPORT', text: 'New Ground Intelligence: Water Quality Alert (S-01)', time: new Date(Date.now() - 1000 * 60 * 5), icon: Droplet, color: 'text-sky-400' },
-  { id: 3, type: 'NEURAL', text: 'Gemini v1.5 Pro: Forecast Recalibrated (Zone 7)', time: new Date(Date.now() - 1000 * 60 * 12), icon: Zap, color: 'text-violet-500' },
-  { id: 4, type: 'NETWORK', text: '512 Community Nodes Synchronized', time: new Date(Date.now() - 1000 * 60 * 25), icon: Globe, color: 'text-primary' },
-  { id: 5, type: 'ACTION', text: 'Symptom Cluster Analyzed (Confidence: 98%)', time: new Date(Date.now() - 1000 * 60 * 45), icon: Activity, color: 'text-rose-500' }
+  { id: 1, type: 'VERIFIED', text: 'Zone 4 health center verified', time: new Date(), icon: ShieldCheck, color: 'text-emerald-500' },
+  { id: 2, type: 'REPORT', text: 'New community report: Water Quality Alert (Sector 1)', time: new Date(Date.now() - 1000 * 60 * 5), icon: Droplet, color: 'text-primary' },
+  { id: 3, type: 'AI INSIGHT', text: 'Forecast updated for Zone 7', time: new Date(Date.now() - 1000 * 60 * 12), icon: Zap, color: 'text-amber-500' },
+  { id: 4, type: 'SYNC', text: '512 community reports synchronized', time: new Date(Date.now() - 1000 * 60 * 25), icon: Globe, color: 'text-primary' },
+  { id: 5, type: 'AI INSIGHT', text: 'Symptom cluster pattern identified', time: new Date(Date.now() - 1000 * 60 * 45), icon: Activity, color: 'text-destructive' }
 ];
 
 const randomEventTemplates = [
-  { type: 'NETWORK', text: 'Protocol Heartbeat: Sync Success', icon: Globe, color: 'text-primary' },
-  { type: 'VERIFICATION', text: 'Credential Audit Complete (Node ID: 882)', icon: CheckCircle2, color: 'text-emerald-500' },
-  { type: 'REPORT', text: 'Symptom Upload Received (Confidential)', icon: MessageSquare, color: 'text-amber-500' }
+  { type: 'SYNC', text: 'Background sync completed', icon: Globe, color: 'text-primary' },
+  { type: 'VERIFIED', text: 'Credential review completed (ID: 882)', icon: CheckCircle2, color: 'text-emerald-500' },
+  { type: 'REPORT', text: 'New symptom report received', icon: MessageSquare, color: 'text-amber-500' }
 ];
 
 export default function IntelligencePulse() {
@@ -36,7 +36,7 @@ export default function IntelligencePulse() {
   return (
     <div className="space-y-4 h-full flex flex-col">
        <div className="flex items-center justify-between px-2">
-          <h3 className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Protocol Heartbeat</h3>
+          <h3 className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Activity Feed</h3>
           <div className="flex items-center gap-1.5">
              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
              <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">Live Stream</span>
@@ -79,7 +79,7 @@ export default function IntelligencePulse() {
        </div>
 
        <div className="pt-4 border-t border-[var(--border-soft)] text-center">
-          <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Institutional Grade Telemetry</p>
+          <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-[0.3em]">Updated in real time</p>
        </div>
     </div>
   );

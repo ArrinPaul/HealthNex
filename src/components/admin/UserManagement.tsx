@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { 
   Shield, User as UserIcon, Activity, Globe, Loader2, 
   Search, Users, UserCheck, AlertTriangle, Key, Calendar, Mail,
-  CheckCircle, ArrowUpRight, BarChart3, Fingerprint, Lock
+  CheckCircle, ArrowUpRight, BarChart3, Fingerprint, Lock, FileText
 } from "lucide-react";
 import { useState } from "react";
 import { ROLE_HIERARCHY, ROLES } from "../../../convex/roles";
@@ -23,13 +23,27 @@ export default function UserManagement() {
   const { user: currentUser, token } = useAuth();
   const users = useQuery(api.users.getAllUsers, token ? { token } : "skip");
   const updateUserRole = useMutation(api.users.updateUserRole);
+  const verifyUser = useMutation(api.users.verifyUser);
   
   // UI states
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [viewingDocId, setViewingDocId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
 
   if (!currentUser) return null;
+
+  if (currentUser.role !== ROLES.ADMIN) {
+    return (
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-border/60 rounded-2xl bg-secondary/20">
+        <Shield className="w-10 h-10 text-muted-foreground mb-3" />
+        <h3 className="text-base font-semibold text-foreground">Access Restricted</h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Administrator privileges are required to view and manage network personnel.
+        </p>
+      </div>
+    );
+  }
 
   if (users === undefined) {
     return (
@@ -60,6 +74,55 @@ export default function UserManagement() {
       toast.error("Update Failed", { description: error.message || "Failed to update user role." });
     } finally {
       setLoadingId(null);
+    }
+  };
+
+  const handleVerifyStatus = async (targetUserId: string, status: 'verified' | 'rejected') => {
+    if (!token) return;
+    setLoadingId(targetUserId);
+    try {
+      await (verifyUser as any)({
+        token,
+        targetUserId,
+        status,
+      });
+      toast.success(`Verification ${status === 'verified' ? 'Approved' : 'Rejected'}`, {
+        description: `User permission state updated successfully.`
+      });
+    } catch (err: any) {
+      toast.error('Verification Action Failed', { description: err.message || 'Failed to update verification status.' });
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+  const handleViewCredential = async (targetUserId: string, userName: string) => {
+    if (!token) return;
+    setViewingDocId(targetUserId);
+    try {
+      const res = await fetch(`/api/admin/users/${targetUserId}/credential`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to retrieve credential document');
+      }
+
+      if (data.url) {
+        window.open(data.url, '_blank', 'noopener,noreferrer');
+      } else if (data.isLegacy) {
+        toast.info(`Legacy Registration: ${userName}`, {
+          description: `Only filename recorded (${data.fileName || 'none'}). Document was not uploaded to cloud storage.`
+        });
+      } else {
+        toast.error('No Document Found', {
+          description: `No credential document associated with ${userName}.`
+        });
+      }
+    } catch (err: any) {
+      toast.error('Document Retrieval Failed', { description: err.message });
+    } finally {
+      setViewingDocId(null);
     }
   };
 
@@ -124,13 +187,13 @@ export default function UserManagement() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/5 text-amber-400 flex items-start gap-3 shadow-md shadow-amber-500/5"
+          className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 text-amber-500 flex items-start gap-3 shadow-xs"
         >
-          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 animate-bounce-subtle" />
+          <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-amber-500" />
           <div className="space-y-1">
-            <h4 className="text-xs font-bold uppercase tracking-wider">Sentinel Role Requests Pending Verification</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider">Healthcare Professional Verifications Pending</h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              There are currently <strong className="text-amber-400 font-bold">{pendingRequests}</strong> users requesting role promotion levels in the directory. Review their profiles below to approve or adjust permissions.
+              There are currently <strong className="text-foreground font-semibold">{pendingRequests}</strong> users requesting promotion to verified Health Worker roles. Review credentials below to grant access.
             </p>
           </div>
         </motion.div>
@@ -142,20 +205,20 @@ export default function UserManagement() {
         <div className="space-y-2 group">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Users className="w-4 h-4" />
-            <span className="text-[10px] uppercase font-bold tracking-widest">Total Node Connections</span>
+            <span className="text-[10px] uppercase font-bold tracking-widest">Registered Users</span>
           </div>
           <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-primary">{totalUsers}</h3>
-          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Active nodes syncing telemetry</p>
+          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Community & health accounts</p>
         </div>
 
         {/* Administrators */}
         <div className="space-y-2 group">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Shield className="w-4 h-4" />
-            <span className="text-[10px] uppercase font-bold tracking-widest">Security Officers</span>
+            <span className="text-[10px] uppercase font-bold tracking-widest">System Administrators</span>
           </div>
-          <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-violet-500">{adminCount}</h3>
-          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Full system authority</p>
+          <h3 className="text-4xl font-light tracking-tight text-foreground transition-colors group-hover:text-primary">{adminCount}</h3>
+          <p className="text-[9px] text-muted-foreground uppercase font-mono tracking-widest opacity-80">Full administrative access</p>
         </div>
 
         {/* Medical Workers */}
@@ -214,11 +277,11 @@ export default function UserManagement() {
         <CardHeader className="border-b border-border/40 bg-secondary/15 py-4 px-5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-sm font-black uppercase tracking-wider text-primary flex items-center gap-2">
-                <Lock className="w-4 h-4" /> Identity Access Registry
+              <CardTitle className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
+                <Lock className="w-4 h-4" /> User Access Management
               </CardTitle>
               <CardDescription className="text-xs text-muted-foreground mt-0.5">
-                Audit credentials and dispatch cryptographic authority permissions across sentinel nodes
+                Review accounts and manage role permissions across the platform
               </CardDescription>
             </div>
             
@@ -343,6 +406,39 @@ export default function UserManagement() {
                             <Calendar className="w-3.5 h-3.5 text-muted-foreground/50" /> Registered: {format(u.createdAt, 'MMM d, yyyy')}
                           </span>
                         </div>
+
+                        {(hasPendingRequest || u.verificationStatus === 'pending') && (
+                          <div className="flex items-center gap-1.5 pt-1.5 flex-wrap">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-6 text-[9px] font-bold px-2 py-0 border-primary/30 text-primary hover:bg-primary/10 gap-1 rounded-lg"
+                              onClick={() => handleViewCredential(u._id, u.name)}
+                              disabled={viewingDocId === u._id}
+                            >
+                              {viewingDocId === u._id ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <FileText className="w-2.5 h-2.5" />}
+                              Review Credential
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-6 text-[9px] font-bold px-2 py-0 border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/10 gap-1 rounded-lg"
+                              onClick={() => handleVerifyStatus(u._id, 'verified')}
+                              disabled={loadingId === u._id}
+                            >
+                              <CheckCircle className="w-2.5 h-2.5" /> Approve
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-6 text-[9px] font-bold px-2 py-0 border-rose-500/40 text-rose-500 hover:bg-rose-500/10 gap-1 rounded-lg"
+                              onClick={() => handleVerifyStatus(u._id, 'rejected')}
+                              disabled={loadingId === u._id}
+                            >
+                              <AlertTriangle className="w-2.5 h-2.5" /> Reject
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -386,7 +482,7 @@ export default function UserManagement() {
               {filteredUsers.length === 0 && (
                 <div className="text-center py-20 flex flex-col items-center justify-center opacity-40">
                   <UserIcon className="w-10 h-10 text-muted-foreground mb-3" />
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">No sentinel nodes matched search parameters</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">No users matched your search</p>
                 </div>
               )}
             </AnimatePresence>

@@ -58,7 +58,7 @@ export default function AIFeaturesPage() {
 
   // Chat History
   const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'assistant', text: string, sources?: string[] }>>([
-    { sender: 'assistant', text: 'HealthNex Intelligence Portal active. Pose a question regarding cholera control, water safety, or vector suppression to query the Gemini expert database.' }
+    { sender: 'assistant', text: 'Ask me anything about cholera prevention, water safety, or vector-borne disease control.' }
   ]);
 
   const startVoiceCapture = () => {
@@ -73,14 +73,14 @@ export default function AIFeaturesPage() {
     
     recognition.onstart = () => {
       setIsListening(true);
-      toast.info('Voice Protocol Active', { description: `Listening for symptoms in ${recognition.lang}...` });
+      toast.info('Listening...', { description: `Listening for symptoms in ${recognition.lang}...` });
     };
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setSymptoms(prev => prev ? `${prev}, ${transcript}` : transcript);
       setIsListening(false);
-      toast.success('Voice telemetry ingested successfully.');
+      toast.success('Voice input added.');
     };
 
     recognition.onerror = () => {
@@ -100,7 +100,7 @@ export default function AIFeaturesPage() {
     } else {
       setSymptoms('dry cough, sore throat, running nose, high fever, chest congestion');
     }
-    toast.info('Preset telemetry parameters loaded.');
+    toast.info('Preset symptoms loaded.');
   };
 
   // AI Symptom Analysis
@@ -125,7 +125,7 @@ export default function AIFeaturesPage() {
       const data = await response.json();
       if (response.ok) {
         setResults({ type: 'symptoms', data });
-        toast.success('Neural analysis complete.');
+        toast.success('Analysis complete.');
       } else {
         throw new Error(data.error || 'Analysis failed');
       }
@@ -245,58 +245,54 @@ export default function AIFeaturesPage() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'health-worker']}>
       <div className="flex flex-col gap-6 animate-in fade-in duration-500 relative">
-        {/* Glow Effects */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none -z-10" />
-
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-border/40">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              <span className="text-[10px] text-cyan-400 font-bold uppercase tracking-wider font-mono">COGNITIVE COMPUTE NODE: IN SERVICE</span>
+              <span className="text-[10px] text-primary font-semibold uppercase tracking-wider">AI Engine Online</span>
             </div>
-            
-            <h1 className="text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
-              <Brain className="w-8 h-8 text-primary" /> AI & ML Features
+
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
+              <Brain className="w-7 h-7 text-primary" /> AI & ML Features
             </h1>
             <p className="text-xs text-muted-foreground mt-1">
-              Intelligence Protocol Analytical Suite — Early Warning Models and AI Clinical Decision Diagnostics
+              Early-warning models and AI-assisted clinical diagnostics
             </p>
           </div>
 
           {/* Custom Tabs Navigation */}
-          <div className="flex bg-secondary/60 border border-border/70 p-1.5 rounded-2xl shrink-0 gap-1.5 shadow-sm">
+          <div className="flex bg-secondary/60 border border-border/70 p-1.5 rounded-xl shrink-0 gap-1.5 shadow-sm">
             <button
               onClick={() => {
                 setActiveProtocol('diagnostics');
                 setResults(null);
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                activeProtocol === 'diagnostics' 
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/10' 
+              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 ${
+                activeProtocol === 'diagnostics'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Activity className="w-4 h-4" />
-              AI Diagnostics Suite
+              AI Diagnostics
             </button>
             <button
               onClick={() => {
                 setActiveProtocol('predictive');
                 setResults(null);
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                activeProtocol === 'predictive' 
-                  ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/10' 
+              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center gap-2 ${
+                activeProtocol === 'predictive'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <TrendingUp className="w-4 h-4" />
-              ML Predictive Engines
+              Predictive Engines
             </button>
           </div>
         </div>
@@ -315,32 +311,32 @@ export default function AIFeaturesPage() {
               {/* Left Column (8 Cols): Diagnostic Tools */}
               <div className="lg:col-span-8 space-y-6">
                 {/* Symptom Ingestion Center */}
-                <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden text-left">
-                  <CardHeader className="border-b border-border/40 bg-secondary/30 py-4 px-5">
-                    <CardTitle className="text-sm font-bold uppercase tracking-wide text-foreground flex items-center gap-2.5">
-                      <Sparkles className="w-4 h-4 text-primary" /> Symptom Diagnostic Ingestion
+                <Card className="bg-card border border-border shadow-sm rounded-xl overflow-hidden text-left">
+                  <CardHeader className="border-b border-border bg-secondary/30 py-4 px-5">
+                    <CardTitle className="text-sm font-semibold uppercase tracking-wide text-foreground flex items-center gap-2.5">
+                      <Sparkles className="w-4 h-4 text-primary" /> Symptom Checker
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-5 space-y-5">
                     {/* Presets Row */}
                     <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Telemetry Presets</span>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Quick Presets</span>
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => fillSymptomPreset('waterborne')}
-                          className="px-2.5 py-1 text-[10px] font-bold uppercase border border-cyan-500/20 hover:border-cyan-400 bg-cyan-500/5 hover:bg-cyan-500/10 text-cyan-400 rounded-lg transition-all"
+                          className="px-2.5 py-1 text-[10px] font-semibold uppercase border border-border hover:border-primary/40 bg-secondary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary rounded-lg transition-colors"
                         >
                           Waterborne Symptoms
                         </button>
                         <button
                           onClick={() => fillSymptomPreset('vector')}
-                          className="px-2.5 py-1 text-[10px] font-bold uppercase border border-amber-500/20 hover:border-amber-400 bg-amber-500/5 hover:bg-amber-500/10 text-amber-400 rounded-lg transition-all"
+                          className="px-2.5 py-1 text-[10px] font-semibold uppercase border border-border hover:border-primary/40 bg-secondary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary rounded-lg transition-colors"
                         >
-                          Vector Symptoms
+                          Vector-borne Symptoms
                         </button>
                         <button
                           onClick={() => fillSymptomPreset('influenza')}
-                          className="px-2.5 py-1 text-[10px] font-bold uppercase border border-purple-500/20 hover:border-purple-400 bg-purple-500/5 hover:bg-purple-500/10 text-purple-400 rounded-lg transition-all"
+                          className="px-2.5 py-1 text-[10px] font-semibold uppercase border border-border hover:border-primary/40 bg-secondary/40 hover:bg-primary/5 text-muted-foreground hover:text-primary rounded-lg transition-colors"
                         >
                           Influenza Symptoms
                         </button>
@@ -350,32 +346,32 @@ export default function AIFeaturesPage() {
                     {/* Symptoms Field */}
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <Label htmlFor="symptoms" className="text-[10px] font-bold uppercase text-muted-foreground">Symptom Indicators (Comma-separated)</Label>
+                        <Label htmlFor="symptoms" className="text-[10px] font-bold uppercase text-muted-foreground">Symptoms (comma-separated)</Label>
                         <Button
                           onClick={startVoiceCapture}
                           disabled={isListening}
                           variant="outline"
-                          className={`h-7 px-3 text-[9px] font-bold rounded-lg border-border hover:bg-secondary gap-1.5 ${
-                            isListening ? 'border-rose-500 text-rose-400 bg-rose-500/5 animate-pulse' : 'text-foreground'
+                          className={`h-7 px-3 text-[9px] font-semibold rounded-lg border-border hover:bg-secondary gap-1.5 ${
+                            isListening ? 'border-rose-500 text-rose-500 bg-rose-500/5 animate-pulse' : 'text-foreground'
                           }`}
                         >
                           {isListening ? <MicOff className="w-3 h-3 text-rose-500" /> : <Mic className="w-3 h-3 text-primary" />}
-                          {isListening ? 'RECORDING ACTIVE' : 'VOICE STREAM'}
+                          {isListening ? 'Listening...' : 'Voice Input'}
                         </Button>
                       </div>
                       <Textarea
                         id="symptoms"
                         value={symptoms}
                         onChange={(e) => setSymptoms(e.target.value)}
-                        placeholder="Write observed symptoms here (e.g. high fever, severe watery stool, cramps, chills)..."
-                        className="min-h-[100px] rounded-xl bg-secondary/30 border-border p-3 text-xs placeholder:text-muted-foreground/60 resize-none text-foreground focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none"
+                        placeholder="Describe observed symptoms (e.g. high fever, severe watery stool, cramps, chills)..."
+                        className="min-h-[100px] rounded-lg bg-secondary/30 border-border p-3 text-xs placeholder:text-muted-foreground/60 resize-none text-foreground focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       {/* Optional Location */}
                       <div className="space-y-1.5">
-                        <Label htmlFor="symptom-loc" className="text-[10px] font-bold uppercase text-muted-foreground">Regional District (Optional)</Label>
+                        <Label htmlFor="symptom-loc" className="text-[10px] font-bold uppercase text-muted-foreground">District (Optional)</Label>
                         <div className="relative">
                           <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                           <Input
@@ -383,20 +379,20 @@ export default function AIFeaturesPage() {
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
                             placeholder="e.g. Kozhikode, Kerala"
-                            className="pl-9 rounded-xl bg-secondary/30 border-border text-xs focus:ring-1 focus:ring-primary text-foreground"
+                            className="pl-9 rounded-lg bg-secondary/30 border-border text-xs focus:ring-1 focus:ring-primary text-foreground"
                           />
                         </div>
                       </div>
 
                       {/* Run diagnostics button */}
                       <div className="flex items-end">
-                        <Button 
-                          onClick={analyzeSymptoms} 
+                        <Button
+                          onClick={analyzeSymptoms}
                           disabled={loading || !symptoms.trim()}
-                          className="w-full h-9 rounded-xl text-xs font-bold bg-primary text-primary-foreground shadow-md hover:scale-[1.01] transition-transform flex items-center justify-center gap-2"
+                          className="w-full h-9 rounded-lg text-xs font-semibold bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
                         >
                           <Zap className="w-3.5 h-3.5" />
-                          {loading ? 'Processing telemetry...' : 'Ingest and Analyze'}
+                          {loading ? 'Analyzing...' : 'Analyze Symptoms'}
                         </Button>
                       </div>
                     </div>
@@ -411,15 +407,15 @@ export default function AIFeaturesPage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                     >
-                      <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden text-left">
-                        <CardHeader className="border-b border-border/40 bg-primary/5 py-4 px-5 flex flex-row items-center justify-between">
-                          <CardTitle className="text-sm font-bold uppercase tracking-wide text-primary flex items-center gap-2.5">
-                            <Eye className="w-4 h-4" /> Diagnostic Telemetry Report
+                      <Card className="bg-card border border-border shadow-sm rounded-xl overflow-hidden text-left">
+                        <CardHeader className="border-b border-border bg-primary/5 py-4 px-5 flex flex-row items-center justify-between">
+                          <CardTitle className="text-sm font-semibold uppercase tracking-wide text-primary flex items-center gap-2.5">
+                            <Eye className="w-4 h-4" /> Diagnostic Report
                           </CardTitle>
-                          <span className={`text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border leading-normal ${
-                            results.data.urgency === 'high' ? 'bg-rose-500/10 border-rose-500/30 text-rose-400' :
-                            results.data.urgency === 'medium' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
-                            'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                          <span className={`text-[9px] font-bold uppercase px-2.5 py-0.5 rounded-full border leading-normal ${
+                            results.data.urgency === 'high' ? 'bg-rose-500/10 border-rose-500/30 text-rose-500' :
+                            results.data.urgency === 'medium' ? 'bg-amber-500/10 border-amber-500/30 text-amber-500' :
+                            'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
                           }`}>
                             {results.data.urgency} Urgency
                           </span>
@@ -427,26 +423,26 @@ export default function AIFeaturesPage() {
                         <CardContent className="p-5 space-y-4 text-xs">
                           {/* Diagnostic Summary */}
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="md:col-span-2 bg-secondary/30 border border-border/60 rounded-xl p-4">
-                              <span className="text-[10px] text-muted-foreground block font-bold uppercase mb-1">Pathology Analysis</span>
+                            <div className="md:col-span-2 bg-secondary/30 border border-border rounded-xl p-4">
+                              <span className="text-[10px] text-muted-foreground block font-bold uppercase mb-1">Analysis</span>
                               <p className="text-foreground leading-relaxed font-semibold">{results.data.analysis}</p>
                             </div>
-                            <div className="bg-secondary/35 border border-border/60 rounded-xl p-4 flex flex-col justify-between">
+                            <div className="bg-secondary/30 border border-border rounded-xl p-4 flex flex-col justify-between">
                               <div>
-                                <span className="text-[10px] text-muted-foreground block font-bold uppercase mb-1">Suspected Etiology</span>
+                                <span className="text-[10px] text-muted-foreground block font-bold uppercase mb-1">Likely Cause</span>
                                 <span className="font-bold text-foreground text-sm">{results.data.diagnosis}</span>
                               </div>
-                              <div className="pt-3 border-t border-border/30 mt-3 flex justify-between items-center">
+                              <div className="pt-3 border-t border-border/60 mt-3 flex justify-between items-center">
                                 <span className="text-[9px] text-muted-foreground font-semibold">Model Confidence</span>
-                                <span className="font-mono font-black text-primary text-xs">{Math.round(results.data.confidence * 100)}%</span>
+                                <span className="font-mono font-bold text-primary text-xs">{Math.round(results.data.confidence * 100)}%</span>
                               </div>
                             </div>
                           </div>
 
                           {/* Action recommendations */}
                           <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 space-y-2.5">
-                            <span className="text-[10px] text-primary block font-black uppercase tracking-wider flex items-center gap-1.5">
-                              <Shield className="w-3.5 h-3.5" /> Actionable Countermeasures (Health Worker Protocol)
+                            <span className="text-[10px] text-primary block font-bold uppercase tracking-wider flex items-center gap-1.5">
+                              <Shield className="w-3.5 h-3.5" /> Recommended Actions
                             </span>
                             <ul className="space-y-1.5 text-foreground font-medium pl-1">
                               {results.data.recommendations.map((rec: string, idx: number) => (
@@ -472,13 +468,12 @@ export default function AIFeaturesPage() {
 
               {/* Right Column (4 Cols): Chat Assistant */}
               <div className="lg:col-span-4 flex flex-col h-full">
-                <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden flex flex-col h-[400px] text-left">
-                  <CardHeader className="border-b border-border/40 bg-secondary/30 py-3.5 px-4 flex flex-row items-center justify-between shrink-0">
+                <Card className="bg-card border border-border shadow-sm rounded-xl overflow-hidden flex flex-col h-[400px] text-left">
+                  <CardHeader className="border-b border-border bg-secondary/30 py-3.5 px-4 flex flex-row items-center justify-between shrink-0">
                     <div className="flex items-center gap-2.5">
-                      <MessageSquare className="w-4.5 h-4.5 text-emerald-400" />
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Health Advisory Desk</h3>
+                      <MessageSquare className="w-4 h-4 text-primary" />
+                      <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">Health Assistant</h3>
                     </div>
-                    <span className="text-[9px] font-mono text-muted-foreground uppercase">GEMINI PRO</span>
                   </CardHeader>
                   
                   {/* Chat scrolling panel */}
@@ -510,8 +505,8 @@ export default function AIFeaturesPage() {
                   </div>
 
                   {/* Starter Prompts */}
-                  <div className="px-4 py-2 border-t border-border/30 bg-secondary/10 shrink-0 flex flex-col gap-1.5">
-                    <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider">Suggested Inquiries</span>
+                  <div className="px-4 py-2 border-t border-border/60 bg-secondary/10 shrink-0 flex flex-col gap-1.5">
+                    <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-wider">Suggested Questions</span>
                     <div className="flex flex-wrap gap-1">
                       {[
                         "How to sanitize drinking water?",
@@ -522,7 +517,7 @@ export default function AIFeaturesPage() {
                           key={pIdx}
                           onClick={() => submitHealthQuery(prompt)}
                           disabled={loading}
-                          className="px-2 py-0.75 text-[9px] font-bold text-emerald-400 hover:text-emerald-300 border border-emerald-500/20 hover:border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10 rounded transition-all truncate max-w-full"
+                          className="px-2 py-0.75 text-[9px] font-semibold text-primary hover:text-primary/80 border border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10 rounded transition-colors truncate max-w-full"
                         >
                           {prompt}
                         </button>
@@ -531,24 +526,24 @@ export default function AIFeaturesPage() {
                   </div>
 
                   {/* Message submit form */}
-                  <form 
+                  <form
                     onSubmit={(e) => {
                       e.preventDefault();
                       submitHealthQuery();
                     }}
-                    className="p-3 border-t border-border/40 bg-secondary/35 shrink-0 flex gap-2 items-center"
+                    className="p-3 border-t border-border bg-secondary/35 shrink-0 flex gap-2 items-center"
                   >
                     <input
                       value={healthQuery}
                       onChange={(e) => setHealthQuery(e.target.value)}
-                      placeholder="Ask public health query..."
+                      placeholder="Ask a public health question..."
                       disabled={loading}
-                      className="flex-1 bg-secondary border border-border px-3 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500 text-foreground placeholder:text-muted-foreground/60"
+                      className="flex-1 bg-secondary border border-border px-3 py-2 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary text-foreground placeholder:text-muted-foreground/60"
                     />
-                    <Button 
-                      type="submit" 
-                      disabled={loading || !healthQuery.trim()} 
-                      className="h-8 w-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0"
+                    <Button
+                      type="submit"
+                      disabled={loading || !healthQuery.trim()}
+                      className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -567,10 +562,10 @@ export default function AIFeaturesPage() {
             >
               {/* Left Column (5 Cols): ML Inputs */}
               <div className="lg:col-span-5 space-y-6 text-left">
-                <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden">
-                  <CardHeader className="border-b border-border/40 bg-secondary/30 py-4 px-5">
-                    <CardTitle className="text-sm font-bold uppercase tracking-wide text-foreground flex items-center gap-2.5">
-                      <Sliders className="w-4.5 h-4.5 text-primary" /> ML Simulation Parameters
+                <Card className="bg-card border border-border shadow-sm rounded-xl overflow-hidden">
+                  <CardHeader className="border-b border-border bg-secondary/30 py-4 px-5">
+                    <CardTitle className="text-sm font-semibold uppercase tracking-wide text-foreground flex items-center gap-2.5">
+                      <Sliders className="w-4 h-4 text-primary" /> Simulation Parameters
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-5 space-y-5">
@@ -630,7 +625,7 @@ export default function AIFeaturesPage() {
                       <Button
                         onClick={runOutbreakPrediction}
                         disabled={loading}
-                        className="h-10 rounded-xl text-xs font-bold bg-primary text-primary-foreground shadow-md hover:scale-[1.01] transition-transform flex items-center justify-center gap-2"
+                        className="h-10 rounded-lg text-xs font-semibold bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
                       >
                         <Zap className="w-3.5 h-3.5" />
                         Run Predictor
@@ -639,7 +634,7 @@ export default function AIFeaturesPage() {
                         onClick={runHealthForecast}
                         disabled={loading}
                         variant="outline"
-                        className="h-10 rounded-xl text-xs font-bold border-border hover:bg-secondary text-foreground flex items-center justify-center gap-2"
+                        className="h-10 rounded-lg text-xs font-semibold border-border hover:bg-secondary text-foreground flex items-center justify-center gap-2"
                       >
                         <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
                         Generate Forecast
@@ -648,14 +643,14 @@ export default function AIFeaturesPage() {
                   </CardContent>
                 </Card>
 
-                {/* ML Engine Status */}
+                {/* Model Status */}
                 <div className="grid grid-cols-3 gap-4">
                   {[
-                    { title: 'Outbreak Engine', status: 'Active', icon: Brain, color: 'text-primary' },
-                    { title: 'Sim Latency', status: '12 ms', icon: Zap, color: 'text-amber-500' },
-                    { title: 'Integrity', status: 'Validated', icon: Shield, color: 'text-emerald-500' }
+                    { title: 'Outbreak Model', status: 'Active', icon: Brain, color: 'text-primary' },
+                    { title: 'Response Time', status: '~12 ms', icon: Zap, color: 'text-amber-500' },
+                    { title: 'Data Integrity', status: 'Validated', icon: Shield, color: 'text-emerald-500' }
                   ].map((stat, i) => (
-                    <Card key={i} className="backdrop-blur-xl bg-card/80 border border-border/70 p-4 flex flex-col justify-between min-h-[100px]">
+                    <Card key={i} className="bg-card border border-border p-4 flex flex-col justify-between min-h-[100px]">
                       <div className="flex justify-between items-center">
                         <stat.icon className={`w-5 h-5 ${stat.color}`} />
                         <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -681,15 +676,15 @@ export default function AIFeaturesPage() {
                     >
                       {results.type === 'outbreak' && (
                         /* Prediction Output */
-                        <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden">
+                        <Card className="bg-card border border-border shadow-sm rounded-xl overflow-hidden">
                           <CardHeader className="border-b border-border/40 bg-secondary/30 py-4 px-5 flex flex-row items-center justify-between">
-                            <CardTitle className="text-sm font-bold uppercase tracking-wide text-foreground flex items-center gap-2.5">
-                              <Eye className="w-4.5 h-4.5 text-primary" /> Outbreak Assessment Simulation
+                            <CardTitle className="text-sm font-semibold uppercase tracking-wide text-foreground flex items-center gap-2.5">
+                              <Eye className="w-4 h-4 text-primary" /> Outbreak Risk Assessment
                             </CardTitle>
-                            <span className={`text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border leading-normal ${
-                              results.data.severity === 'high' || results.data.severity === 'critical' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
-                              results.data.severity === 'medium' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400' :
-                              'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                            <span className={`text-[9px] font-bold uppercase px-2.5 py-0.5 rounded-full border leading-normal ${
+                              results.data.severity === 'high' || results.data.severity === 'critical' ? 'bg-red-500/10 border-red-500/30 text-red-500' :
+                              results.data.severity === 'medium' ? 'bg-amber-500/10 border-amber-500/30 text-amber-500' :
+                              'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
                             }`}>
                               {results.data.severity} Risk
                             </span>
@@ -698,20 +693,20 @@ export default function AIFeaturesPage() {
                             {/* Probability & Peak Window Row */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div className="bg-secondary/35 border border-border/60 rounded-xl p-4 flex flex-col items-center justify-center min-h-[110px]">
-                                <span className="text-[9px] text-muted-foreground font-black uppercase tracking-wider mb-2">Outbreak Probability</span>
+                                <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider mb-2">Outbreak Probability</span>
                                 <div className="relative flex items-center justify-center">
                                   {/* Simple Ring Visualizer */}
                                   <svg className="w-16 h-16" viewBox="0 0 80 80">
                                     <circle className="text-secondary/20" strokeWidth="6" stroke="currentColor" fill="transparent" r="32" cx="40" cy="40" />
                                     <circle className="text-primary" strokeWidth="6" strokeDasharray="201" strokeDashoffset={201 - (201 * results.data.probability) / 100} strokeLinecap="round" stroke="currentColor" fill="transparent" r="32" cx="40" cy="40" />
                                   </svg>
-                                  <span className="absolute font-mono font-black text-sm text-foreground">{results.data.probability}%</span>
+                                  <span className="absolute font-mono font-bold text-sm text-foreground">{results.data.probability}%</span>
                                 </div>
                               </div>
 
                               <div className="bg-secondary/30 border border-border/60 rounded-xl p-4 flex flex-col justify-between min-h-[110px]">
                                 <div>
-                                  <span className="text-[9px] text-muted-foreground block font-black uppercase tracking-wider mb-1">Peak Incident Window</span>
+                                  <span className="text-[9px] text-muted-foreground block font-bold uppercase tracking-wider mb-1">Peak Incident Window</span>
                                   <span className="font-bold text-foreground text-sm flex items-center gap-1.5 mt-1">
                                     <Calendar className="w-4 h-4 text-primary" /> {results.data.peakWindow}
                                   </span>
@@ -722,12 +717,12 @@ export default function AIFeaturesPage() {
 
                             {/* Factor Diagnostics (Full Width) */}
                             <div className="bg-secondary/30 border border-border/60 rounded-xl p-4">
-                              <span className="text-[9px] text-muted-foreground block font-black uppercase tracking-wider mb-2">Factor Diagnostics</span>
+                              <span className="text-[9px] text-muted-foreground block font-bold uppercase tracking-wider mb-2">Factor Diagnostics</span>
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-[9px] font-bold">
                                 {Object.entries(results.data.factors || {}).map(([factor, val]: [string, any]) => (
                                   <div key={factor} className="p-2.5 rounded-lg bg-secondary/50 border border-border/40 flex flex-col justify-between">
                                     <span className="text-muted-foreground truncate mb-1">{factor}</span>
-                                    <span className="text-foreground text-[10px] font-black">{val}</span>
+                                    <span className="text-foreground text-[10px] font-bold">{val}</span>
                                   </div>
                                 ))}
                               </div>
@@ -735,8 +730,8 @@ export default function AIFeaturesPage() {
 
                             {/* Recommendations */}
                             <div className="bg-primary/5 border border-primary/10 rounded-xl p-4 space-y-2.5">
-                              <span className="text-[10px] text-primary block font-black uppercase tracking-wider flex items-center gap-1.5">
-                                <Shield className="w-3.5 h-3.5" /> Early Mitigation Protocols
+                              <span className="text-[10px] text-primary block font-bold uppercase tracking-wider flex items-center gap-1.5">
+                                <Shield className="w-3.5 h-3.5" /> Recommended Early Actions
                               </span>
                               <ul className="space-y-1.5 text-foreground font-medium pl-1">
                                 {results.data.recommendations.map((rec: string, idx: number) => (
@@ -753,23 +748,23 @@ export default function AIFeaturesPage() {
 
                       {results.type === 'forecast' && (
                         /* Forecast Output */
-                        <Card className="backdrop-blur-xl bg-card/65 border border-border shadow-xl rounded-2xl overflow-hidden">
-                          <CardHeader className="border-b border-border/40 bg-secondary/30 py-4 px-5">
-                            <CardTitle className="text-sm font-bold uppercase tracking-wide text-foreground flex items-center gap-2.5">
-                              <BarChart3 className="w-4.5 h-4.5 text-primary" /> Sentinel District Health Forecast
+                        <Card className="bg-card border border-border shadow-sm rounded-xl overflow-hidden">
+                          <CardHeader className="border-b border-border bg-secondary/30 py-4 px-5">
+                            <CardTitle className="text-sm font-semibold uppercase tracking-wide text-foreground flex items-center gap-2.5">
+                              <BarChart3 className="w-4 h-4 text-primary" /> District Health Forecast
                             </CardTitle>
                           </CardHeader>
                           <CardContent className="p-5 space-y-4 text-xs">
                             <div className="p-4 bg-secondary/30 border border-border/60 rounded-xl">
-                              <span className="text-[9px] text-muted-foreground block font-black uppercase mb-1">Forecast Synthesis</span>
+                              <span className="text-[9px] text-muted-foreground block font-bold uppercase mb-1">Forecast Synthesis</span>
                               <p className="text-foreground leading-relaxed font-semibold">{results.data.forecastSummary}</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {/* High Risk Communities */}
                               <div className="bg-rose-500/5 border border-rose-500/10 rounded-xl p-4">
-                                <span className="text-[9px] text-rose-400 block font-black uppercase mb-2 flex items-center gap-1.5">
-                                  <AlertTriangle className="w-3.5 h-3.5 text-rose-500" /> Sentinel High Risk Sectors
+                                <span className="text-[9px] text-rose-500 block font-bold uppercase mb-2 flex items-center gap-1.5">
+                                  <AlertTriangle className="w-3.5 h-3.5 text-rose-500" /> High-Risk Areas
                                 </span>
                                 {results.data.highRiskAreas.length === 0 ? (
                                   <span className="italic text-muted-foreground">No critical risk sectors flagged.</span>
@@ -786,7 +781,7 @@ export default function AIFeaturesPage() {
 
                               {/* Predicted Trend Numbers */}
                               <div className="bg-secondary/30 border border-border/60 rounded-xl p-4">
-                                <span className="text-[9px] text-muted-foreground block font-black uppercase mb-2">Trend Telemetry Projection</span>
+                                <span className="text-[9px] text-muted-foreground block font-bold uppercase mb-2">Projected Trend</span>
                                 <div className="space-y-1.5 font-mono text-[9px] font-bold">
                                   {results.data.trends.map((t: any, idx: number) => (
                                     <div key={idx} className="flex justify-between items-center py-0.5 border-b border-border/20">
@@ -803,10 +798,10 @@ export default function AIFeaturesPage() {
                     </motion.div>
                   ) : (
                     /* Default Placeholder */
-                    <div className="border border-dashed border-border rounded-2xl h-[300px] flex flex-col items-center justify-center text-muted-foreground text-xs p-6 bg-secondary/10">
-                      <Brain className="w-8 h-8 text-muted-foreground/50 mb-3 animate-pulse" />
-                      <p className="font-semibold uppercase tracking-wider text-[10px] text-muted-foreground">Mathematical Outbreak Simulator</p>
-                      <p className="text-[9px] text-muted-foreground/60 text-center max-w-[280px] mt-1">Adjust the sliders and run the Epidemiological Outbreak Predictor or Forecast Engine to review simulated sentinel hazard alerts.</p>
+                    <div className="border border-dashed border-border rounded-xl h-[300px] flex flex-col items-center justify-center text-muted-foreground text-xs p-6 bg-secondary/10">
+                      <Brain className="w-8 h-8 text-muted-foreground/50 mb-3" />
+                      <p className="font-semibold uppercase tracking-wider text-[10px] text-muted-foreground">Outbreak Simulator</p>
+                      <p className="text-[9px] text-muted-foreground/60 text-center max-w-[280px] mt-1">Adjust the sliders and run the outbreak predictor or forecast engine to see simulated risk alerts.</p>
                     </div>
                   )}
                 </AnimatePresence>

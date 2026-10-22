@@ -26,8 +26,8 @@ export default function StatsGrid({ statsData }: StatsGridProps) {
       title: t('activeCases', 'Active Cases'),
       value: currentStats?.totalCases || 0,
       icon: Activity,
-      color: 'text-cyan-400',
-      bg: 'bg-cyan-500/10 border-cyan-500/20',
+      color: 'text-primary',
+      bg: 'bg-primary/10 border-primary/20',
       trend: "+4.2%",
       isPositive: false,
     },
@@ -35,25 +35,25 @@ export default function StatsGrid({ statsData }: StatsGridProps) {
       title: t('activeAlerts', 'Active Alerts'),
       value: currentStats?.activeAlerts || 0,
       icon: Droplet,
-      color: 'text-amber-400',
+      color: 'text-amber-500',
       bg: 'bg-amber-500/10 border-amber-500/20',
       trend: "-2.1%",
       isPositive: true,
     },
     {
-      title: t('aiInsights', 'Anomalies'),
+      title: t('aiInsights', 'Anomalies Detected'),
       value: currentStats?.aiInsightsCount || 0,
       icon: TrendingUp,
-      color: 'text-violet-400',
-      bg: 'bg-violet-500/10 border-violet-500/20',
+      color: 'text-destructive',
+      bg: 'bg-destructive/10 border-destructive/20',
       trend: "+12%",
       isPositive: false,
     },
     {
-      title: t('totalNodes', 'System Nodes'),
+      title: t('totalNodes', 'Monitoring Sites'),
       value: currentStats?.totalNodes || 0,
       icon: AlertTriangle,
-      color: 'text-emerald-400',
+      color: 'text-emerald-500',
       bg: 'bg-emerald-500/10 border-emerald-500/20',
       trend: "Stable",
       isPositive: true,
@@ -75,7 +75,7 @@ export default function StatsGrid({ statsData }: StatsGridProps) {
               <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 {stat.title}
               </div>
-              <div className="text-2xl font-black text-foreground tracking-tight flex items-center">
+              <div className="text-2xl font-bold text-foreground tracking-tight flex items-center">
                 {currentStats ? (
                   <NumberFlow 
                     value={Number(stat.value)} 
@@ -106,7 +106,7 @@ export default function StatsGrid({ statsData }: StatsGridProps) {
                 {stat.trend}
               </span>
             </div>
-            <span className="text-muted-foreground font-mono text-[9px] uppercase">Telemetry</span>
+            <span className="text-muted-foreground font-mono text-[9px] uppercase">Live</span>
           </div>
         </motion.div>
       ))}

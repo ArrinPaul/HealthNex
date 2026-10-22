@@ -17,11 +17,20 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { ROLES } from '../../../convex/roles';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const DiseaseMap = dynamic(() => import('@/components/DiseaseMap'), { ssr: false });
 
@@ -318,30 +327,22 @@ export default function DashboardPage() {
     if (token) trackUsage({ token, feature: 'dashboard_view', status: 'success' }).catch(() => {});
   }, [token, trackUsage]);
 
-  // Load baseline outbreaks
+  // Load real outbreak data from Convex
   useEffect(() => {
-    const defaultHotspots = [
-      { id: "default-1", lat: 28.6139, lng: 77.2090, cases: 45, location: 'Delhi', disease: 'COVID', severity: 'critical', timestamp: Date.now() },
-      { id: "default-2", lat: 19.0760, lng: 72.8777, cases: 38, location: 'Mumbai', disease: 'Dengue', severity: 'high', timestamp: Date.now() - 3600000 },
-      { id: "default-3", lat: 22.5726, lng: 88.3639, cases: 28, location: 'Kolkata', disease: 'Cholera', severity: 'medium', timestamp: Date.now() - 7200000 },
-      { id: "default-4", lat: 12.9716, lng: 77.5946, cases: 15, location: 'Bengaluru', disease: 'Flu', severity: 'low', timestamp: Date.now() - 14400000 },
-      { id: "default-5", lat: 26.1445, lng: 91.7362, cases: 23, location: 'Guwahati', disease: 'Malaria', severity: 'medium', timestamp: Date.now() - 28800000 }
-    ];
-
-    if (Array.isArray(diseaseData) && diseaseData.length > 0) {
-      const dbHotspots = diseaseData.map((d: any) => ({
-        id: d._id || Math.random().toString(),
-        lat: d.latitude || 0,
-        lng: d.longitude || 0,
-        cases: d.confirmedCases || d.cases || 0,
-        location: d.location || 'Unknown',
-        disease: d.disease || 'General',
-        severity: d.severity || 'medium',
-        timestamp: d.timestamp || Date.now()
-      }));
+    if (Array.isArray(diseaseData)) {
+      const dbHotspots = diseaseData
+        .filter((d: any) => typeof d.latitude === "number" && typeof d.longitude === "number")
+        .map((d: any) => ({
+          id: d._id || Math.random().toString(),
+          lat: d.latitude,
+          lng: d.longitude,
+          cases: d.confirmedCases || d.cases || 0,
+          location: d.location || 'Unknown',
+          disease: d.disease || 'General',
+          severity: d.severity || 'medium',
+          timestamp: d.timestamp || Date.now()
+        }));
       setOutbreaks(dbHotspots);
-    } else {
-      setOutbreaks(defaultHotspots);
     }
   }, [diseaseData]);
 
@@ -587,7 +588,7 @@ export default function DashboardPage() {
     setOutbreaks(prev => [parsedOutbreak, ...prev]);
     setSelectedHotspot({ lat: 28.5823, lng: 77.0500 });
     setIsRecording(false);
-    toast.success("Voice telemetry ingested! Outbreak parsed at Dwarka, Delhi (UT).");
+    toast.success("Voice report processed! Outbreak parsed at Dwarka, Delhi (UT).");
     setTerminalLogs(prev => [...prev, `[INGESTION] Plotted voice parsed node at lat: 28.58, lng: 77.05`]);
   };
 
@@ -601,11 +602,11 @@ export default function DashboardPage() {
     
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `healthnex_telemetry_export_${Date.now()}.json`);
+    downloadAnchor.setAttribute("download", `healthnex_surveillance_export_${Date.now()}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
-    toast.success("Telemetry report exported successfully.");
+    toast.success("Data exported successfully.");
   };
 
   // Terminal CLI submission
@@ -726,14 +727,14 @@ export default function DashboardPage() {
               <motion.div 
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25"
               >
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span className="text-[11px] text-emerald-500 font-bold uppercase tracking-wider">Live Telemetry Active</span>
-                <span className="text-[9px] text-emerald-400/70 font-mono">NODE://ONLINE</span>
+                <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold tracking-wide">IDSP Active Surveillance</span>
+                <span className="text-[10px] text-muted-foreground font-mono">LIVE FEED</span>
               </motion.div>
               
               {/* Main Title */}
@@ -742,14 +743,11 @@ export default function DashboardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <h1 className="text-3xl lg:text-4xl font-black tracking-tight text-foreground">
-                  Command{' '}
-                  <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
-                    Dashboard
-                  </span>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-foreground">
+                  Public Health Surveillance Center
                 </h1>
-                <p className="text-sm text-muted-foreground mt-2 max-w-lg">
-                  Global health surveillance audit command system — Monitor, analyze, and respond to disease outbreaks across India in real-time.
+                <p className="text-sm text-muted-foreground mt-1.5 max-w-xl">
+                  Integrated disease monitoring and rapid alert network — Real-time health event tracking across Indian states and union territories.
                 </p>
               </motion.div>
               
@@ -758,19 +756,19 @@ export default function DashboardPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="flex flex-wrap items-center gap-4 pt-2"
+                className="flex flex-wrap items-center gap-4 pt-1"
               >
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  <span className="font-semibold">{outbreaks.length}</span> Active Nodes
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <span className="font-semibold text-foreground">{outbreaks.length}</span> Active Surveillance Records
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  <span className="font-semibold">{outbreaks.filter(h => h.severity === 'critical' || h.severity === 'high').length}</span> Critical Alerts
+                  <div className="w-2 h-2 rounded-full bg-destructive" />
+                  <span className="font-semibold text-foreground">{outbreaks.filter(h => h.severity === 'critical' || h.severity === 'high').length}</span> Critical Advisories
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span className="font-semibold">24/7</span> Surveillance
+                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>24/7 Live Sync</span>
                 </div>
               </motion.div>
             </div>
@@ -783,46 +781,9 @@ export default function DashboardPage() {
               className="flex flex-wrap items-center gap-2"
             >
               <Button
-                onClick={handleRunScraper}
-                disabled={isScraping}
-                className="h-9 px-3 rounded-xl text-[11px] font-semibold bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-400 flex items-center gap-1.5"
-              >
-                {isScraping ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <MapIcon className="w-3.5 h-3.5" />}
-                {isScraping ? "Scraping..." : "Run AI Scraper"}
-              </Button>
-
-              <Button
-                onClick={handleSeedIDSP}
-                variant="outline"
-                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-400 flex items-center gap-1.5"
-              >
-                <Database className="w-3.5 h-3.5" />
-                Seed IDSP
-              </Button>
-
-              <Button
-                onClick={simulateLiveEvent}
-                variant="outline"
-                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-primary/30 hover:bg-primary/10 text-primary flex items-center gap-1.5"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                Simulate
-              </Button>
-
-              <Button
-                onClick={handleMitigateAll}
-                disabled={isMitigatingAll || outbreaks.length === 0}
-                variant="outline"
-                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-red-500/30 hover:bg-red-500/10 text-red-400 flex items-center gap-1.5"
-              >
-                <Flame className="w-3.5 h-3.5" />
-                {isMitigatingAll ? "Resolving..." : "Mitigate All"}
-              </Button>
-
-              <Button
                 onClick={() => router.push('/surveillance')}
                 variant="outline"
-                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-border/60 hover:bg-secondary/80 flex items-center gap-1.5"
+                className="h-9 px-3 rounded-lg text-xs font-medium border-border hover:bg-secondary flex items-center gap-1.5"
               >
                 <FileText className="w-3.5 h-3.5" />
                 Reports
@@ -831,18 +792,70 @@ export default function DashboardPage() {
               <Button
                 onClick={handleExportData}
                 variant="outline"
-                className="h-9 px-3 rounded-xl text-[11px] font-semibold border-border/60 hover:bg-secondary/80 flex items-center gap-1.5"
+                className="h-9 px-3 rounded-lg text-xs font-medium border-border hover:bg-secondary flex items-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" />
                 Export
               </Button>
+
+              {/* Sandbox & Tools Menu (Admin Only) */}
+              {user?.role === ROLES.ADMIN && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-9 px-3 rounded-lg text-xs font-medium border-border hover:bg-secondary flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                    >
+                      <Sliders className="w-3.5 h-3.5" />
+                      <span>Tools & Sandbox</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      Simulation & Seed Tools
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleRunScraper}
+                      disabled={isScraping}
+                      className="flex items-center gap-2 cursor-pointer text-xs"
+                    >
+                      {isScraping ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <MapIcon className="w-3.5 h-3.5 text-primary" />}
+                      <span>{isScraping ? "Scraping Data..." : "Run Surveillance Scraper"}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={handleSeedIDSP}
+                      className="flex items-center gap-2 cursor-pointer text-xs"
+                    >
+                      <Database className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Seed IDSP Sample Data</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={simulateLiveEvent}
+                      className="flex items-center gap-2 cursor-pointer text-xs"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Simulate Incident Trigger</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleMitigateAll}
+                      disabled={isMitigatingAll || outbreaks.length === 0}
+                      className="flex items-center gap-2 cursor-pointer text-xs text-destructive focus:text-destructive"
+                    >
+                      <Flame className="w-3.5 h-3.5 text-destructive" />
+                      <span>{isMitigatingAll ? "Resolving Cases..." : "Resolve All Outbreaks"}</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               
               <Button
                 onClick={() => setIsSimulateOpen(true)}
-                className="h-9 px-4 rounded-xl text-[11px] font-semibold bg-gradient-to-r from-primary to-cyan-500 text-white shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5"
+                className="h-9 px-4 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors flex items-center gap-1.5 shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" />
-                New Report
+                New Incident Report
               </Button>
             </motion.div>
           </div>
@@ -985,7 +998,7 @@ export default function DashboardPage() {
                         {inspectedNode.severity} ALERT
                       </span>
                     </div>
-                    <h3 className="text-lg font-black text-foreground">{inspectedNode.location} Node</h3>
+                    <h3 className="text-lg font-bold text-foreground">{inspectedNode.location}</h3>
                   </div>
 
                   <div className="space-y-3 flex-1 overflow-y-auto mb-4 scrollbar-thin text-xs">
@@ -1001,20 +1014,20 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Real-Time Climate Metrics */}
-                    <div className="bg-cyan-500/5 border border-cyan-500/15 p-3 rounded-xl">
-                      <span className="text-[10px] text-cyan-400 block font-black uppercase tracking-wider mb-1.5 flex items-center gap-1.5 font-sans">
-                        <Droplet className="w-3.5 h-3.5" /> Environmental Metrics (Live)
+                    <div className="bg-primary/5 border border-primary/15 p-3 rounded-xl">
+                      <span className="text-[10px] text-primary block font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5 font-sans">
+                        <Droplet className="w-3.5 h-3.5" /> Environmental Conditions (Live)
                       </span>
                       {weatherLoading ? (
-                        <div className="text-[9px] text-muted-foreground animate-pulse font-mono">Querying weather node...</div>
+                        <div className="text-[9px] text-muted-foreground animate-pulse font-mono">Loading weather data...</div>
                       ) : nodeWeather ? (
                         <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-foreground font-semibold">
-                          <div>Temp: <span className="text-cyan-400 font-bold">{nodeWeather.current.temperature}°C</span></div>
-                          <div>Humidity: <span className="text-cyan-400 font-bold">{nodeWeather.current.humidity}%</span></div>
-                          <div className="col-span-2">Condition: <span className="text-cyan-400 font-bold">{nodeWeather.current.condition}</span></div>
+                          <div>Temp: <span className="text-primary font-bold">{nodeWeather.current.temperature}°C</span></div>
+                          <div>Humidity: <span className="text-primary font-bold">{nodeWeather.current.humidity}%</span></div>
+                          <div className="col-span-2">Condition: <span className="text-primary font-bold">{nodeWeather.current.condition}</span></div>
                         </div>
                       ) : (
-                        <div className="text-[9px] text-muted-foreground italic font-mono">Weather telemetry unavailable</div>
+                        <div className="text-[9px] text-muted-foreground italic font-mono">Weather data unavailable</div>
                       )}
                     </div>
 
@@ -1148,7 +1161,7 @@ export default function DashboardPage() {
         </div>
 
         {/* PENDING REPORTS QUEUE */}
-        {pendingOutbreaks && pendingOutbreaks.length > 0 && (
+        {(user?.role === ROLES.ADMIN || user?.role === ROLES.HEALTH_WORKER) && pendingOutbreaks && pendingOutbreaks.length > 0 && (
           <div className="bg-card/70 border border-amber-500/30 backdrop-blur-md rounded-2xl p-5 md:p-6 shadow-sm mb-6">
             <div className="flex items-center gap-2 mb-4">
               <ShieldAlert className="w-5 h-5 text-amber-500" />
@@ -1197,7 +1210,7 @@ export default function DashboardPage() {
             <div className="bg-card border border-border rounded-2xl p-5 flex flex-col shadow-lg flex-1 min-h-[300px]">
               <div className="flex items-center justify-between mb-4 border-b border-border/40 pb-3">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                  <TerminalIcon className="w-4 h-4 text-primary" /> Cognitive Telemetry Terminal
+                  <TerminalIcon className="w-4 h-4 text-primary" /> AI Analysis Console
                 </div>
                 
                 {/* Speech Micro Sensor Simulation Trigger */}
@@ -1349,9 +1362,9 @@ export default function DashboardPage() {
               )}
             </div>
             
-            <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider pt-4 border-t border-border/40 mt-6 flex justify-between items-center font-mono">
-              <span>Telemetry Compliant</span>
-              <span>127.0.0.1</span>
+            <div className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider pt-4 border-t border-border/40 mt-6 flex justify-between items-center">
+              <span>Data synced</span>
+              <span className="text-emerald-500">● Live</span>
             </div>
           </div>
         </div>

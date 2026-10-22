@@ -49,15 +49,12 @@ export default function DiseaseMap({ hotspots = [], selectedHotspot = null }: Di
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    const defaultHotspots = hotspots.length > 0 ? hotspots : [
-      { lat: 28.6139, lng: 77.2090, cases: 45, location: 'Delhi', disease: 'COVID' },
-      { lat: 19.0760, lng: 72.8777, cases: 38, location: 'Mumbai', disease: 'Dengue' },
-      { lat: 22.5726, lng: 88.3639, cases: 28, location: 'Kolkata', disease: 'Cholera' },
-      { lat: 12.9716, lng: 77.5946, cases: 15, location: 'Bengaluru', disease: 'Flu' },
-      { lat: 26.1445, lng: 91.7362, cases: 23, location: 'Guwahati', disease: 'Malaria' }
-    ];
+    // Filter out invalid location coordinates to avoid misleading map pins
+    const validHotspots = hotspots.filter(
+      h => typeof h.lat === 'number' && !isNaN(h.lat) && typeof h.lng === 'number' && !isNaN(h.lng) && (h.lat !== 0 || h.lng !== 0)
+    );
 
-    defaultHotspots.forEach((hotspot) => {
+    validHotspots.forEach((hotspot) => {
       const severity = hotspot.cases > 30 ? 'high' : hotspot.cases > 15 ? 'medium' : 'low';
       const color = severity === 'high' ? '#ef4444' : severity === 'medium' ? '#f59e0b' : '#10b981';
       

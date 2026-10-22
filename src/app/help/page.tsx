@@ -47,7 +47,7 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 };
 
 const SystemStatusHUD = () => (
-  <div className="p-8 rounded-[3rem] bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-2xl relative overflow-hidden">
+  <div className="p-8 rounded-3xl bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-2xl relative overflow-hidden">
      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_70%)] opacity-5" />
      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
         <div className="flex items-center gap-6">
@@ -56,17 +56,17 @@ const SystemStatusHUD = () => (
               <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl" />
            </div>
            <div>
-              <h4 className="text-xl font-bold uppercase tracking-tight">System Status</h4>
-              <p className="text-emerald-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+              <h4 className="text-xl font-bold tracking-tight">System Status</h4>
+              <p className="text-emerald-500 font-semibold text-xs uppercase tracking-widest flex items-center gap-2">
                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                 All Protocols Operational
+                 All Systems Operational
               </p>
            </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-16">
            {[
-             { label: 'Intelligence Sync', value: 'Active' },
+             { label: 'Data Sync', value: 'Active' },
              { label: 'Cloud Latency', value: '42ms' },
              { label: 'Uptime', value: '99.99%' }
            ].map((item, i) => (
@@ -81,7 +81,7 @@ const SystemStatusHUD = () => (
 );
 
 export default function HelpPage() {
-  const sendTicket = useMutation(api.support.sendTicket);
+
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -95,20 +95,32 @@ export default function HelpPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await (sendTicket as any)({
-        token: token || '',
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message,
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch('/api/support/ticket', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(formData),
       });
-      toast.success('Protocol Message Transmitted', {
-        description: 'Your high-priority ticket has been received by our intelligence team.'
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to submit support ticket');
+      }
+
+      toast.success('Message Sent', {
+        description: 'Your support ticket has been received by our team.'
       });
       setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
-      toast.error('Transmission Failed', {
-        description: 'Could not connect to the Intelligence Protocol. Please try again.'
+    } catch (error: any) {
+      toast.error('Sending Failed', {
+        description: error?.message || 'Could not reach the support service. Please try again.'
       });
     } finally {
       setLoading(false);
@@ -134,7 +146,7 @@ export default function HelpPage() {
     },
     {
       question: 'Can I use the app offline?',
-      answer: 'Yes. HealthNex is built as a high-fidelity PWA. It maintains a robust local data cache and automatically synchronizes all regional reports as soon as a secure node connection is established.'
+      answer: 'Yes. HealthNex is built as a progressive web app. It keeps a local data cache and automatically syncs all regional reports as soon as a secure connection is available.'
     }
   ];
 
@@ -151,14 +163,14 @@ export default function HelpPage() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest">
               <LifeBuoy className="w-3.5 h-3.5" />
-              Support Protocol
+              Support
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-none">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
               Help Center <br />
               <span className="text-primary">& Documentation</span>
             </h1>
-            <p className="text-muted-foreground text-xl leading-relaxed max-w-3xl mx-auto">
-              Access technical resources, monitor system status, or reach out to our dedicated support team for assistance with the HealthNex Intelligence Protocol.
+            <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl mx-auto">
+              Access technical resources, monitor system status, or reach out to our dedicated support team for assistance with HealthNex.
             </p>
           </motion.div>
 
@@ -170,19 +182,19 @@ export default function HelpPage() {
             {[
               { title: 'Call Support', desc: '24/7 dedicated helpline for urgent regional health alerts.', icon: Phone, action: '1800-123-4567', color: 'text-sky-400', bg: 'bg-sky-400/10' },
               { title: 'Email Desk', desc: 'Detailed inquiries and integration support. Response within 24h.', icon: Mail, action: 'support@healthnex.io', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
-              { title: 'Live Interface', desc: 'Real-time chat support with our intelligence leads.', icon: MessageCircle, action: 'Initialize Chat', color: 'text-violet-400', bg: 'bg-violet-400/10' }
+              { title: 'Live Chat', desc: 'Real-time chat support with our care team.', icon: MessageCircle, action: 'Start Chat', color: 'text-violet-400', bg: 'bg-violet-400/10' }
             ].map((item, i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="p-10 rounded-[3rem] border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-xl hover:border-primary/40 transition-all group text-center"
+                className="p-10 rounded-3xl border border-[var(--border-soft)] bg-[var(--surface-1)] shadow-xl hover:border-primary/40 transition-all group text-center"
               >
                 <div className={`w-16 h-16 rounded-2xl ${item.bg} ${item.color} flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform`}>
                   <item.icon className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4 uppercase tracking-tight">{item.title}</h3>
+                <h3 className="text-xl font-bold mb-4 tracking-tight">{item.title}</h3>
                 <p className="text-muted-foreground leading-relaxed mb-8">{item.desc}</p>
                 <div className="text-lg font-bold text-foreground mb-4">{item.action}</div>
                 <div className="flex items-center justify-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
@@ -196,10 +208,10 @@ export default function HelpPage() {
           <div className="grid lg:grid-cols-2 gap-16 mb-32">
             <div className="space-y-12">
                <div className="space-y-4">
-                  <h2 className="text-4xl font-bold uppercase tracking-tight">Common Inquiries</h2>
-                  <p className="text-muted-foreground">Standardized responses to the most frequent technical and operational questions.</p>
+                  <h2 className="text-3xl font-bold tracking-tight">Common Inquiries</h2>
+                  <p className="text-muted-foreground">Answers to the most frequent technical and operational questions.</p>
                </div>
-               <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] p-10 md:p-14 shadow-xl">
+               <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl p-10 md:p-14 shadow-xl">
                   {faqs.map((faq, i) => (
                     <FAQItem key={i} {...faq} />
                   ))}
@@ -208,10 +220,10 @@ export default function HelpPage() {
 
             <div className="space-y-12">
                <div className="space-y-4">
-                  <h2 className="text-4xl font-bold uppercase tracking-tight">Contact Support</h2>
-                  <p className="text-muted-foreground">Submit a high-priority ticket to our intelligence and support teams.</p>
+                  <h2 className="text-3xl font-bold tracking-tight">Contact Support</h2>
+                  <p className="text-muted-foreground">Submit a ticket and our support team will get back to you.</p>
                </div>
-               <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] p-10 md:p-14 shadow-xl">
+               <div className="bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl p-10 md:p-14 shadow-xl">
                   <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="grid md:grid-cols-2 gap-8">
                       <div className="space-y-3">
@@ -250,7 +262,7 @@ export default function HelpPage() {
                       />
                     </div>
                     <div className="space-y-3">
-                      <Label htmlFor="message" className="text-[10px] font-bold uppercase tracking-widest ml-4">Protocol Message</Label>
+                      <Label htmlFor="message" className="text-[10px] font-bold uppercase tracking-widest ml-4">Message</Label>
                       <Textarea
                         id="message"
                         placeholder="Describe your issue or question in detail..."
@@ -258,13 +270,13 @@ export default function HelpPage() {
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                         required
                         rows={6}
-                        className="rounded-[2rem] bg-[var(--surface-2)] border-[var(--border-soft)] p-6"
+                        className="rounded-2xl bg-[var(--surface-2)] border-[var(--border-soft)] p-6"
                       />
                     </div>
-                    <Button type="submit" disabled={loading} className="w-full h-16 rounded-[2rem] font-bold text-lg bg-primary text-primary-foreground shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
-                      {loading ? 'Transmitting...' : (
-                        <span className="flex items-center gap-3">
-                           Transmit Message <Send className="w-5 h-5" />
+                    <Button type="submit" disabled={loading} className="w-full h-14 rounded-xl font-semibold text-base bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors">
+                      {loading ? 'Sending...' : (
+                        <span className="flex items-center gap-2">
+                           Send Message <Send className="w-4 h-4" />
                         </span>
                       )}
                     </Button>
@@ -276,11 +288,11 @@ export default function HelpPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            className="p-12 md:p-20 rounded-[4rem] bg-gradient-to-br from-rose-500/10 to-amber-500/5 border border-rose-500/20 relative overflow-hidden text-center"
+            className="p-12 md:p-20 rounded-3xl bg-gradient-to-br from-rose-500/10 to-amber-500/5 border border-rose-500/20 relative overflow-hidden text-center"
           >
              <div className="relative z-10 space-y-12">
                 <div className="space-y-4">
-                   <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight text-rose-500">Emergency Protocols</h2>
+                   <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-rose-500">Emergency Contacts</h2>
                    <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">Critical Regional Helplines</p>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">

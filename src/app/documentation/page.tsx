@@ -18,23 +18,23 @@ const ProtocolExplorer = () => {
 
   const layers = {
     intelligence: {
-      title: 'Intelligence Layer',
-      desc: 'Neural processing and data ingestion pipelines powered by Gemini AI.',
-      features: ['Neural Sync Protocol', 'Predictive Model Forecasting', 'Multi-modal Correlation'],
+      title: 'AI Analytics',
+      desc: 'Data processing and analysis pipelines powered by Gemini AI.',
+      features: ['Automated data sync', 'Predictive outbreak forecasting', 'Multi-source correlation'],
       color: 'text-violet-500',
       bg: 'bg-violet-500/10'
     },
     distributed: {
       title: 'Distributed Network',
-      desc: 'Structure of the global surveillance network and regional nodes.',
-      features: ['Regional Node Framework', 'Offline SQLite Caching', 'Edge Synchronization'],
+      desc: 'Structure of the health surveillance network across regions.',
+      features: ['Regional data framework', 'Offline local caching', 'Background synchronization'],
       color: 'text-sky-400',
       bg: 'bg-sky-400/10'
     },
     security: {
-      title: 'Security Protocol',
-      desc: 'Zero-trust architecture protecting every byte of health data.',
-      features: ['End-to-End Encryption', 'Anonymization Engine', 'Role-Based Access'],
+      title: 'Security & Privacy',
+      desc: 'A zero-trust architecture protecting every byte of health data.',
+      features: ['End-to-end encryption', 'Data anonymization', 'Role-based access control'],
       color: 'text-emerald-500',
       bg: 'bg-emerald-500/10'
     }
@@ -95,13 +95,13 @@ const ProtocolExplorer = () => {
                   {key === 'distributed' && <Network className="w-6 h-6" />}
                   {key === 'security' && <Shield className="w-6 h-6" />}
                </div>
-               <span className="font-bold uppercase tracking-tight text-sm">{layer.title}</span>
+               <span className="font-bold tracking-tight text-sm">{layer.title}</span>
             </div>
           </button>
         ))}
       </div>
 
-      <div className="lg:col-span-8 p-10 md:p-16 bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-[3rem] shadow-2xl relative overflow-hidden min-h-[450px]">
+      <div className="lg:col-span-8 p-10 md:p-16 bg-[var(--surface-1)] border border-[var(--border-soft)] rounded-3xl shadow-2xl relative overflow-hidden min-h-[450px]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--primary)_0%,transparent_50%)] opacity-5" />
         <AnimatePresence mode="wait">
           <motion.div
@@ -113,7 +113,7 @@ const ProtocolExplorer = () => {
             className="relative z-10 space-y-10"
           >
              <div className="space-y-4">
-                <h3 className="text-4xl font-bold uppercase tracking-tight">{layers[activeTab as keyof typeof layers].title}</h3>
+                <h3 className="text-3xl font-bold tracking-tight">{layers[activeTab as keyof typeof layers].title}</h3>
                 <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">{layers[activeTab as keyof typeof layers].desc}</p>
              </div>
              
@@ -130,7 +130,7 @@ const ProtocolExplorer = () => {
                 <div className="flex gap-2">
                    {[1, 2, 3].map(i => <div key={i} className={`w-2 h-2 rounded-full ${activeTab === keys[i-1] ? 'bg-primary' : 'bg-primary/20'}`} />)}
                 </div>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Protocol Active</span>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Active</span>
              </div>
           </motion.div>
         </AnimatePresence>
@@ -153,14 +153,14 @@ export default function DocumentationPage() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest">
               <Terminal className="w-3.5 h-3.5" />
-              Technical Protocol
+              Technical Documentation
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter uppercase leading-none">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
               Platform <br />
               <span className="text-primary">& Standards</span>
             </h1>
-            <p className="text-muted-foreground text-xl leading-relaxed max-w-3xl mx-auto">
-              Comprehensive overview of the HealthNex Intelligence Protocol. Explore our core frameworks, security standards, and operational guidelines.
+            <p className="text-muted-foreground text-lg leading-relaxed max-w-3xl mx-auto">
+              A comprehensive overview of the HealthNex platform. Explore our core architecture, security standards, and operational guidelines.
             </p>
           </motion.div>
 
@@ -168,16 +168,16 @@ export default function DocumentationPage() {
 
           <div className="max-w-5xl mx-auto mt-24">
              <div className="grid md:grid-cols-2 gap-8">
-                <div className="p-10 rounded-[3rem] bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-xl space-y-8">
+                <div className="p-10 rounded-3xl bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-xl space-y-8">
                    <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                       <Layers className="w-7 h-7" />
                    </div>
                    <div className="space-y-4">
-                      <h3 className="text-3xl font-bold uppercase tracking-tight">Deployment Strategy</h3>
-                      <p className="text-muted-foreground leading-relaxed">Standardized guidelines for health organizations to establish regional visibility and coordinate node deployment.</p>
+                      <h3 className="text-2xl font-bold tracking-tight">Deployment Guide</h3>
+                      <p className="text-muted-foreground leading-relaxed">Guidelines for health organizations to set up regional visibility and coordinate rollout.</p>
                    </div>
                    <ul className="space-y-4">
-                      {['Network Topology Mapping', 'Organization Verification', 'Field Worker Onboarding'].map(item => (
+                      {['Network coverage mapping', 'Organization verification', 'Field worker onboarding'].map(item => (
                         <li key={item} className="flex items-center gap-3 text-sm font-bold opacity-80">
                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                            {item}
@@ -186,16 +186,16 @@ export default function DocumentationPage() {
                    </ul>
                 </div>
 
-                <div className="p-10 rounded-[3rem] bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-xl space-y-8">
+                <div className="p-10 rounded-3xl bg-[var(--surface-1)] border border-[var(--border-soft)] shadow-xl space-y-8">
                    <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
                       <Globe className="w-7 h-7" />
                    </div>
                    <div className="space-y-4">
-                      <h3 className="text-3xl font-bold uppercase tracking-tight">Operational Alerts</h3>
-                      <p className="text-muted-foreground leading-relaxed">Protocols for responding to predictive warnings and system-generated health anomalies.</p>
+                      <h3 className="text-2xl font-bold tracking-tight">Operational Alerts</h3>
+                      <p className="text-muted-foreground leading-relaxed">Guidance for responding to predictive warnings and system-generated health anomalies.</p>
                    </div>
                    <ul className="space-y-4">
-                      {['Regional Alert Thresholds', 'Priority Triage Protocol', 'Verification Workflows'].map(item => (
+                      {['Regional alert thresholds', 'Priority triage guidelines', 'Verification workflows'].map(item => (
                         <li key={item} className="flex items-center gap-3 text-sm font-bold opacity-80">
                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                            {item}
@@ -209,16 +209,16 @@ export default function DocumentationPage() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
-            className="mt-32 p-12 md:p-20 rounded-[4rem] bg-[var(--surface-2)] border border-[var(--border-soft)] relative overflow-hidden text-center"
+            className="mt-32 p-12 md:p-20 rounded-3xl bg-[var(--surface-2)] border border-[var(--border-soft)] relative overflow-hidden text-center"
           >
-             <div className="relative z-10 space-y-12">
+             <div className="relative z-10 space-y-8">
                 <div className="space-y-4">
-                   <h2 className="text-3xl md:text-5xl font-bold uppercase tracking-tight">Need Assistance?</h2>
-                   <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.4em]">Our specialized team is ready to support your organization</p>
+                   <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Need Assistance?</h2>
+                   <p className="text-muted-foreground uppercase text-[10px] font-bold tracking-[0.3em]">Our team is ready to support your organization</p>
                 </div>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                   <Button asChild className="h-16 px-10 rounded-2xl font-bold bg-primary text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-                      <Link href="/help">Access Help Center</Link>
+                   <Button asChild className="h-12 px-8 rounded-xl font-semibold bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors">
+                      <Link href="/help">Visit Help Center</Link>
                    </Button>
                 </div>
              </div>

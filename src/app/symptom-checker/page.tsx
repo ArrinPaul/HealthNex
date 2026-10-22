@@ -27,18 +27,28 @@ export default function SymptomCheckerPage() {
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
                 <Activity className="w-6 h-6 text-primary" />
                 AI Symptom Checker
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Take our AI-driven assessment to understand your symptoms and get a disease prediction.
+                Take our AI-driven assessment to understand your symptoms and explore potential conditions to discuss with your physician.
               </p>
             </div>
-            <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-bold shadow-lg">
+            <Button onClick={() => setIsModalOpen(true)} className="bg-primary text-primary-foreground font-semibold shadow-sm rounded-lg">
               <Stethoscope className="w-4 h-4 mr-2" />
               Start New Assessment
             </Button>
+          </div>
+
+          {/* Clinical Disclaimer Callout */}
+          <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-600 dark:text-amber-400 flex items-start gap-3">
+            <span className="font-bold uppercase tracking-wider text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30 shrink-0">
+              Notice
+            </span>
+            <span>
+              HealthNex AI assessments provide triage and educational guidance only. They do not constitute certified clinical diagnoses or treatment prescriptions. Always seek professional evaluation from a doctor.
+            </span>
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
